@@ -1,0 +1,2 @@
+Invoking command in '/home/alec/surgeryBotWs/build/surg_bot': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/alec/surgeryBotWs/src/surg_bot/surg_bot -DCMAKE_INSTALL_PREFIX=/home/alec/surgeryBotWs/install/surg_bot
+Invoked command in '/home/alec/surgeryBotWs/build/surg_bot' returned '1': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/alec/surgeryBotWs/src/surg_bot/surg_bot -DCMAKE_INSTALL_PREFIX=/home/alec/surgeryBotWs/install/surg_bot

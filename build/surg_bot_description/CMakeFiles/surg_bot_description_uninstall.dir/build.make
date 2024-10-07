@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description
+CMAKE_SOURCE_DIR = /home/alec/surgeryBotWs/src/surg_bot/surg_bot_description
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ubuntu/surgeryBotWs/build/surg_bot_description
+CMAKE_BINARY_DIR = /home/alec/surgeryBotWs/build/surg_bot_description
 
 # Utility rule file for surg_bot_description_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/surg_bot_description_uninstall.dir/compiler_depend.make
 include CMakeFiles/surg_bot_description_uninstall.dir/progress.make
 
 CMakeFiles/surg_bot_description_uninstall:
-	/usr/bin/cmake -P /home/ubuntu/surgeryBotWs/build/surg_bot_description/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/alec/surgeryBotWs/build/surg_bot_description/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 surg_bot_description_uninstall: CMakeFiles/surg_bot_description_uninstall
 surg_bot_description_uninstall: CMakeFiles/surg_bot_description_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/surg_bot_description_uninstall.dir/clean:
 .PHONY : CMakeFiles/surg_bot_description_uninstall.dir/clean
 
 CMakeFiles/surg_bot_description_uninstall.dir/depend:
-	cd /home/ubuntu/surgeryBotWs/build/surg_bot_description && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description /home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description /home/ubuntu/surgeryBotWs/build/surg_bot_description /home/ubuntu/surgeryBotWs/build/surg_bot_description /home/ubuntu/surgeryBotWs/build/surg_bot_description/CMakeFiles/surg_bot_description_uninstall.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/alec/surgeryBotWs/build/surg_bot_description && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/alec/surgeryBotWs/src/surg_bot/surg_bot_description /home/alec/surgeryBotWs/src/surg_bot/surg_bot_description /home/alec/surgeryBotWs/build/surg_bot_description /home/alec/surgeryBotWs/build/surg_bot_description /home/alec/surgeryBotWs/build/surg_bot_description/CMakeFiles/surg_bot_description_uninstall.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/surg_bot_description_uninstall.dir/depend
 

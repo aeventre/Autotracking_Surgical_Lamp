@@ -2,48 +2,44 @@
 <!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
-<robot
-  name="surg_bot_description">
-  <link
-    name="Base">
+<robot name="surg_bot_description">
+
+  <link name="world" />
+
+  <joint name="world_to_base_link=" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
+  <!-- Existing Links and Joints -->
+
+  <link name="base_link">
     <inertial>
-      <origin
-        xyz="0.216262238409944 -0.121042912637408 0.163548307626698"
-        rpy="0 0 0" />
-      <mass
-        value="15.865948579379" />
-      <inertia
-        ixx="0.425791793185375"
-        ixy="-8.81257545098683E-19"
-        ixz="-2.77588563236088E-19"
-        iyy="0.425791793185375"
-        iyz="9.14570631471442E-17"
-        izz="0.227325591684544" />
+      <origin xyz="0.216262238409944 -0.121042912637408 0.163548307626698" rpy="0 0 0" />
+      <mass value="15.865948579379" />
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0" />
     </inertial>
     <visual>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh
-          filename="package://surg_bot_description/meshes/Base.STL" />
+        <mesh filename="package://surg_bot_description/meshes/Base.stl" />
       </geometry>
-      <material
-        name="">
-        <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      <material name="">
+        <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
       </material>
     </visual>
     <collision>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh
-          filename="package://surg_bot_description/meshes/Base.STL" />
+        <mesh filename="package://surg_bot_description/meshes/Base.stl" />
       </geometry>
     </collision>
   </link>
+
+  <!-- Add other links and joints here as necessary -->
+
+
+
   <link
     name="Link1">
     <inertial>
@@ -66,7 +62,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link1.STL" />
+          filename="package://surg_bot_description/meshes/Link1.stl" />
       </geometry>
       <material
         name="">
@@ -80,7 +76,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link1.STL" />
+          filename="package://surg_bot_description/meshes/Link1.stl" />
       </geometry>
     </collision>
   </link>
@@ -91,7 +87,7 @@
       xyz="0.21626 -0.12104 0"
       rpy="1.5708 0 0" />
     <parent
-      link="Base" />
+      link="base_link" />
     <child
       link="Link1" />
     <axis
@@ -124,7 +120,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link2.STL" />
+          filename="package://surg_bot_description/meshes/Link2.stl" />
       </geometry>
       <material
         name="">
@@ -138,7 +134,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link2.STL" />
+          filename="package://surg_bot_description/meshes/Link2.stl" />
       </geometry>
     </collision>
   </link>
@@ -182,7 +178,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link3.STL" />
+          filename="package://surg_bot_description/meshes/Link3.stl" />
       </geometry>
       <material
         name="">
@@ -196,7 +192,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link3.STL" />
+          filename="package://surg_bot_description/meshes/Link3.stl" />
       </geometry>
     </collision>
   </link>
@@ -240,7 +236,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link4.STL" />
+          filename="package://surg_bot_description/meshes/Link4.stl" />
       </geometry>
       <material
         name="">
@@ -254,7 +250,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link4.STL" />
+          filename="package://surg_bot_description/meshes/Link4.stl" />
       </geometry>
     </collision>
   </link>
