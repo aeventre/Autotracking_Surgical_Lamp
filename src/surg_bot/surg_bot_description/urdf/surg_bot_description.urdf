@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="surg_bot_description">
+  <link
+    name="Base">
+    <inertial>
+      <origin
+        xyz="0.216262238409944 -0.121042912637408 0.163548307626698"
+        rpy="0 0 0" />
+      <mass
+        value="15.865948579379" />
+      <inertia
+        ixx="0.425791793185375"
+        ixy="-8.81257545098683E-19"
+        ixz="-2.77588563236088E-19"
+        iyy="0.425791793185375"
+        iyz="9.14570631471442E-17"
+        izz="0.227325591684544" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Base.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Base.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Link1">
+    <inertial>
+      <origin
+        xyz="0.468184092074472 -0.0366361753669394 -1.41862254247893E-06"
+        rpy="0 0 0" />
+      <mass
+        value="7.06121044359283" />
+      <inertia
+        ixx="0.114598672993301"
+        ixy="0.169939794428495"
+        ixz="-7.7719383766937E-07"
+        iyy="0.812773240653466"
+        iyz="-2.71690833859544E-07"
+        izz="0.903451010749701" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint0"
+    type="revolute">
+    <origin
+      xyz="0.21626 -0.12104 0"
+      rpy="1.5708 0 0" />
+    <parent
+      link="Base" />
+    <child
+      link="Link1" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Link2">
+    <inertial>
+      <origin
+        xyz="0.000324217632025947 0.119733596203817 1.19322866254379E-07"
+        rpy="0 0 0" />
+      <mass
+        value="1.13069874193925" />
+      <inertia
+        ixx="0.00545761363628712"
+        ixy="-1.99528034001582E-05"
+        ixz="3.59275245642376E-09"
+        iyy="0.00363844507063891"
+        iyz="-5.32717473422332E-09"
+        izz="0.00458437296389063" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint1"
+    type="revolute">
+    <origin
+      xyz="0.8636 -0.35645 0"
+      rpy="0 -1.5708 0" />
+    <parent
+      link="Link1" />
+    <child
+      link="Link2" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Link3">
+    <inertial>
+      <origin
+        xyz="-0.0760965236968666 1.69759468870989E-07 -0.00564338364366201"
+        rpy="0 0 0" />
+      <mass
+        value="1.24438737439991" />
+      <inertia
+        ixx="0.00574312393918556"
+        ixy="-5.39750857796018E-09"
+        ixz="3.60994867141319E-05"
+        iyy="0.00491145970466878"
+        iyz="-5.81773358797806E-09"
+        izz="0.00396574277432573" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint2"
+    type="revolute">
+    <origin
+      xyz="-0.0508 0.127 0"
+      rpy="0 0 0" />
+    <parent
+      link="Link2" />
+    <child
+      link="Link3" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Link4">
+    <inertial>
+      <origin
+        xyz="5.00901403688303E-15 -1.11022302462516E-16 -0.477626722689076"
+        rpy="0 0 0" />
+      <mass
+        value="4.30755194902526" />
+      <inertia
+        ixx="0.279820046555854"
+        ixy="4.87994426740076E-35"
+        ixz="2.85143007546302E-15"
+        iyy="0.279820046555854"
+        iyz="-6.39211924233864E-35"
+        izz="0.00765624521194809" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://surg_bot_description/meshes/Link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint3"
+    type="fixed">
+    <origin
+      xyz="-0.0762 0 -0.0508"
+      rpy="0 0 0" />
+    <parent
+      link="Link3" />
+    <child
+      link="Link4" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+</robot>

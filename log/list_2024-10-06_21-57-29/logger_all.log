@@ -1,0 +1,98 @@
+[0.408s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'list', '-p', '--base-paths', '/home/ubuntu/surgeryBotWs']
+[0.408s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='list', build_base='build', ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['/home/ubuntu/surgeryBotWs'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], topological_order=False, names_only=False, paths_only=True, topological_graph=False, topological_graph_dot=False, topological_graph_density=False, topological_graph_legend=False, topological_graph_dot_cluster=False, topological_graph_dot_include_skipped=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x7b6784883d40>, verb_extension=<colcon_package_information.verb.list.ListVerb object at 0x7b67849a9dc0>, main=<bound method ListVerb.main of <colcon_package_information.verb.list.ListVerb object at 0x7b67849a9dc0>>, mixin_verb=('list',))
+[0.508s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.508s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.508s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.508s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.508s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.508s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/ubuntu/surgeryBotWs'
+[0.508s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extensions ['ignore', 'ignore_ament_install']
+[0.509s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extension 'ignore'
+[0.509s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extension 'ignore_ament_install'
+[0.509s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extensions ['colcon_pkg']
+[0.509s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extension 'colcon_pkg'
+[0.509s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extensions ['colcon_meta']
+[0.509s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extension 'colcon_meta'
+[0.509s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extensions ['ros']
+[0.509s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extension 'ros'
+[0.550s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extensions ['cmake', 'python']
+[0.550s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extension 'cmake'
+[0.550s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extension 'python'
+[0.550s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extensions ['python_setup_py']
+[0.550s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs) by extension 'python_setup_py'
+[0.550s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/build) by extensions ['ignore', 'ignore_ament_install']
+[0.551s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/build) by extension 'ignore'
+[0.551s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/build) ignored
+[0.551s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/install) by extensions ['ignore', 'ignore_ament_install']
+[0.551s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/install) by extension 'ignore'
+[0.551s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/install) ignored
+[0.551s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/log) by extensions ['ignore', 'ignore_ament_install']
+[0.551s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/log) by extension 'ignore'
+[0.551s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/log) ignored
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extensions ['ignore', 'ignore_ament_install']
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extension 'ignore'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extension 'ignore_ament_install'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extensions ['colcon_pkg']
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extension 'colcon_pkg'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extensions ['colcon_meta']
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extension 'colcon_meta'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extensions ['ros']
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extension 'ros'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extensions ['cmake', 'python']
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extension 'cmake'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extension 'python'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extensions ['python_setup_py']
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src) by extension 'python_setup_py'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/build) by extensions ['ignore', 'ignore_ament_install']
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/build) by extension 'ignore'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/build) ignored
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/install) by extensions ['ignore', 'ignore_ament_install']
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/install) by extension 'ignore'
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/install) ignored
+[0.552s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/log) by extensions ['ignore', 'ignore_ament_install']
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/log) by extension 'ignore'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/log) ignored
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extensions ['ignore', 'ignore_ament_install']
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extension 'ignore'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extension 'ignore_ament_install'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extensions ['colcon_pkg']
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extension 'colcon_pkg'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extensions ['colcon_meta']
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extension 'colcon_meta'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extensions ['ros']
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extension 'ros'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extensions ['cmake', 'python']
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extension 'cmake'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extension 'python'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extensions ['python_setup_py']
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot) by extension 'python_setup_py'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/build) by extensions ['ignore', 'ignore_ament_install']
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/build) by extension 'ignore'
+[0.553s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/build) ignored
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/install) by extensions ['ignore', 'ignore_ament_install']
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/install) by extension 'ignore'
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/install) ignored
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/log) by extensions ['ignore', 'ignore_ament_install']
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/log) by extension 'ignore'
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/log) ignored
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extensions ['ignore', 'ignore_ament_install']
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extension 'ignore'
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extension 'ignore_ament_install'
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extensions ['colcon_pkg']
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extension 'colcon_pkg'
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extensions ['colcon_meta']
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extension 'colcon_meta'
+[0.554s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extensions ['ros']
+[0.555s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot) by extension 'ros'
+[0.559s] DEBUG:colcon.colcon_core.package_identification:Package '/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot' with type 'ros.ament_cmake' and name 'surg_bot'
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extensions ['ignore', 'ignore_ament_install']
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extension 'ignore'
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extension 'ignore_ament_install'
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extensions ['colcon_pkg']
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extension 'colcon_pkg'
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extensions ['colcon_meta']
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extension 'colcon_meta'
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extensions ['ros']
+[0.560s] Level 1:colcon.colcon_core.package_identification:_identify(/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description) by extension 'ros'
+[0.561s] DEBUG:colcon.colcon_core.package_identification:Package '/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description' with type 'ros.ament_cmake' and name 'surg_bot_description'
+[0.561s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults

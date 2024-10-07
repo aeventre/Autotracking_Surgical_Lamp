@@ -1,0 +1,21 @@
+[0.010s] Invoking command in '/home/ubuntu/surgeryBotWs/src/build/surg_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot -DCMAKE_INSTALL_PREFIX=/home/ubuntu/surgeryBotWs/src/install/surg_bot
+[0.071s] -- The C compiler identification is GNU 13.2.0
+[0.120s] -- The CXX compiler identification is GNU 13.2.0
+[0.134s] -- Detecting C compiler ABI info
+[0.217s] -- Detecting C compiler ABI info - done
+[0.226s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.226s] -- Detecting C compile features
+[0.226s] -- Detecting C compile features - done
+[0.234s] -- Detecting CXX compiler ABI info
+[0.345s] -- Detecting CXX compiler ABI info - done
+[0.352s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.353s] -- Detecting CXX compile features
+[0.353s] -- Detecting CXX compile features - done
+[0.359s] -- Found ament_cmake: 2.5.2 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[0.485s] -- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+[0.582s] -- Found ament_lint_auto: 0.17.1 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
+[0.697s] -- Added test 'lint_cmake' to check CMake code style
+[0.700s] -- Added test 'xmllint' to check XML markup files
+[0.701s] -- Configuring done (0.7s)
+[0.704s] -- Generating done (0.0s)
+[0.704s] -- Build files have been written to: /home/ubuntu/surgeryBotWs/src/build/surg_bot

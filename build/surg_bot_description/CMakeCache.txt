@@ -37,6 +37,9 @@ AMENT_TEST_RESULTS_DIR:PATH=/home/ubuntu/surgeryBotWs/build/surg_bot_description
 //Build the testing tree.
 BUILD_TESTING:BOOL=ON
 
+//No help, variable specified on the command line.
+CATKIN_INSTALL_INTO_PREFIX_ROOT:UNINITIALIZED=0
+
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
 
@@ -318,6 +321,18 @@ ament_lint_common_DIR:PATH=/opt/ros/jazzy/share/ament_lint_common/cmake
 
 //Path to a program.
 ament_xmllint_BIN:FILEPATH=/opt/ros/jazzy/bin/ament_xmllint
+
+//The directory containing a CMake configuration file for catkin.
+catkin_DIR:PATH=catkin_DIR-NOTFOUND
+
+//Value Computed by CMake
+surg_bot_BINARY_DIR:STATIC=/home/ubuntu/surgeryBotWs/build/surg_bot_description
+
+//Value Computed by CMake
+surg_bot_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+surg_bot_SOURCE_DIR:STATIC=/home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description
 
 //Value Computed by CMake
 surg_bot_description_BINARY_DIR:STATIC=/home/ubuntu/surgeryBotWs/build/surg_bot_description

@@ -1,0 +1,29 @@
+[0.010s] Invoking command in '/home/ubuntu/surgeryBotWs/build/surg_bot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description -DCMAKE_INSTALL_PREFIX=/home/ubuntu/surgeryBotWs/install/surg_bot_description
+[0.030s] -- Found ament_cmake: 2.5.2 (/opt/ros/jazzy/share/ament_cmake/cmake)
+[0.258s] -- Found ament_lint_auto: 0.17.1 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
+[0.347s] -- Added test 'lint_cmake' to check CMake code style
+[0.347s] -- Added test 'xmllint' to check XML markup files
+[0.350s] -- Configuring done (0.3s)
+[0.360s] -- Generating done (0.0s)
+[0.360s] -- Build files have been written to: /home/ubuntu/surgeryBotWs/build/surg_bot_description
+[0.363s] Invoked command in '/home/ubuntu/surgeryBotWs/build/surg_bot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description -DCMAKE_INSTALL_PREFIX=/home/ubuntu/surgeryBotWs/install/surg_bot_description
+[0.364s] Invoking command in '/home/ubuntu/surgeryBotWs/build/surg_bot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/ubuntu/surgeryBotWs/build/surg_bot_description -- -j12 -l12
+[0.404s] Invoked command in '/home/ubuntu/surgeryBotWs/build/surg_bot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/ubuntu/surgeryBotWs/build/surg_bot_description -- -j12 -l12
+[0.427s] Invoking command in '/home/ubuntu/surgeryBotWs/build/surg_bot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/ubuntu/surgeryBotWs/build/surg_bot_description
+[0.438s] -- Install configuration: ""
+[0.439s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/ament_index/resource_index/package_run_dependencies/surg_bot_description
+[0.439s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/ament_index/resource_index/parent_prefix_path/surg_bot_description
+[0.439s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/environment/ament_prefix_path.sh
+[0.439s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/environment/ament_prefix_path.dsv
+[0.439s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/environment/path.sh
+[0.439s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/environment/path.dsv
+[0.439s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/local_setup.bash
+[0.439s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/local_setup.sh
+[0.440s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/local_setup.zsh
+[0.440s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/local_setup.dsv
+[0.440s] -- Installing: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/package.dsv
+[0.440s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/ament_index/resource_index/packages/surg_bot_description
+[0.440s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/cmake/surg_bot_descriptionConfig.cmake
+[0.440s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/cmake/surg_bot_descriptionConfig-version.cmake
+[0.440s] -- Installing: /home/ubuntu/surgeryBotWs/install/surg_bot_description/share/surg_bot_description/package.xml
+[0.440s] Invoked command in '/home/ubuntu/surgeryBotWs/build/surg_bot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/ubuntu/surgeryBotWs/build/surg_bot_description

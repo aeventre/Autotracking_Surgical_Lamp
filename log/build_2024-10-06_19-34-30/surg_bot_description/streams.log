@@ -1,0 +1,28 @@
+[0.031s] Invoking command in '/home/ubuntu/surgeryBotWs/build/surg_bot_description': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description -DCATKIN_INSTALL_INTO_PREFIX_ROOT=0 -DCMAKE_INSTALL_PREFIX=/home/ubuntu/surgeryBotWs/install/surg_bot_description
+[0.054s] [0mCMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+[0.054s]   Compatibility with CMake < 3.5 will be removed from a future version of
+[0.054s]   CMake.
+[0.054s] 
+[0.054s]   Update the VERSION argument <min> value or use a ...<max> suffix to tell
+[0.054s]   CMake that the project does not need compatibility with older versions.
+[0.054s] 
+[0.054s] [0m
+[0.118s] [31mCMake Error at CMakeLists.txt:5 (find_package):
+[0.118s]   By not providing "Findcatkin.cmake" in CMAKE_MODULE_PATH this project has
+[0.118s]   asked CMake to find a package configuration file provided by "catkin", but
+[0.118s]   CMake did not find one.
+[0.120s] 
+[0.120s]   Could not find a package configuration file provided by "catkin" with any
+[0.120s]   of the following names:
+[0.120s] 
+[0.120s]     catkinConfig.cmake
+[0.121s]     catkin-config.cmake
+[0.121s] 
+[0.121s]   Add the installation prefix of "catkin" to CMAKE_PREFIX_PATH or set
+[0.121s]   "catkin_DIR" to a directory containing one of the above files.  If "catkin"
+[0.121s]   provides a separate development package or SDK, be sure it has been
+[0.121s]   installed.
+[0.121s] 
+[0.121s] [0m
+[0.121s] -- Configuring incomplete, errors occurred!
+[0.125s] Invoked command in '/home/ubuntu/surgeryBotWs/build/surg_bot_description' returned '1': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/ubuntu/surgeryBotWs/src/surg_bot/surg_bot_description -DCATKIN_INSTALL_INTO_PREFIX_ROOT=0 -DCMAKE_INSTALL_PREFIX=/home/ubuntu/surgeryBotWs/install/surg_bot_description

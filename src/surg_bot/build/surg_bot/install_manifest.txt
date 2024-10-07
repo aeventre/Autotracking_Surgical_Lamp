@@ -1,0 +1,15 @@
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/ament_index/resource_index/package_run_dependencies/surg_bot
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/ament_index/resource_index/parent_prefix_path/surg_bot
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/environment/ament_prefix_path.sh
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/environment/ament_prefix_path.dsv
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/environment/path.sh
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/environment/path.dsv
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/local_setup.bash
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/local_setup.sh
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/local_setup.zsh
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/local_setup.dsv
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/package.dsv
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/ament_index/resource_index/packages/surg_bot
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/cmake/surg_botConfig.cmake
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/cmake/surg_botConfig-version.cmake
+/home/ubuntu/surgeryBotWs/src/surg_bot/install/surg_bot/share/surg_bot/package.xml

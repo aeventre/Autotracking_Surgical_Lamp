@@ -1,0 +1,20 @@
+[0.015s] Invoking command in '/home/ubuntu/surgeryBotWs/build/surg_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/ubuntu/surgeryBotWs/build/surg_bot -- -j12 -l12
+[0.064s] Invoked command in '/home/ubuntu/surgeryBotWs/build/surg_bot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/ubuntu/surgeryBotWs/build/surg_bot -- -j12 -l12
+[0.107s] Invoking command in '/home/ubuntu/surgeryBotWs/build/surg_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/ubuntu/surgeryBotWs/build/surg_bot
+[0.118s] -- Install configuration: ""
+[0.118s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/ament_index/resource_index/package_run_dependencies/surg_bot
+[0.118s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/ament_index/resource_index/parent_prefix_path/surg_bot
+[0.118s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/environment/ament_prefix_path.sh
+[0.118s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/environment/ament_prefix_path.dsv
+[0.119s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/environment/path.sh
+[0.119s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/environment/path.dsv
+[0.119s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/local_setup.bash
+[0.119s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/local_setup.sh
+[0.119s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/local_setup.zsh
+[0.119s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/local_setup.dsv
+[0.119s] -- Installing: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/package.dsv
+[0.119s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/ament_index/resource_index/packages/surg_bot
+[0.119s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/cmake/surg_botConfig.cmake
+[0.120s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/cmake/surg_botConfig-version.cmake
+[0.120s] -- Up-to-date: /home/ubuntu/surgeryBotWs/install/surg_bot/share/surg_bot/package.xml
+[0.121s] Invoked command in '/home/ubuntu/surgeryBotWs/build/surg_bot' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/ubuntu/surgeryBotWs/build/surg_bot
