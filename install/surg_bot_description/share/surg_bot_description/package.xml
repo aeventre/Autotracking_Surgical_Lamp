@@ -11,6 +11,10 @@
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>urdf</build_depend>
+  <build_depend>rviz2</build_depend>
+  <exec_depend>rviz2</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
