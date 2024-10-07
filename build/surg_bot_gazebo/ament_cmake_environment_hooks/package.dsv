@@ -1,0 +1,4 @@
+source;share/surg_bot_gazebo/local_setup.bash
+source;share/surg_bot_gazebo/local_setup.dsv
+source;share/surg_bot_gazebo/local_setup.sh
+source;share/surg_bot_gazebo/local_setup.zsh

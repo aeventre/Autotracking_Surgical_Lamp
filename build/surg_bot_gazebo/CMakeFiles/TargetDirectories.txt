@@ -1,0 +1,9 @@
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/uninstall.dir
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/surg_bot_gazebo_uninstall.dir
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/test.dir
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/edit_cache.dir
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/rebuild_cache.dir
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/list_install_components.dir
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/install.dir
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/install/local.dir
+/home/alec/surgeryBotWs/build/surg_bot_gazebo/CMakeFiles/install/strip.dir
