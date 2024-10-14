@@ -1,0 +1,20 @@
+[0.011s] Invoking command in '/home/alec/surgeryBotWs/build/hand_tracker': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/alec/surgeryBotWs/build/hand_tracker -- -j20 -l20
+[0.040s] Invoked command in '/home/alec/surgeryBotWs/build/hand_tracker' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/alec/surgeryBotWs/build/hand_tracker -- -j20 -l20
+[0.062s] Invoking command in '/home/alec/surgeryBotWs/build/hand_tracker': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/alec/surgeryBotWs/build/hand_tracker
+[0.068s] -- Install configuration: ""
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/ament_index/resource_index/package_run_dependencies/hand_tracker
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/ament_index/resource_index/parent_prefix_path/hand_tracker
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/environment/ament_prefix_path.sh
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/environment/ament_prefix_path.dsv
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/environment/path.sh
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/environment/path.dsv
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/local_setup.bash
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/local_setup.sh
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/local_setup.zsh
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/local_setup.dsv
+[0.068s] -- Installing: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/package.dsv
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/ament_index/resource_index/packages/hand_tracker
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/cmake/hand_trackerConfig.cmake
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/cmake/hand_trackerConfig-version.cmake
+[0.068s] -- Up-to-date: /home/alec/surgeryBotWs/install/hand_tracker/share/hand_tracker/package.xml
+[0.069s] Invoked command in '/home/alec/surgeryBotWs/build/hand_tracker' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --install /home/alec/surgeryBotWs/build/hand_tracker

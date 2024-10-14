@@ -12,7 +12,7 @@
   </joint>
 
   <!-- Existing Links and Joints -->
-
+  
   <link name="base_link">
     <inertial>
       <origin xyz="0.216262238409944 -0.121042912637408 0.163548307626698" rpy="0 0 0" />

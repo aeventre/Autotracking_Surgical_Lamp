@@ -1,0 +1,15 @@
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/ament_index/resource_index/package_run_dependencies/surg_bot_description
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/ament_index/resource_index/parent_prefix_path/surg_bot_description
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/environment/ament_prefix_path.sh
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/environment/ament_prefix_path.dsv
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/environment/path.sh
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/environment/path.dsv
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/local_setup.bash
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/local_setup.sh
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/local_setup.zsh
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/local_setup.dsv
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/package.dsv
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/ament_index/resource_index/packages/surg_bot_description
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/cmake/surg_bot_descriptionConfig.cmake
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/cmake/surg_bot_descriptionConfig-version.cmake
+/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/install/surg_bot_description/share/surg_bot_description/package.xml
