@@ -1,3 +1,0 @@
-[0mCMake Error: Parse error in cache file /home/alec/surgeryBotWs/build/surg_bot/CMakeCache.txt on line 242. Offending entry: [0m
-[0mCMake Error: Parse error in cache file /home/alec/surgeryBotWs/build/surg_bot/CMakeCache.txt on line 242. Offending entry: [0m
-gmake: *** [Makefile:226: cmake_check_build_system] Error 1

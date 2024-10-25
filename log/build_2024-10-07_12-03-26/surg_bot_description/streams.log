@@ -1,9 +1,0 @@
-[0.017s] Invoking command in '/home/alec/surgeryBotWs/build/surg_bot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/alec/surgeryBotWs/build/surg_bot_description -- -j20 -l20
-[0.056s] -- Found ament_cmake: 2.5.2 (/opt/ros/jazzy/share/ament_cmake/cmake)
-[0.406s] -- Found ament_lint_auto: 0.17.1 (/opt/ros/jazzy/share/ament_lint_auto/cmake)
-[0.534s] -- Added test 'lint_cmake' to check CMake code style
-[0.535s] -- Added test 'xmllint' to check XML markup files
-[0.535s] -- Configuring done (0.5s)
-[0.539s] -- Generating done (0.0s)
-[0.539s] -- Build files have been written to: /home/alec/surgeryBotWs/build/surg_bot_description
-[0.571s] Invoked command in '/home/alec/surgeryBotWs/build/surg_bot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/alec/surgeryBotWs/build/surg_bot_description -- -j20 -l20

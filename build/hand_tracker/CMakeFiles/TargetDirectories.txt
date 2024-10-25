@@ -1,9 +1,0 @@
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/uninstall.dir
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/hand_tracker_uninstall.dir
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/test.dir
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/edit_cache.dir
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/rebuild_cache.dir
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/list_install_components.dir
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/install.dir
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/install/local.dir
-/home/alec/surgeryBotWs/build/hand_tracker/CMakeFiles/install/strip.dir

@@ -1,2 +1,0 @@
-Invoking command in '/home/alec/surgeryBotWs/build/surg_bot': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/alec/surgeryBotWs/build/surg_bot -- -j20 -l20
-Invoked command in '/home/alec/surgeryBotWs/build/surg_bot' returned '2': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake --build /home/alec/surgeryBotWs/build/surg_bot -- -j20 -l20

@@ -1,1 +1,0 @@
-Invoking command in '/home/alec/surgeryBotWs/build/surg_bot_gazebo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/jazzy DEBUGINFOD_URLS=https://debuginfod.ubuntu.com /usr/bin/cmake /home/alec/surgeryBotWs/src/surg_bot/surg_bot_gazebo -DCMAKE_INSTALL_PREFIX=/home/alec/surgeryBotWs/install/surg_bot_gazebo
