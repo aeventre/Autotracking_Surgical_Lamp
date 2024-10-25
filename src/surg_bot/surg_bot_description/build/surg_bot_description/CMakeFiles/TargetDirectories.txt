@@ -1,9 +1,0 @@
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/uninstall.dir
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/surg_bot_description_uninstall.dir
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/test.dir
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/edit_cache.dir
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/rebuild_cache.dir
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/list_install_components.dir
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/install.dir
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/install/local.dir
-/home/alec/surgeryBotWs/src/surg_bot/surg_bot_description/build/surg_bot_description/CMakeFiles/install/strip.dir
