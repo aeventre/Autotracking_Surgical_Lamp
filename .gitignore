@@ -1,3 +1,6 @@
-build/
-install/
-log/
+# Ignore build, install, and log folders at any level
+**/build/
+**/install/
+**/log/
+**/.vscode/
+
