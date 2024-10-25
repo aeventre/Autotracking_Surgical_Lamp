@@ -1,9 +1,0 @@
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/uninstall.dir
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/surg_bot_uninstall.dir
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/test.dir
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/edit_cache.dir
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/rebuild_cache.dir
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/list_install_components.dir
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/install.dir
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/install/local.dir
-/home/ubuntu/surgeryBotWs/src/surg_bot/build/surg_bot/CMakeFiles/install/strip.dir
