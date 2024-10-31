@@ -4,8 +4,16 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="surg_bot_description">
+    <link name="dummy_link">
+    <inertial>
+      <mass value="0"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+
   <link
-    name="Base">
+    name="base_link">
     <inertial>
       <origin
         xyz="0.156154305334649 0.143021834515728 0.0377966098965687"
@@ -14,10 +22,10 @@
         value="15.865948579379" />
       <inertia
         ixx="0.425791793185375"
-        ixy="-2.43074304666147E-19"
-        ixz="8.80120171756422E-19"
+        ixy="-2.49272990063284E-19"
+        ixz="8.80947352368975E-19"
         iyy="0.227325591684544"
-        iyz="-1.03608947117561E-16"
+        iyz="-1.03604978247871E-16"
         izz="0.425791793185375" />
     </inertial>
     <visual>
@@ -44,20 +52,27 @@
       </geometry>
     </collision>
   </link>
+
+    <joint name="dummy_joint" type="fixed">
+    <parent link="dummy_link"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
   <link
     name="Link1">
     <inertial>
       <origin
-        xyz="0.624338397409122 -0.0571626484779096 0.0377951912740255"
+        xyz="0.624338397409122 -0.0571626484779096 0.0377951912740254"
         rpy="0 0 0" />
       <mass
-        value="7.06121044359283" />
+        value="7.06121044359282" />
       <inertia
         ixx="0.114598672993301"
         ixy="0.169939794428495"
-        ixz="-7.77193837708677E-07"
+        ixz="-7.77193837711208E-07"
         iyy="0.812773240653465"
-        iyz="-2.71690833847565E-07"
+        iyz="-2.71690833851687E-07"
         izz="0.9034510107497" />
     </inertial>
     <visual>
@@ -98,7 +113,7 @@
       xyz="0 1 0" />
     <limit
       lower="0"
-      upper="0"
+      upper="360"
       effort="10"
       velocity="10" />
     <dynamics
@@ -109,14 +124,14 @@
     name="Link2">
     <inertial>
       <origin
-        xyz="1.01975442465752 -0.49670992636057 0.0381208275285947"
+        xyz="1.01975442465752 -0.49670992636057 0.0381208275285946"
         rpy="0 0 0" />
       <mass
         value="1.13069874193925" />
       <inertia
         ixx="0.00458437296389065"
-        ixy="5.32717473915938E-09"
-        ixz="3.59275244223341E-09"
+        ixy="5.32717473916281E-09"
+        ixz="3.59275244226836E-09"
         iyy="0.00363844507063892"
         iyz="1.99528034001558E-05"
         izz="0.00545761363628714" />
@@ -152,14 +167,14 @@
       xyz="0 0 0"
       rpy="0 0 0" />
     <parent
-      link="Base" />
+      link="Link1" />
     <child
       link="Link2" />
     <axis
       xyz="0 -1 0" />
     <limit
       lower="0"
-      upper="0"
+      upper="360"
       effort="10"
       velocity="10" />
     <dynamics
@@ -175,11 +190,11 @@
       <mass
         value="1.2443873743999" />
       <inertia
-        ixx="0.00396574277432573"
-        ixy="5.8177335796947E-09"
+        ixx="0.00396574277432574"
+        ixy="5.81773357971946E-09"
         ixz="3.60994867141268E-05"
         iyy="0.00491145970466877"
-        iyz="5.39750857835347E-09"
+        iyz="5.39750857837317E-09"
         izz="0.00574312393918555" />
     </inertial>
     <visual>
@@ -213,14 +228,14 @@
       xyz="0 0 0"
       rpy="0 0 0" />
     <parent
-      link="Base" />
+      link="Link2" />
     <child
       link="Link3" />
     <axis
       xyz="0 0 1" />
     <limit
       lower="0"
-      upper="0"
+      upper="360"
       effort="10"
       velocity="10" />
     <dynamics
@@ -274,14 +289,14 @@
       xyz="0 0 0"
       rpy="0 0 0" />
     <parent
-      link="Base" />
+      link="Link3" />
     <child
       link="Link4" />
     <axis
       xyz="0 0 1" />
     <limit
       lower="0"
-      upper="0"
+      upper="360"
       effort="10"
       velocity="10" />
     <dynamics
@@ -298,10 +313,10 @@
         value="0.283181051897044" />
       <inertia
         ixx="0.000568886076164115"
-        ixy="-1.64530557739773E-11"
+        ixy="-1.64530557728285E-11"
         ixz="2.22006843974026E-05"
         iyy="0.000507831779081121"
-        iyz="-3.26763363147008E-11"
+        iyz="-3.26763363103908E-11"
         izz="0.000442919551088538" />
     </inertial>
     <visual>
@@ -335,14 +350,14 @@
       xyz="0 0 0"
       rpy="0 0 0" />
     <parent
-      link="Base" />
+      link="Link4" />
     <child
       link="Link5" />
     <axis
       xyz="-1 0 0" />
     <limit
       lower="0"
-      upper="0"
+      upper="360"
       effort="10"
       velocity="10" />
     <dynamics
@@ -359,10 +374,10 @@
         value="0.467880622236969" />
       <inertia
         ixx="0.00309574826083503"
-        ixy="-1.61350069239321E-19"
-        ixz="0.00273231903124135"
+        ixy="-1.57264015968036E-19"
+        ixz="0.00273231903124134"
         iyy="0.00610919382537965"
-        iyz="-1.90750038801999E-20"
+        iyz="-1.1680228158703E-20"
         izz="0.00309574826083491" />
     </inertial>
     <visual>
@@ -396,14 +411,14 @@
       xyz="0 0 0"
       rpy="0 0 0" />
     <parent
-      link="Base" />
+      link="Link5" />
     <child
       link="Link6" />
     <axis
       xyz="-1 0 0" />
     <limit
       lower="0"
-      upper="0"
+      upper="360"
       effort="10"
       velocity="10" />
     <dynamics
@@ -420,11 +435,11 @@
         value="1.16594380268497" />
       <inertia
         ixx="0.003018457640304"
-        ixy="4.43193966411008E-10"
+        ixy="4.43193966344834E-10"
         ixz="-1.1617058957329E-05"
         iyy="0.0032146719752099"
         iyz="5.55606583079323E-11"
-        izz="0.00561915891659142" />
+        izz="0.00561915891659141" />
     </inertial>
     <visual>
       <origin
@@ -457,14 +472,14 @@
       xyz="0 0 0"
       rpy="0 0 0" />
     <parent
-      link="Base" />
+      link="Link6" />
     <child
       link="Link7" />
     <axis
       xyz="-1 0 0" />
     <limit
       lower="0"
-      upper="0"
+      upper="360"
       effort="10"
       velocity="10" />
     <dynamics
@@ -475,17 +490,17 @@
     name="Link8">
     <inertial>
       <origin
-        xyz="-0.302353618923105 -0.508566353032003 -0.0740919353591706"
+        xyz="-0.0300875480220664 -0.328546869994388 -0.0334671424337518"
         rpy="0 0 0" />
       <mass
-        value="44.0763599099016" />
+        value="75.3932063564624" />
       <inertia
-        ixx="1.05650802266628"
-        ixy="0.000631680337093645"
-        ixz="-1.22639044071868E-05"
-        iyy="2.01557823587788"
-        iyz="-0.000423792271000541"
-        izz="1.14003599438044" />
+        ixx="7.65834389642953"
+        ixy="-3.86969736153903"
+        ixz="-0.829461612105236"
+        iyy="14.3620627235996"
+        iyz="-0.965586516879635"
+        izz="19.2027030975942" />
     </inertial>
     <visual>
       <origin
@@ -518,14 +533,14 @@
       xyz="0 0 0"
       rpy="0 0 0" />
     <parent
-      link="Base" />
+      link="Link7" />
     <child
       link="Link8" />
     <axis
       xyz="0 0 -1" />
     <limit
       lower="0"
-      upper="0"
+      upper="360"
       effort="10"
       velocity="10" />
     <dynamics
