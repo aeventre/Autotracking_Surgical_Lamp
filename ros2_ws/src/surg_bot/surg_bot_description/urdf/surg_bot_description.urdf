@@ -4,34 +4,20 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="surg_bot_description">
-<link name="base_footprint">
-    <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-            <box size="0.001 0.001 0.001" />
-        </geometry>
-    </visual>
-</link>
-
-<joint name="base_footprint_joint" type="fixed">
-    <origin xyz="0 0 0.001" rpy="0 0 0" />
-    <parent link="base_footprint"/>
-    <child link="base_link" />
-</joint>
   <link
-    name="Base">
+    name="base_link">
     <inertial>
       <origin
-        xyz="0.156154305334649 0.143021834515728 0.0377966098965687"
+        xyz="0.106427868445756 0.145639729120602 0.191167836670779"
         rpy="0 0 0" />
       <mass
         value="15.865948579379" />
       <inertia
         ixx="0.425791793185375"
-        ixy="-2.49272990063284E-19"
+        ixy="-2.50159888909237E-19"
         ixz="8.80947352368975E-19"
         iyy="0.227325591684544"
-        iyz="-1.03604978247871E-16"
+        iyz="-1.0360921171599E-16"
         izz="0.425791793185375" />
     </inertial>
     <visual>
@@ -40,12 +26,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Base.STL" />
+          filename="../meshes/base_link.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -54,7 +40,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Base.STL" />
+          filename="../meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -62,17 +48,17 @@
     name="Link1">
     <inertial>
       <origin
-        xyz="0.624338397409122 -0.0571626484779096 0.0377951912740254"
+        xyz="0.46818 -0.054545 -1.4186E-06"
         rpy="0 0 0" />
       <mass
-        value="7.06121044359282" />
+        value="7.0612" />
       <inertia
-        ixx="0.114598672993301"
-        ixy="0.169939794428495"
-        ixz="-7.77193837711208E-07"
-        iyy="0.812773240653465"
-        iyz="-2.71690833851687E-07"
-        izz="0.9034510107497" />
+        ixx="0.1146"
+        ixy="0.16994"
+        ixz="-7.7719E-07"
+        iyy="0.81277"
+        iyz="-2.7169E-07"
+        izz="0.90345" />
     </inertial>
     <visual>
       <origin
@@ -80,12 +66,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link1.STL" />
+          filename="../meshes/Link1.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -94,46 +80,43 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link1.STL" />
+          filename="../meshes/Link1.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="Link1"
+    name="Joint0"
     type="revolute">
     <origin
-      xyz="0 0 0"
-      rpy="0 0 0" />
+      xyz="0.10643 -0.19117 0"
+      rpy="1.5708 0 0" />
     <parent
-      link="Base" />
+      link="base_link" />
     <child
       link="Link1" />
     <axis
       xyz="0 1 0" />
     <limit
       lower="0"
-      upper="360"
-      effort="10"
-      velocity="10" />
-    <dynamics
-      damping="0.1"
-      friction="0.1" />
+      upper="0"
+      effort="0"
+      velocity="0" />
   </joint>
   <link
     name="Link2">
     <inertial>
       <origin
-        xyz="1.01975442465752 -0.49670992636057 0.0381208275285946"
+        xyz="0.00032422 0.11973 1.1932E-07"
         rpy="0 0 0" />
       <mass
-        value="1.13069874193925" />
+        value="1.1307" />
       <inertia
-        ixx="0.00458437296389065"
-        ixy="5.32717473916281E-09"
-        ixz="3.59275244226836E-09"
-        iyy="0.00363844507063892"
-        iyz="1.99528034001558E-05"
-        izz="0.00545761363628714" />
+        ixx="0.0054576"
+        ixy="-1.9953E-05"
+        ixz="3.5928E-09"
+        iyy="0.0036384"
+        iyz="-5.3272E-09"
+        izz="0.0045844" />
     </inertial>
     <visual>
       <origin
@@ -141,12 +124,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link2.STL" />
+          filename="../meshes/Link2.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -155,46 +138,43 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link2.STL" />
+          filename="../meshes/Link2.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="Link2"
+    name="Joint1"
     type="revolute">
     <origin
-      xyz="0 0 0"
-      rpy="0 0 0" />
+      xyz="0.8636 -0.37436 0"
+      rpy="0 -1.5708 0" />
     <parent
       link="Link1" />
     <child
       link="Link2" />
     <axis
-      xyz="0 -1 0" />
+      xyz="0 1 0" />
     <limit
       lower="0"
-      upper="360"
-      effort="10"
-      velocity="10" />
-    <dynamics
-      damping="0.1"
-      friction="0.1" />
+      upper="0"
+      effort="0"
+      velocity="0" />
   </joint>
   <link
     name="Link3">
     <inertial>
       <origin
-        xyz="1.01411092169099 -0.503976499916222 -0.0890999138002946"
+        xyz="-0.076097 1.6976E-07 -0.0056434"
         rpy="0 0 0" />
       <mass
-        value="1.2443873743999" />
+        value="1.2444" />
       <inertia
-        ixx="0.00396574277432574"
-        ixy="5.81773357971946E-09"
-        ixz="3.60994867141268E-05"
-        iyy="0.00491145970466877"
-        iyz="5.39750857837317E-09"
-        izz="0.00574312393918555" />
+        ixx="0.0057431"
+        ixy="-5.3975E-09"
+        ixz="3.6099E-05"
+        iyy="0.0049115"
+        iyz="-5.8177E-09"
+        izz="0.0039657" />
     </inertial>
     <visual>
       <origin
@@ -202,12 +182,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link3.STL" />
+          filename="../meshes/Link3.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -216,46 +196,38 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link3.STL" />
+          filename="../meshes/Link3.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="Link3"
-    type="revolute">
+    name="Joint2"
+    type="continuous">
     <origin
-      xyz="0 0 0"
+      xyz="-0.0508 0.127 0"
       rpy="0 0 0" />
     <parent
       link="Link2" />
     <child
       link="Link3" />
     <axis
-      xyz="0 0 1" />
-    <limit
-      lower="0"
-      upper="360"
-      effort="10"
-      velocity="10" />
-    <dynamics
-      damping="0.1"
-      friction="0.1" />
+      xyz="1 0 0" />
   </joint>
   <link
     name="Link4">
     <inertial>
       <origin
-        xyz="0.511754305334647 -0.503976330156753 -0.0892033901034228"
+        xyz="-8.063E-15 -1.1102E-16 -0.4572"
         rpy="0 0 0" />
       <mass
-        value="4.09760403890471" />
+        value="4.0976" />
       <inertia
-        ixx="0.00720650890476304"
-        ixy="-1.94838850227079E-34"
-        ixz="8.2378044393481E-16"
-        iyy="0.24441466048146"
-        iyz="3.67653427438345E-35"
-        izz="0.24441466048146" />
+        ixx="0.24441"
+        ixy="-3.6765E-35"
+        ixz="-8.2378E-16"
+        iyy="0.24441"
+        iyz="-1.9484E-34"
+        izz="0.0072065" />
     </inertial>
     <visual>
       <origin
@@ -263,12 +235,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link4.STL" />
+          filename="../meshes/Link4.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -277,46 +249,38 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link4.STL" />
+          filename="../meshes/Link4.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="Link4"
-    type="revolute">
+    name="Joint3"
+    type="continuous">
     <origin
-      xyz="0 0 0"
-      rpy="0 0 0" />
+      xyz="-0.0762 0 -0.0508"
+      rpy="0 0 3.1416" />
     <parent
       link="Link3" />
     <child
       link="Link4" />
     <axis
       xyz="0 0 1" />
-    <limit
-      lower="0"
-      upper="360"
-      effort="10"
-      velocity="10" />
-    <dynamics
-      damping="0.1"
-      friction="0.1" />
   </joint>
   <link
     name="Link5">
     <inertial>
       <origin
-        xyz="0.0824669966713169 -0.503976328534475 -0.0851379243188525"
+        xyz="0.0040655 -1.6223E-09 -0.048287"
         rpy="0 0 0" />
       <mass
-        value="0.283181051897044" />
+        value="0.28318" />
       <inertia
-        ixx="0.000568886076164115"
-        ixy="-1.64530557728285E-11"
-        ixz="2.22006843974026E-05"
-        iyy="0.000507831779081121"
-        iyz="-3.26763363103908E-11"
-        izz="0.000442919551088538" />
+        ixx="0.00044292"
+        ixy="3.2676E-11"
+        ixz="2.2201E-05"
+        iyy="0.00050783"
+        iyz="1.6453E-11"
+        izz="0.00056889" />
     </inertial>
     <visual>
       <origin
@@ -324,12 +288,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link5.STL" />
+          filename="../meshes/Link5.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -338,46 +302,43 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link5.STL" />
+          filename="../meshes/Link5.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="Link5"
+    name="Joint4"
     type="revolute">
     <origin
-      xyz="0 0 0"
-      rpy="0 0 0" />
+      xyz="0 0 -0.8382"
+      rpy="0 0 3.1416" />
     <parent
       link="Link4" />
     <child
       link="Link5" />
     <axis
-      xyz="-1 0 0" />
+      xyz="0 0 1" />
     <limit
       lower="0"
-      upper="360"
-      effort="10"
-      velocity="10" />
-    <dynamics
-      damping="0.1"
-      friction="0.1" />
+      upper="0"
+      effort="0"
+      velocity="0" />
   </joint>
   <link
     name="Link6">
     <inertial>
       <origin
-        xyz="-0.0276188536498135 -0.503976330156753 0.142186450912115"
+        xyz="0.23139 -0.01 -0.15837"
         rpy="0 0 0" />
       <mass
-        value="0.467880622236969" />
+        value="0.46788" />
       <inertia
-        ixx="0.00309574826083503"
-        ixy="-1.57264015968036E-19"
-        ixz="0.00273231903124134"
-        iyy="0.00610919382537965"
-        iyz="-1.1680228158703E-20"
-        izz="0.00309574826083491" />
+        ixx="0.0030957"
+        ixy="-4.6541E-19"
+        ixz="0.0027323"
+        iyy="0.0061092"
+        iyz="6.769E-19"
+        izz="0.0030957" />
     </inertial>
     <visual>
       <origin
@@ -385,12 +346,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link6.STL" />
+          filename="../meshes/Link6.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -399,46 +360,38 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link6.STL" />
+          filename="../meshes/Link6.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="Link6"
-    type="revolute">
+    name="Joint5"
+    type="continuous">
     <origin
-      xyz="0 0 0"
+      xyz="0 0.01 0"
       rpy="0 0 0" />
     <parent
       link="Link5" />
     <child
       link="Link6" />
     <axis
-      xyz="-1 0 0" />
-    <limit
-      lower="0"
-      upper="360"
-      effort="10"
-      velocity="10" />
-    <dynamics
-      damping="0.1"
-      friction="0.1" />
+      xyz="0 0 1" />
   </joint>
   <link
     name="Link7">
     <inertial>
       <origin
-        xyz="-0.300392308386059 -0.503976329371158 0.228847533076155"
+        xyz="0.024087 -0.018375 -0.013114"
         rpy="0 0 0" />
       <mass
-        value="1.16594380268497" />
+        value="1.1659" />
       <inertia
-        ixx="0.003018457640304"
-        ixy="4.43193966344834E-10"
-        ixz="-1.1617058957329E-05"
-        iyy="0.0032146719752099"
-        iyz="5.55606583079323E-11"
-        izz="0.00561915891659141" />
+        ixx="0.0056192"
+        ixy="-5.5561E-11"
+        ixz="1.1617E-05"
+        iyy="0.0032147"
+        iyz="4.4319E-10"
+        izz="0.0030185" />
     </inertial>
     <visual>
       <origin
@@ -446,12 +399,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link7.STL" />
+          filename="../meshes/Link7.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -460,46 +413,38 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link7.STL" />
+          filename="../meshes/Link7.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="Link7"
-    type="revolute">
+    name="Joint6"
+    type="continuous">
     <origin
-      xyz="0 0 0"
-      rpy="0 0 0" />
+      xyz="0.34214 -0.028375 -0.41803"
+      rpy="0 0 3.1416" />
     <parent
       link="Link6" />
     <child
       link="Link7" />
     <axis
-      xyz="-1 0 0" />
-    <limit
-      lower="0"
-      upper="360"
-      effort="10"
-      velocity="10" />
-    <dynamics
-      damping="0.1"
-      friction="0.1" />
+      xyz="0 0 1" />
   </joint>
   <link
-    name="Link8">
+    name="Lamp">
     <inertial>
       <origin
-        xyz="-0.0300875480220664 -0.328546869994388 -0.0334671424337518"
+        xyz="0.28275 -0.00459 -0.00031991"
         rpy="0 0 0" />
       <mass
-        value="75.3932063564624" />
+        value="44.076" />
       <inertia
-        ixx="7.65834389642953"
-        ixy="-3.86969736153903"
-        ixz="-0.829461612105236"
-        iyy="14.3620627235996"
-        iyz="-0.965586516879635"
-        izz="19.2027030975942" />
+        ixx="1.14"
+        ixy="0.00042379"
+        ixz="1.2264E-05"
+        iyy="2.0156"
+        iyz="0.00063168"
+        izz="1.0565" />
     </inertial>
     <visual>
       <origin
@@ -507,12 +452,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link8.STL" />
+          filename="../meshes/Lamp.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0 0.5 0.5 1" />
       </material>
     </visual>
     <collision>
@@ -521,29 +466,26 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://test_urdf_tool/meshes/visual/Link8.STL" />
+          filename="../meshes/Lamp.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="Link8"
+    name="Joint7"
     type="revolute">
     <origin
-      xyz="0 0 0"
+      xyz="0.044276 -0.018375 -0.014756"
       rpy="0 0 0" />
     <parent
       link="Link7" />
     <child
-      link="Link8" />
+      link="Lamp" />
     <axis
-      xyz="0 0 -1" />
+      xyz="1 0 0" />
     <limit
       lower="0"
-      upper="360"
-      effort="10"
-      velocity="10" />
-    <dynamics
-      damping="0.1"
-      friction="0.1" />
+      upper="0"
+      effort="0"
+      velocity="0" />
   </joint>
 </robot>
