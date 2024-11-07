@@ -4,16 +4,22 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="surg_bot_description">
-    <link name="dummy_link">
-    <inertial>
-      <mass value="0"/>
-      <origin xyz="0 0 0"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-  </link>
+<link name="base_footprint">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+            <box size="0.001 0.001 0.001" />
+        </geometry>
+    </visual>
+</link>
 
+<joint name="base_footprint_joint" type="fixed">
+    <origin xyz="0 0 0.001" rpy="0 0 0" />
+    <parent link="base_footprint"/>
+    <child link="base_link" />
+</joint>
   <link
-    name="base_link">
+    name="Base">
     <inertial>
       <origin
         xyz="0.156154305334649 0.143021834515728 0.0377966098965687"
@@ -34,7 +40,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Base.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Base.STL" />
       </geometry>
       <material
         name="">
@@ -48,17 +54,10 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Base.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Base.STL" />
       </geometry>
     </collision>
   </link>
-
-    <joint name="dummy_joint" type="fixed">
-    <parent link="dummy_link"/>
-    <child link="base_link"/>
-    <origin xyz="0 0 0"/>
-  </joint>
-
   <link
     name="Link1">
     <inertial>
@@ -81,7 +80,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link1.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link1.STL" />
       </geometry>
       <material
         name="">
@@ -95,7 +94,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link1.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link1.STL" />
       </geometry>
     </collision>
   </link>
@@ -142,7 +141,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link2.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link2.STL" />
       </geometry>
       <material
         name="">
@@ -156,7 +155,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link2.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link2.STL" />
       </geometry>
     </collision>
   </link>
@@ -203,7 +202,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link3.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link3.STL" />
       </geometry>
       <material
         name="">
@@ -217,7 +216,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link3.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link3.STL" />
       </geometry>
     </collision>
   </link>
@@ -264,7 +263,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link4.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link4.STL" />
       </geometry>
       <material
         name="">
@@ -278,7 +277,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link4.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link4.STL" />
       </geometry>
     </collision>
   </link>
@@ -325,7 +324,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link5.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link5.STL" />
       </geometry>
       <material
         name="">
@@ -339,7 +338,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link5.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link5.STL" />
       </geometry>
     </collision>
   </link>
@@ -386,7 +385,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link6.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link6.STL" />
       </geometry>
       <material
         name="">
@@ -400,7 +399,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link6.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link6.STL" />
       </geometry>
     </collision>
   </link>
@@ -447,7 +446,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link7.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link7.STL" />
       </geometry>
       <material
         name="">
@@ -461,7 +460,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link7.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link7.STL" />
       </geometry>
     </collision>
   </link>
@@ -508,7 +507,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link8.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link8.STL" />
       </geometry>
       <material
         name="">
@@ -522,7 +521,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://surg_bot_description/meshes/Link8.STL" />
+          filename="package://test_urdf_tool/meshes/visual/Link8.STL" />
       </geometry>
     </collision>
   </link>
