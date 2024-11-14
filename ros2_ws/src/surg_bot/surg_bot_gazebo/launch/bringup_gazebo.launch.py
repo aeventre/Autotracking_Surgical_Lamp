@@ -21,8 +21,8 @@ def generate_launch_description():
   gazebo_launch_file_path = 'launch'
   gazebo_models_path = 'models'
   ros_gz_bridge_config_file_path = 'config/ros_gz_bridge.yaml'
-  rviz_config_file_path = 'rviz/surg_bot_280_arduino_view_description.rviz'
-  urdf_file_path = 'urdf/surg_bot_280_gazebo.urdf.xacro'
+  rviz_config_file_path = 'rviz/surg_bot_arduino_view_description.rviz'
+  urdf_file_path = 'urdf/surg_bot_gazebo.urdf'
   world_file_path = 'worlds/empty.world' # e.g. 'worlds/empty.world', 'worlds/house.world'
  
   # Set the path to different files and folders.  
