@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="surg_bot_description">
+  <link name="ceiling">
+    <visual>
+      <geometry>
+        <box size="1 1 0.1"/>
+      </geometry>
+    </visual>
+  </link>
+
+ <joint name="ceiling_joint" type="fixed">
+    <parent link="ceiling"/>
+    <child link="base_link"/>
+    <gazebo>
+      <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so"/>
+      <robotNamespace>/my_robot</robotNamespace>
+    </gazebo>
+  </joint>
+  
   <link
     name="base_link">
     <inertial>
@@ -26,7 +44,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/base_link.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/base_link.STL" />
       </geometry>
       <material
         name="">
@@ -40,7 +58,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/base_link.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -66,7 +84,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link1.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link1.STL" />
       </geometry>
       <material
         name="">
@@ -80,13 +98,13 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link1.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link1.STL" />
       </geometry>
     </collision>
   </link>
   <joint
     name="Joint0"
-    type="revolute">
+    type="continuous">
     <origin
       xyz="0.10643 -0.19117 0"
       rpy="1.5708 0 0" />
@@ -124,7 +142,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link2.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link2.STL" />
       </geometry>
       <material
         name="">
@@ -138,13 +156,13 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link2.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link2.STL" />
       </geometry>
     </collision>
   </link>
   <joint
     name="Joint1"
-    type="revolute">
+    type="continuous">
     <origin
       xyz="0.8636 -0.37436 0"
       rpy="0 -1.5708 0" />
@@ -182,7 +200,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link3.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link3.STL" />
       </geometry>
       <material
         name="">
@@ -196,7 +214,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link3.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link3.STL" />
       </geometry>
     </collision>
   </link>
@@ -204,7 +222,7 @@
     name="Joint2"
     type="continuous">
     <origin
-      xyz="-0.0508 0.127 0"
+      xyz="-0.0508 1.6976E-07 0"
       rpy="0 0 0" />
     <parent
       link="Link2" />
@@ -235,7 +253,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link4.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link4.STL" />
       </geometry>
       <material
         name="">
@@ -249,13 +267,13 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link4.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link4.STL" />
       </geometry>
     </collision>
   </link>
   <joint
     name="Joint3"
-    type="continuous">
+    type="fixed">
     <origin
       xyz="-0.0762 0 -0.0508"
       rpy="0 0 3.1416" />
@@ -288,7 +306,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link5.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link5.STL" />
       </geometry>
       <material
         name="">
@@ -302,13 +320,13 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link5.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link5.STL" />
       </geometry>
     </collision>
   </link>
   <joint
     name="Joint4"
-    type="revolute">
+    type="fixed">
     <origin
       xyz="0 0 -0.8382"
       rpy="0 0 3.1416" />
@@ -346,7 +364,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link6.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link6.STL" />
       </geometry>
       <material
         name="">
@@ -360,7 +378,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link6.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link6.STL" />
       </geometry>
     </collision>
   </link>
@@ -399,7 +417,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link7.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link7.STL" />
       </geometry>
       <material
         name="">
@@ -413,13 +431,13 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Link7.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link7.STL" />
       </geometry>
     </collision>
   </link>
   <joint
     name="Joint6"
-    type="continuous">
+    type="fixed">
     <origin
       xyz="0.34214 -0.028375 -0.41803"
       rpy="0 0 3.1416" />
@@ -452,7 +470,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Lamp.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Lamp.STL" />
       </geometry>
       <material
         name="">
@@ -466,13 +484,13 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="../meshes/Lamp.STL" />
+          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Lamp.STL" />
       </geometry>
     </collision>
   </link>
   <joint
     name="Joint7"
-    type="revolute">
+    type="continuous">
     <origin
       xyz="0.044276 -0.018375 -0.014756"
       rpy="0 0 0" />

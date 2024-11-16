@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="surg_bot_description">
-  <link name="dummy">
+  <link name="ceiling">
+    <visual>
+      <geometry>
+        <box size="1 1 0.1"/>
+      </geometry>
+    </visual>
   </link>
 
- <joint name="dummy_joint" type="fixed">
-    <parent link="dummy"/>
+ <joint name="ceiling_joint" type="fixed">
+    <parent link="ceiling"/>
     <child link="base_link"/>
+    <gazebo>
+      <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so"/>
+      <robotNamespace>/my_robot</robotNamespace>
+    </gazebo>
   </joint>
   
   <link

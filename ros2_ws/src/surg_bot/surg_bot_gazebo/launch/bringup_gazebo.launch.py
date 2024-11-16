@@ -12,7 +12,6 @@ from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
  
 def generate_launch_description():
- 
   # Constants for paths to different files and folders
   package_name_description = 'surg_bot_description'
   package_name_gazebo = 'surg_bot_gazebo'
@@ -22,7 +21,7 @@ def generate_launch_description():
   gazebo_models_path = 'models'
   ros_gz_bridge_config_file_path = 'config/ros_gz_bridge.yaml'
   rviz_config_file_path = 'rviz/surg_bot_arduino_view_description.rviz'
-  urdf_file_path = 'urdf/surg_bot_gazebo.urdf'
+  urdf_file_path = '/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_gazebo/urdf/surg_bot_description.urdf'
   world_file_path = 'worlds/empty.world' # e.g. 'worlds/empty.world', 'worlds/house.world'
  
   # Set the path to different files and folders.  
@@ -114,7 +113,7 @@ def generate_launch_description():
      
   declare_z_cmd = DeclareLaunchArgument(
     name='z',
-    default_value='0.05',
+    default_value='0',
     description='z component of initial position, meters')
      
   declare_roll_cmd = DeclareLaunchArgument(
