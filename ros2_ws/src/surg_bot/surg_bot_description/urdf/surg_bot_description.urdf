@@ -15,7 +15,7 @@
 
  <joint name="ceiling_joint" type="fixed">
   <origin
-  xyz="0 0 -0.37"
+  xyz="0 0 -.37"
   rpy="0 0 0" />
     <parent link="ceiling"/>
     <child link="base_link"/>
@@ -47,7 +47,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/base_link.STL" />
+          filename="file://$(find surg_bot_description)/meshes/base_link.dae" />
       </geometry>
       <material
         name="">
@@ -61,12 +61,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/base_link.STL" />
+          filename="file://$(find surg_bot_description)/meshes/base_link.dae" />
       </geometry>
     </collision>
   </link>
   <link
-    name="Link1">
+    name="link1">
     <inertial>
       <origin
         xyz="0.46818 -0.054545 -1.4186E-06"
@@ -87,7 +87,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link1.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link1.dae" />
       </geometry>
       <material
         name="">
@@ -101,7 +101,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link1.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link1.dae" />
       </geometry>
     </collision>
   </link>
@@ -110,13 +110,13 @@
     type="continuous">
     <origin
       xyz="0 0 0"
-      rpy="1.5708 0 0" />
+      rpy="0 0 1.5708" />
     <parent
       link="base_link" />
     <child
-      link="Link1" />
+      link="link1" />
     <axis
-      xyz="0 1 0" />
+      xyz="0 0 1" />
     <limit
       lower="0"
       upper="0"
@@ -124,7 +124,7 @@
       velocity="0" />
   </joint>
   <link
-    name="Link2">
+    name="link2">
     <inertial>
       <origin
         xyz="0.00032422 0.11973 1.1932E-07"
@@ -145,7 +145,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link2.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link2.dae" />
       </geometry>
       <material
         name="">
@@ -159,7 +159,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link2.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link2.dae" />
       </geometry>
     </collision>
   </link>
@@ -170,9 +170,9 @@
       xyz="0.8636 -0.37436 0"
       rpy="0 -1.5708 0" />
     <parent
-      link="Link1" />
+      link="link1" />
     <child
-      link="Link2" />
+      link="link2" />
     <axis
       xyz="0 1 0" />
     <limit
@@ -182,7 +182,7 @@
       velocity="0" />
   </joint>
   <link
-    name="Link3">
+    name="link3">
     <inertial>
       <origin
         xyz="-0.076097 1.6976E-07 -0.0056434"
@@ -203,7 +203,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link3.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link3.dae" />
       </geometry>
       <material
         name="">
@@ -217,7 +217,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link3.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link3.dae" />
       </geometry>
     </collision>
   </link>
@@ -228,14 +228,14 @@
       xyz="-0.0508 1.6976E-07 0"
       rpy="0 0 0" />
     <parent
-      link="Link2" />
+      link="link2" />
     <child
-      link="Link3" />
+      link="link3" />
     <axis
       xyz="1 0 0" />
   </joint>
   <link
-    name="Link4">
+    name="link4">
     <inertial>
       <origin
         xyz="-8.063E-15 -1.1102E-16 -0.4572"
@@ -256,7 +256,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link4.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link4.dae" />
       </geometry>
       <material
         name="">
@@ -270,7 +270,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link4.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link4.dae" />
       </geometry>
     </collision>
   </link>
@@ -281,14 +281,14 @@
       xyz="-0.0762 0 -0.0508"
       rpy="0 0 3.1416" />
     <parent
-      link="Link3" />
+      link="link3" />
     <child
-      link="Link4" />
+      link="link4" />
     <axis
       xyz="0 0 1" />
   </joint>
   <link
-    name="Link5">
+    name="link5">
     <inertial>
       <origin
         xyz="0.0040655 -1.6223E-09 -0.048287"
@@ -309,7 +309,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link5.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link5.dae" />
       </geometry>
       <material
         name="">
@@ -323,7 +323,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link5.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link5.dae" />
       </geometry>
     </collision>
   </link>
@@ -334,9 +334,9 @@
       xyz="0 0 -0.8382"
       rpy="0 0 3.1416" />
     <parent
-      link="Link4" />
+      link="link4" />
     <child
-      link="Link5" />
+      link="link5" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -346,7 +346,7 @@
       velocity="0" />
   </joint>
   <link
-    name="Link6">
+    name="link6">
     <inertial>
       <origin
         xyz="0.23139 -0.01 -0.15837"
@@ -367,7 +367,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link6.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link6.dae" />
       </geometry>
       <material
         name="">
@@ -381,7 +381,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link6.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link6.dae" />
       </geometry>
     </collision>
   </link>
@@ -392,14 +392,14 @@
       xyz="0 0.01 0"
       rpy="0 0 0" />
     <parent
-      link="Link5" />
+      link="link5" />
     <child
-      link="Link6" />
+      link="link6" />
     <axis
       xyz="0 0 1" />
   </joint>
   <link
-    name="Link7">
+    name="link7">
     <inertial>
       <origin
         xyz="0.024087 -0.018375 -0.013114"
@@ -420,7 +420,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link7.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link7.dae" />
       </geometry>
       <material
         name="">
@@ -434,7 +434,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Link7.STL" />
+          filename="file://$(find surg_bot_description)/meshes/link7.dae" />
       </geometry>
     </collision>
   </link>
@@ -445,9 +445,9 @@
       xyz="0.34214 -0.028375 -0.41803"
       rpy="0 0 3.1416" />
     <parent
-      link="Link6" />
+      link="link6" />
     <child
-      link="Link7" />
+      link="link7" />
     <axis
       xyz="0 0 1" />
   </joint>
@@ -473,7 +473,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Lamp.STL" />
+          filename="file://$(find surg_bot_description)/meshes/lamp.dae" />
       </geometry>
       <material
         name="">
@@ -487,7 +487,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="/home/alec/Autotracking_Surgical_Lamp/ros2_ws/src/surg_bot/surg_bot_description/meshes/Lamp.STL" />
+          filename="file://$(find surg_bot_description)/meshes/lamp.dae" />
       </geometry>
     </collision>
   </link>
@@ -498,7 +498,7 @@
       xyz="0.044276 -0.018375 -0.014756"
       rpy="0 0 0" />
     <parent
-      link="Link7" />
+      link="link7" />
     <child
       link="Lamp" />
     <axis
