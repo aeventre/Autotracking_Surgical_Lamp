@@ -12,7 +12,7 @@
   <exec_depend>surg_bot_description</exec_depend>
   <exec_depend>surg_bot_bringup</exec_depend>
   <exec_depend>surg_bot_gazebo</exec_depend>
-  <exec_depend>surg_bot_movit_config</exec_depend>
+  <exec_depend>surg_bot_moveit_config</exec_depend>
   <exec_depend>surg_bot_system_tests</exec_depend>
  
   <test_depend>ament_lint_auto</test_depend>
