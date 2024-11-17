@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(surgbot_description)
+project(surg_bot_description)
 
 # Check if the compiler being used is GNU's C++ compiler (g++) or Clang.
 # Add compiler flags for all targets that will be defined later in the 

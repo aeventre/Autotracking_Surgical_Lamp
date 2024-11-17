@@ -2,7 +2,7 @@
 href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"
 ?>
 <package format="3">
-<name>surgbot_description</name>
+<name>surg_bot_description</name>
 <version>0.0.0</version>
 <description>
 Contains the robot description files that define the physical aspects of a robot, including its geometry, kinematics, dynamics, and visual aspects.

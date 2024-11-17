@@ -14,6 +14,9 @@
   </link>
 
  <joint name="ceiling_joint" type="fixed">
+  <origin
+  xyz="0 0 -0.2"
+  rpy="0 0 0" />
     <parent link="ceiling"/>
     <child link="base_link"/>
     <gazebo>
@@ -26,7 +29,7 @@
     name="base_link">
     <inertial>
       <origin
-        xyz="5 0.145639729120602 0.191167836670779"
+        xyz="0 0 0"
         rpy="0 0 0" />
       <mass
         value="15.865948579379" />
@@ -106,7 +109,7 @@
     name="Joint0"
     type="continuous">
     <origin
-      xyz="0.10643 -0.19117 0"
+      xyz="0 0 0"
       rpy="1.5708 0 0" />
     <parent
       link="base_link" />
