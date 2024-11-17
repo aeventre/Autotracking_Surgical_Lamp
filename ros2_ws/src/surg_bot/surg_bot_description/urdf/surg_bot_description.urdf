@@ -7,6 +7,9 @@
   name="surg_bot_description">
   <link name="ceiling">
     <visual>
+      <origin
+      xyz="0 0 0.05"
+      rpy="0 0 0" />
       <geometry>
         <box size="1 1 0.1"/>
       </geometry>
@@ -15,7 +18,7 @@
 
  <joint name="ceiling_joint" type="fixed">
   <origin
-  xyz="0 0 -.37"
+  xyz="0 0 0"
   rpy="0 0 0" />
     <parent link="ceiling"/>
     <child link="base_link"/>
@@ -43,7 +46,7 @@
     </inertial>
     <visual>
       <origin
-        xyz="0 0 0"
+        xyz="0 0 -0.445"
         rpy="0 0 0" />
       <geometry>
         <mesh
@@ -109,8 +112,8 @@
     name="Joint0"
     type="continuous">
     <origin
-      xyz="0 0 0"
-      rpy="0 0 1.5708" />
+      xyz="0 0 -0.445"
+      rpy="0 0 0" />
     <parent
       link="base_link" />
     <child
@@ -167,14 +170,14 @@
     name="Joint1"
     type="continuous">
     <origin
-      xyz="0.8636 -0.37436 0"
-      rpy="0 -1.5708 0" />
+      xyz="0.8636 0 -0.28"
+      rpy="0 0 1.57" />
     <parent
       link="link1" />
     <child
       link="link2" />
     <axis
-      xyz="0 1 0" />
+      xyz="0 0 1" />
     <limit
       lower="0"
       upper="0"
@@ -225,8 +228,8 @@
     name="Joint2"
     type="continuous">
     <origin
-      xyz="-0.0508 1.6976E-07 0"
-      rpy="0 0 0" />
+      xyz="-0.064 0 -0.127 "
+      rpy="1.57 0 0" />
     <parent
       link="link2" />
     <child
@@ -278,7 +281,7 @@
     name="Joint3"
     type="fixed">
     <origin
-      xyz="-0.0762 0 -0.0508"
+      xyz="-0.0762 0 -0.127"
       rpy="0 0 3.1416" />
     <parent
       link="link3" />
@@ -329,9 +332,9 @@
   </link>
   <joint
     name="Joint4"
-    type="fixed">
+    type="continuous">
     <origin
-      xyz="0 0 -0.8382"
+      xyz="0 0 -0.762"
       rpy="0 0 3.1416" />
     <parent
       link="link4" />
@@ -387,10 +390,10 @@
   </link>
   <joint
     name="Joint5"
-    type="continuous">
+    type="fixed">
     <origin
-      xyz="0 0.01 0"
-      rpy="0 0 0" />
+      xyz="0.05 0 -0.067"
+      rpy="0 -1.57 0" />
     <parent
       link="link5" />
     <child
@@ -442,8 +445,8 @@
     name="Joint6"
     type="fixed">
     <origin
-      xyz="0.34214 -0.028375 -0.41803"
-      rpy="0 0 3.1416" />
+      xyz="-0.24 0 -0.272"
+      rpy="0 -1.57 3.1416" />
     <parent
       link="link6" />
     <child
@@ -495,14 +498,14 @@
     name="Joint7"
     type="continuous">
     <origin
-      xyz="0.044276 -0.018375 -0.014756"
-      rpy="0 0 0" />
+      xyz=".03 0 -0.119"
+      rpy="0 1.57 3.14" />
     <parent
       link="link7" />
     <child
       link="Lamp" />
     <axis
-      xyz="1 0 0" />
+      xyz="0 0 1" />
     <limit
       lower="0"
       upper="0"
