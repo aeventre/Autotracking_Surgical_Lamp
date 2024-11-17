@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(mycobot_moveit_config)
+project(surg_bot_moveit_config)
  
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -13,7 +13,7 @@ find_package(ament_cmake REQUIRED)
  
 # Copy necessary files to designated locations in the project
 install (
-  DIRECTORY config launch
+  DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
  

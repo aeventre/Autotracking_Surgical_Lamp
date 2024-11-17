@@ -15,7 +15,7 @@
 
  <joint name="ceiling_joint" type="fixed">
   <origin
-  xyz="0 0 -0.2"
+  xyz="0 0 -0.37"
   rpy="0 0 0" />
     <parent link="ceiling"/>
     <child link="base_link"/>
