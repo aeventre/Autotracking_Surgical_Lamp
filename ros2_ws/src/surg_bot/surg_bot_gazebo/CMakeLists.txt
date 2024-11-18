@@ -23,7 +23,7 @@ find_package(xacro REQUIRED)
 
 # Copy necessary files to designated locations in the project
 install (
-  DIRECTORY launch
+  DIRECTORY worlds models launch
   DESTINATION share/${PROJECT_NAME}
 )
 

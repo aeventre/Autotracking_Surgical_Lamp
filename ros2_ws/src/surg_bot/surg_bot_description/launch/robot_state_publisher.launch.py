@@ -7,13 +7,67 @@
 # This file launches the robot state publisher, joint state publisher,
 # and RViz2 for visualizing the surg_bot robot.
 
+import os
+from pathlib import Path
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
+
+
+def process_ros2_controllers_config(context):
+    """Process the ROS 2 controller configuration yaml file before loading the URDF.
+ 
+    This function reads a template configuration file, replaces placeholder values
+    with actual configuration, and writes the processed file to both source and
+    install directories.
+ 
+    Args:
+        context: Launch context containing configuration values
+ 
+    Returns:
+        list: Empty list as required by OpaqueFunction
+    """
+ 
+    # Get the configuration values
+    prefix = LaunchConfiguration('prefix').perform(context)
+    flange_link = LaunchConfiguration('flange_link').perform(context)
+    robot_name = LaunchConfiguration('robot_name').perform(context)
+ 
+    home = str(Path.home())
+ 
+    # Define both source and install paths
+    src_config_path = os.path.join(
+        home,
+        'ros2_ws/src/surg_bot_ros2/surg_bot_moveit_config/config',
+        robot_name
+    )
+    install_config_path = os.path.join(
+        home,
+        'ros2_ws/install/surg_bot_moveit_config/share/surg_bot_moveit_config/config',
+        robot_name
+    )
+ 
+    # Read from source template
+    template_path = os.path.join(src_config_path, 'ros2_controllers_template.yaml')
+    with open(template_path, 'r', encoding='utf-8') as file:
+        template_content = file.read()
+ 
+    # Create processed content (leaving template untouched)
+    processed_content = template_content.replace('${prefix}', prefix)
+    processed_content = processed_content.replace('${flange_link}', flange_link)
+ 
+    # Write processed content to both source and install directories
+    for config_path in [src_config_path, install_config_path]:
+        os.makedirs(config_path, exist_ok=True)
+        output_path = os.path.join(config_path, 'ros2_controllers.yaml')
+        with open(output_path, 'w', encoding='utf-8') as file:
+            file.write(processed_content)
+ 
+    return []
 
 # Define the arguments for the XACRO file
 ARGUMENTS = [

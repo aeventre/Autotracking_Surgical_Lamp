@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+ 
+    <xacro:macro name="mycobot_ros2_control" params="prefix flange_link use_gazebo">
+        <ros2_control name="RobotSystem" type="system">
+            <hardware>
+                <xacro:if value="${use_gazebo}">
+                    <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+                </xacro:if>
+            </hardware>
+
+            <joint name="joint0">
+                <command_interface name="position">
+                    <param name="min">-3.14</param>
+                    <param name="max">3.14</param>
+                </command_interface>
+                <state_interface name="position"/>
+            </joint>
+ 
+            <joint name="joint1">
+                <command_interface name="position">
+                    <param name="min">-3.14</param>
+                    <param name="max">3.14</param>
+                </command_interface>
+                <state_interface name="position"/>
+            </joint>
+ 
+            <joint name="joint2">
+                <command_interface name="position">
+                    <param name="min">-3.14</param>
+                    <param name="max">3.14</param>
+                </command_interface>
+                <state_interface name="position"/>
+            </joint>
+ 
+            <joint name="joint 4">
+                <command_interface name="position">
+                    <param name="min">-3.14</param>
+                    <param name="max">3.14</param>
+                </command_interface>
+                <state_interface name="position"/>
+            </joint>
+
+            <joint name="joint 7">
+                <command_interface name="position">
+                    <param name="min">-3.14</param>
+                    <param name="max">3.14</param>
+                </command_interface>
+                <state_interface name="position"/>
+            </joint>
+ 
+
+ 
+        </ros2_control>
+    </xacro:macro>
+ 
+</robot>
