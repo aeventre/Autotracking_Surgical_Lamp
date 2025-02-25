@@ -1,0 +1,7 @@
+Command Manager Package
+
+Acts as high level control for the robotic surgery lamp. Determines what modes it is operating at and reads user input for mode switching
+
+Subscribes to:
+
+Publishes:
