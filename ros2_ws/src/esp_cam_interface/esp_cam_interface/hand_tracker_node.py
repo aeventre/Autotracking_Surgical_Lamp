@@ -6,7 +6,7 @@ from sensor_msgs.msg import Image
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge
 import mediapipe as mp
-import urllib.request
+import serial
 
 class HandTrackerNode(Node):
     def __init__(self):
@@ -16,14 +16,16 @@ class HandTrackerNode(Node):
         self.bridge = CvBridge()
         self.mp_hands = mp.solutions.hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
         self.mp_draw = mp.solutions.drawing_utils
-        self.esp32_url = 'http://192.168.4.1/capture'  # Change to your ESP32-CAM IP
+        self.serial_port = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)  # Change to your ESP32-CAM serial port
         self.timer = self.create_timer(0.1, self.process_frame)
         self.get_logger().info("Hand Tracker Node Initialized")
 
     def process_frame(self):
         try:
-            resp = urllib.request.urlopen(self.esp32_url)
-            img_array = np.asarray(bytearray(resp.read()), dtype=np.uint8)
+            data = self.serial_port.readline()
+            if not data:
+                return
+            img_array = np.asarray(bytearray(data), dtype=np.uint8)
             frame = cv2.imdecode(img_array, -1)
         except Exception as e:
             self.get_logger().error(f"Failed to get image: {e}")
