@@ -1,16 +1,19 @@
+import rclpy
 import pytest
 import math
 from unittest.mock import MagicMock
 from geometry_msgs.msg import Point
 from std_msgs.msg import Float64MultiArray
-from kinematics_2d.ik_node_2d import IKSolver  # Replace with actual package name
+from kinematics_2d.ik_node_2d import IKSolver
 
 @pytest.fixture
 def node():
     """Fixture to initialize and return the IKSolver node."""
+    rclpy.init()
     node = IKSolver()
-    node.get_logger = MagicMock()  # Mock logger to avoid ROS2 logging in tests
-    return node
+    yield node
+    node.destroy_node()
+    rclpy.shutdown()
 
 def test_ik_valid_target(node):
     """Test if the IK solver correctly calculates joint angles for a reachable target."""
@@ -38,7 +41,7 @@ def test_ik_valid_target(node):
         (0.3**2 + 0.2**2 - node.L1**2 - node.L2**2) / (2 * node.L1 * node.L2)
     )
 
-    # Check computed angles
+    # Check computed angles with tolerance (consider adjusting tolerance if needed)
     assert math.isclose(theta1, expected_theta1, abs_tol=0.1)
     assert math.isclose(theta2, expected_theta2, abs_tol=0.1)
     assert theta3 == 0.0
@@ -52,10 +55,12 @@ def test_ik_target_out_of_reach(node):
     target.y = 10.0
 
     node.publisher.publish = MagicMock()
-    
+    # Mock logger
+    node.get_logger = MagicMock()
+
     node.ik_callback(target)
 
     # Ensure no message was published
     node.publisher.publish.assert_not_called()
+    # Ensure the warning was logged
     node.get_logger().warn.assert_called_with("Target out of reach!")
-
