@@ -26,4 +26,11 @@ def generate_launch_description():
         ),
     ])
 
-# Launch command: ros2 launch kinematics_2d planar_motion_launch.py
+# Launch command:
+#   ros2 launch kinematics_2d planar_motion_launch.py
+
+# This will publish desired positions to the IK solver:
+#   ros2 topic pub /target_position geometry_msgs/msg/Point "{x: 0.2, y: 0.3, z: 0.0}"
+
+
+
