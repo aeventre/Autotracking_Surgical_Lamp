@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            '2d_ik_node = 2d_kinematics.2d_ik_node:main',
+            'kinematics_2d = 2d_kinematics.ik_node_2d:main',
         ],
     },
 )
