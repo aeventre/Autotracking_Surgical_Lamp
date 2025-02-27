@@ -2,4 +2,5 @@
 **/install/
 **/log/
 **/.vscode/
+**/.environment/
 
