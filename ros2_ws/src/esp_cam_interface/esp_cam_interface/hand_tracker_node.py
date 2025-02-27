@@ -1,55 +1,47 @@
 import cv2
-import numpy as np
-import rclpy
-from rclpy.node import Node
-from sensor_msgs.msg import Image
-from geometry_msgs.msg import Point
-from cv_bridge import CvBridge
 import mediapipe as mp
-import serial
 
-class HandTrackerNode(Node):
-    def __init__(self):
-        super().__init__('hand_tracker')
-        self.publisher_ = self.create_publisher(Point, 'hand_position', 10)
-        self.image_publisher_ = self.create_publisher(Image, 'hand_image', 10)
-        self.bridge = CvBridge()
-        self.mp_hands = mp.solutions.hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
-        self.mp_draw = mp.solutions.drawing_utils
-        self.serial_port = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)  # Change to your ESP32-CAM serial port
-        self.timer = self.create_timer(0.1, self.process_frame)
-        self.get_logger().info("Hand Tracker Node Initialized")
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands()
+mp_drawing = mp.solutions.drawing_utils
+# mp_hands loads the MediaPipe hands module, which provides the hand detection and tracking functionality.
+# hands = mp_hands.Hands() creates an instance of the hands solution, which processes video frames to detect and track hands.
+# mp_drawing = mp.solutions.drawing_utils provides functions for drawing landmarks on the image
 
-    def process_frame(self):
-        try:
-            data = self.serial_port.readline()
-            if not data:
-                return
-            img_array = np.asarray(bytearray(data), dtype=np.uint8)
-            frame = cv2.imdecode(img_array, -1)
-        except Exception as e:
-            self.get_logger().error(f"Failed to get image: {e}")
-            return
+cap = cv2.VideoCapture(0)
+# This opens the default webcam (index 0) using OpenCV. c
 
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = self.mp_hands.process(rgb_frame)
+while cap.isOpened():
+    ret, frame = cap.read() # cap.read() reads a frame from the webcam
+    if not ret:
+        break
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # BGR -> RGB
+    results = hands.process(frame_rgb)
+    
+    # do you have hands
+    if results.multi_hand_landmarks: 
+        for hand_landmarks in results.multi_hand_landmarks:
+            # Drawing landmarks on the image
+            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+            
+            # Get the coordinates of the wrist (landmark 0)
+            wrist_landmark = hand_landmarks.landmark[0]
+            frame_height, frame_width, _ = frame.shape
+            wrist_x = int(wrist_landmark.x * frame_width)
+            wrist_y = int(wrist_landmark.y * frame_height)
+            
+            # Calculate the offset of the wrist 
+            offset_x = wrist_x - (frame_width // 2)
+            offset_y = wrist_y - (frame_height // 2)
+            
+            # Send offset to ROS
+            print(f"Offset from center: ({offset_x}, {offset_y})")
 
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                self.mp_draw.draw_landmarks(frame, hand_landmarks, mp.solutions.hands.HAND_CONNECTIONS)
-                wrist = hand_landmarks.landmark[mp.solutions.hands.HandLandmark.WRIST]
-                hand_position = Point(x=wrist.x, y=wrist.y, z=wrist.z)
-                self.publisher_.publish(hand_position)
+    cv2.imshow('Hand Tracking', frame)
 
-        self.image_publisher_.publish(self.bridge.cv2_to_imgmsg(frame, encoding='bgr8'))
+    # press q to caccel program
+    if cv2.waitKey(10) & 0xFF == ord('q'):
+        break
 
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = HandTrackerNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
+cap.release()
+cv2.destroyAllWindows()
