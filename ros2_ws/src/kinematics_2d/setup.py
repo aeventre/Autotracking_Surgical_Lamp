@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = '2d_kinematics'
+package_name = 'kinematics_2d'
 
 setup(
     name=package_name,
