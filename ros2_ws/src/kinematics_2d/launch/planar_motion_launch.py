@@ -5,7 +5,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         Node(
-            package='kinematics_2d',  # Replace with your package name
+            package='<your_package>',  # Replace with your package name
             executable='ik_solver',
             name='ik_solver',
             output='screen',
@@ -15,9 +15,13 @@ def generate_launch_description():
             }]
         ),
         Node(
-            package='serial_coms',  # Replace with your package name
+            package='<your_package>',  # Replace with your package name
             executable='serial_coms',
             name='serial_coms',
-            output='screen'
+            output='screen',
+            parameters=[{
+                'port': '/dev/ttyUSB0',
+                'baudrate': 9600
+            }]
         ),
     ])

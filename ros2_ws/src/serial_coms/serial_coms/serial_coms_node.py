@@ -3,36 +3,53 @@ from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray
 import serial
 
-ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=1)
-
 class SerialComs(Node):
 
     def __init__(self):
         super().__init__('serial_coms')
+
+        # Declare parameters with default values
+        self.declare_parameter('port', '/dev/ttyUSB0')
+        self.declare_parameter('baudrate', 115200)
+
+        # Get parameters
+        port = self.get_parameter('port').value
+        baudrate = self.get_parameter('baudrate').value
+
+        # Initialize serial communication
+        try:
+            self.ser = serial.Serial(port, baudrate, timeout=1)
+            self.get_logger().info(f"Serial connected: {port} at {baudrate} baud")
+        except serial.SerialException as e:
+            self.get_logger().error(f"Failed to open serial port: {e}")
+            self.ser = None  # Prevent further writes if failed
+
         self.subscription = self.create_subscription(
-            Float64MultiArray,  # Match the message type from IKSolver
-            '/joint_angles',  # Same topic name
+            Float64MultiArray,
+            '/joint_angles',
             self.send_serial,
-            10)
-        self.subscription  
+            10
+        )
 
     def send_serial(self, joint_angles_msg):
-        # Convert list of floats to a comma-separated string
-        angles_str = ','.join(f"{angle:.2f}" for angle in joint_angles_msg.data)
-        self.get_logger().info(f"Sending to serial: {angles_str}")  # Debug log
-        ser.write((angles_str + '\n').encode())  # Encode to bytes and send
+        if self.ser:  # Ensure serial is open before sending
+            angles_str = ','.join(f"{angle:.2f}" for angle in joint_angles_msg.data)
+            self.get_logger().info(f"Sending to serial: {angles_str}")
+            self.ser.write((angles_str + '\n').encode())
 
 def main(args=None):
     rclpy.init(args=args)
     serial_coms = SerialComs()
-    
+
     try:
         rclpy.spin(serial_coms)
     except KeyboardInterrupt:
         pass
-    
-    serial_coms.destroy_node()
-    rclpy.shutdown()
+    finally:
+        if serial_coms.ser:
+            serial_coms.ser.close()  # Close serial connection on shutdown
+        serial_coms.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
