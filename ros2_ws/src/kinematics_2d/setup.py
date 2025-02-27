@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import os
+from glob import glob
 
 package_name = 'kinematics_2d'
 
@@ -23,4 +25,7 @@ setup(
             'kinematics_2d = 2d_kinematics.ik_node_2d:main',
         ],
     },
+        data_files=[
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
+    ],
 )
