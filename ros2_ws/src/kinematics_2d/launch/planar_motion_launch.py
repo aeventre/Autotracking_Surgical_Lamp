@@ -5,9 +5,9 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         Node(
-            package='<your_package>',  # Replace with your package name
-            executable='ik_solver',
-            name='ik_solver',
+            package='kinematics_2d',  # Replace with your package name
+            executable='ik_node_2d',
+            name='ik_node_2d',
             output='screen',
             parameters=[{
                 'L1': 0.2032,
@@ -15,8 +15,8 @@ def generate_launch_description():
             }]
         ),
         Node(
-            package='<your_package>',  # Replace with your package name
-            executable='serial_coms',
+            package='serial_coms',  # Replace with your package name
+            executable='serial_coms_node',
             name='serial_coms',
             output='screen',
             parameters=[{
@@ -25,3 +25,5 @@ def generate_launch_description():
             }]
         ),
     ])
+
+# Launch command: ros2 launch kinematics_2d planar_motion_launch.py
