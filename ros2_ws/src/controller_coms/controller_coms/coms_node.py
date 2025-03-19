@@ -4,7 +4,6 @@ import serial
 import threading
 from std_msgs.msg import String
 
-
 # Format for sending to mcu1 <commandAngle1,commandAngle2>
 # Format for recieving from mcu1 <currentAngle0,currentAngle1>
 # Format for sending to mcu2 <commandAngle2,commandAngle3,commandAngle4,lightmode>
