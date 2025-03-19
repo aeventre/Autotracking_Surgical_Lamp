@@ -11,15 +11,16 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'pyserial'],
     zip_safe=True,
     maintainer='alec',
     maintainer_email='aeventre@buffalo.edu',
-    description='TODO: Package description',
+    description='ROS2 package for communicating with the MCUs of the surgical lamp system',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'coms_node = controller_coms.coms_node:main',
         ],
     },
 )
