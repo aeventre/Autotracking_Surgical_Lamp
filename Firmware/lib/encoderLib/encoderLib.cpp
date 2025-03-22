@@ -1,4 +1,4 @@
-#include "surgBotLib.h"
+#include "encoderLib.h"
 
 #define SET(x,y) (x |= (1<<y))
 #define CLR(x,y) (x &= (~(1<<y)))
