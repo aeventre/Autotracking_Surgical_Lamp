@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "surgBotLib.h"
+#include "encoderLib.h"
 
 
 void setup() {
