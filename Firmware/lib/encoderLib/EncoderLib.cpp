@@ -7,23 +7,20 @@ EncoderLib::EncoderLib() {}
 void EncoderLib::begin() {
   Wire.begin();
   checkMagnetPresence();
-
-  // Read initial angle to ensure degAngle is populated
   readRawAngle();
+}
 
-  // Build calibration table by rotating and recording degAngle every sampleInterval
+void EncoderLib::calibrateWithStepper() {
   for (int i = 0; i < samples; i++) {
     readRawAngle();
     calibrationTable[i] = degAngle;
 
-    // Rotate sampleInterval degrees (e.g. 80 microsteps for 9 degrees)
     int motorSteps = int(sampleInterval * 16 / 1.8);
     for (int step = 0; step < motorSteps; step++) {
       stepMotor(1, false); // CCW
     }
   }
 
-  // Return to home position
   for (int i = 0; i < StepCounter; i++) {
     stepMotor(1, true); // CW
   }

@@ -10,7 +10,10 @@ public:
   // Constructor: Initializes the EncoderLib object
 
   void begin();  
-  // Initializes I2C, checks for magnet, and performs calibration by stepping the motor
+  // Initializes I2C, checks for magnet, and performs initial sensor read
+
+  void calibrateWithStepper();  
+  // Rotates motor and builds calibration table using stepper motor movement
 
   float getRawAngle() const;  
   // Returns the most recent raw angle in degrees (0–360)
@@ -19,10 +22,10 @@ public:
   // Reads from the sensor and returns the interpolated (corrected) angle
 
 private:
-  void readRawAngle(); 
-  void interpolate();           
-  void stepMotor(int motor, bool dir);
-  void checkMagnetPresence();
+  void readRawAngle();           
+  void interpolate();                 
+  void stepMotor(int motor, bool dir); 
+  void checkMagnetPresence();         
 
   // Constants
   static constexpr int sampleInterval = 9;
