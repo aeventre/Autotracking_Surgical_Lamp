@@ -1,14 +1,15 @@
 #include <Arduino.h>
 #include "AS5600.h"
 
-AS5600L as5600;   //  use default Wire
-// AS5600 as5600;   //  use default Wire
+AS5600L as5600;  // Use default Wire
 
+bool encoderConnected = false;
 
 void setup()
 {
-  while(!Serial);
   Serial.begin(115200);
+  while (!Serial);  // Wait for Serial to connect (especially on Leonardo)
+
   Serial.println(__FILE__);
   Serial.print("AS5600_LIB_VERSION: ");
   Serial.println(AS5600_LIB_VERSION);
@@ -16,41 +17,59 @@ void setup()
 
   Wire.begin();
 
-  as5600.begin(4);  //  set direction pin.
-  as5600.setDirection(AS5600_CLOCK_WISE);  //  default, just be explicit.
+  as5600.begin(4);  // Set direction pin
+  as5600.setDirection(AS5600_CLOCK_WISE);
+  as5600.setAddress(0x36);
 
-  Serial.println(as5600.getAddress());
 
-  //  as5600.setAddress(0x40);  //  AS5600L only
+  Serial.print("I2C Address: 0x");
+  Serial.println(as5600.getAddress(), HEX);
 
-  int b = as5600.isConnected();
-  Serial.print("Connect: ");
-  Serial.println(b);
+  encoderConnected = as5600.isConnected();
+  Serial.print("Initial Connect: ");
+  Serial.println(encoderConnected ? "OK" : "FAILED");
+
+  if (!encoderConnected) {
+    Serial.println("ERROR: AS5600 not detected! Check wiring or power.");
+  }
 
   delay(1000);
 }
-
 
 void loop()
 {
   static uint32_t lastTime = 0;
 
-  //  set initial position
-  as5600.getCumulativePosition();
+  // Check connection periodically (e.g., every second)
+  static uint32_t lastCheck = 0;
+  if (millis() - lastCheck > 1000) {
+    lastCheck = millis();
 
-  //  update every 100 ms
-  //  should be enough up to ~200 RPM
-  if (millis() - lastTime >= 100)
-  {
-    lastTime = millis();
-    Serial.print(as5600.getCumulativePosition());
-    Serial.print("\t");
-    Serial.println(as5600.getRevolutions());
+    encoderConnected = as5600.isConnected();
+    if (!encoderConnected) {
+      Serial.println("WARNING: AS5600 DISCONNECTED or not responding.");
+      return; // Skip the rest of the loop until it's back
+    }
   }
 
-  //  just to show how reset can be used
-  if (as5600.getRevolutions() >= 10)
+  // Regular reading every 100 ms
+  if (encoderConnected && millis() - lastTime >= 100)
   {
-    as5600.resetPosition();
+    lastTime = millis();
+
+    // If we can read, show values
+    long pos = as5600.getCumulativePosition();
+    int revs = as5600.getRevolutions();
+
+    Serial.print("Position: ");
+    Serial.print(pos);
+    Serial.print("\tRevs: ");
+    Serial.println(revs);
+
+    // Optional: reset after 10 turns
+    if (revs >= 10) {
+      Serial.println("Resetting position...");
+      as5600.resetPosition();
+    }
   }
 }
