@@ -1,10 +1,10 @@
-// AS5600Interpolator.cpp
-#include "encoderLib.h"
+// EncoderLib.cpp
+#include "EncoderLib.h"
 #include <Wire.h>
 
-AS5600Interpolator::AS5600Interpolator() {}
+EncoderLib::EncoderLib() {}
 
-void AS5600Interpolator::begin() {
+void EncoderLib::begin() {
   Wire.begin();
   checkMagnetPresence();
 
@@ -30,20 +30,17 @@ void AS5600Interpolator::begin() {
   StepCounter = 0;
 }
 
-void AS5600Interpolator::update() {
-  readRawAngle();
-  interpolate();
-}
-
-float AS5600Interpolator::getInterpolatedAngle() const {
-  return interpolatedAngle;
-}
-
-float AS5600Interpolator::getRawAngle() const {
+float EncoderLib::getRawAngle() const {
   return degAngle;
 }
 
-void AS5600Interpolator::interpolate() {
+float EncoderLib::getFilteredAngle() {
+  readRawAngle();
+  interpolate();
+  return interpolatedAngle;
+}
+
+void EncoderLib::interpolate() {
   for (int index = 1; index < samples; index++) {
     if (calibrationTable[index] > degAngle) {
       float diff1 = degAngle - calibrationTable[index - 1];
@@ -55,7 +52,7 @@ void AS5600Interpolator::interpolate() {
   interpolatedAngle = degAngle; // fallback if not interpolated
 }
 
-void AS5600Interpolator::readRawAngle() {
+void EncoderLib::readRawAngle() {
   Wire.beginTransmission(0x36);
   Wire.write(0x0D);
   Wire.endTransmission();
@@ -74,7 +71,7 @@ void AS5600Interpolator::readRawAngle() {
   degAngle = rawAngle * 0.087890625f; // 360 / 4096
 }
 
-void AS5600Interpolator::checkMagnetPresence() {
+void EncoderLib::checkMagnetPresence() {
   unsigned long start = millis();
   while ((magnetStatus & 0x20) != 0x20) {
     magnetStatus = 0;
@@ -92,8 +89,7 @@ void AS5600Interpolator::checkMagnetPresence() {
   }
 }
 
-// This will need to be updated when we implement the stepper controls
-void AS5600Interpolator::stepMotor(int motor, bool dir) {
+void EncoderLib::stepMotor(int motor, bool dir) {
   digitalWrite(DIR1, dir ? HIGH : LOW);
   delayMicroseconds(PULSE_WIDTH);
   digitalWrite(STEP1, HIGH);
