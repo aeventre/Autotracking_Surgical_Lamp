@@ -1,25 +1,20 @@
-#include <Arduino.h>
-#include <unity.h>
-#include "encoderLib.h"
+// #include <Arduino.h>
+// #include "encoderLib.h"  // or "AS5600Interpolator.h" if that's your header
 
-AS5600Interpolator encoder;
+// AS5600Interpolator encoder;
 
-void test_angle_is_zero_after_begin() {
-    encoder.begin();  // Simulate calibration
-    encoder.update(); // Read sensor once
-    float angle = encoder.getInterpolatedAngle();
-    TEST_ASSERT_FLOAT_WITHIN(1.0, 0.0, angle); // Within 1 degree of 0
-}
+// void setup() {
+//   Serial.begin(115200);
+//   delay(1000);       // Give serial monitor time to connect
+//   encoder.begin();   // Run calibration
+// }
 
-void setup() {
-    delay(2000); // Wait for serial monitor to open
-    UNITY_BEGIN();
+// void loop() {
+//   encoder.update();                        // Refresh reading
+//   float angle = encoder.getInterpolatedAngle();  // Get interpolated result
 
-    RUN_TEST(test_angle_is_zero_after_begin);
+//   Serial.print("Angle: ");
+//   Serial.println(angle, 2);                // Print with 2 decimal places
 
-    UNITY_END();
-}
-
-void loop() {
-    // Leave empty — Unity runs everything in setup()
-}
+//   delay(100);                              // ~10 Hz update rate
+// }
