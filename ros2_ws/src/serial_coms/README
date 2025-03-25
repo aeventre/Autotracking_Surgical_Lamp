@@ -1,6 +1,0 @@
-serial_coms
-
-This package is meant for sending data out through the serial ports to a microcontroller such as an arduino. Currently it is configured to output 5 separate joint angles for the surgery arm.
-
-Subscribed to:
-joint_angles
