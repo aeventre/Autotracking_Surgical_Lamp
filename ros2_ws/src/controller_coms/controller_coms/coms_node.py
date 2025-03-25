@@ -15,8 +15,8 @@ class ControllerComsNode(Node):
         super().__init__('controller_coms')
 
         # Serial Port Setup
-        self.mcu1_port = '/dev/ttyUSB0'
-        self.mcu2_port = '/dev/ttyUSB1'
+        self.mcu1_port = '/dev/ttyUSB1'
+        self.mcu2_port = '/dev/ttyUSB0'
         self.baud_rate = 115200
 
         # Initialize Serial Connections
