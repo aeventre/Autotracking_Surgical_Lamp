@@ -17,6 +17,7 @@ set(MSG_FILES
   "msg/LampJointCommands.msg"
   "msg/TrackingData.msg"
   "msg/LampStatus.msg"
+  "msg/LampCurrentAngles.msg"
 )
 
 # Generate ROS2 interfaces
