@@ -10,6 +10,8 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>serial</depend>
+  <depend>surg_lamp_msgs</depend>
+
 
   <exec_depend>python3-serial</exec_depend>
 

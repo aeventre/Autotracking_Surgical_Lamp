@@ -9,7 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
-
+find_package(rosidl_default_generators REQUIRED)
 # Define message files before generating interfaces
 set(MSG_FILES
   "msg/UserCommand.msg"

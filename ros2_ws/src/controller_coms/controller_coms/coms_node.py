@@ -2,7 +2,9 @@ import rclpy
 from rclpy.node import Node
 import serial
 import threading
-from std_msgs.msg import String
+from surg_lamp_msgs.msg import LampJointCommands
+from std_msgs.msg import Int32, String
+
 
 # Format for sending to mcu1 <commandAngle1,commandAngle2>
 # Format for recieving from mcu1 <currentAngle0,currentAngle1>
@@ -28,12 +30,19 @@ class ControllerComsNode(Node):
         self.publisher_mcu2 = self.create_publisher(String, 'mcu2_feedback', 10)
 
         # ROS Subscribers (Sending Commands)
-        self.subscription_mcu1 = self.create_subscription(
-            String, 'mcu1_command', self.send_to_mcu1, 10
+        self.subscription_joint_commands = self.create_subscription(
+            LampJointCommands,
+            'joint_commands',
+            self.joint_command_callback,
+            10
+        )   
+
+        self.subscription_light_mode = self.create_subscription(
+            Int32, 'light_mode', self.light_mode_callback, 10
         )
-        self.subscription_mcu2 = self.create_subscription(
-            String, 'mcu2_command', self.send_to_mcu2, 10
-        )
+
+        # Store latest lightMode
+        self.light_mode = 0
 
         # Start Threads to Continuously Read from MCUs
         threading.Thread(target=self.read_from_mcu, args=(self.mcu1_serial, self.publisher_mcu1), daemon=True).start()
@@ -83,6 +92,33 @@ class ControllerComsNode(Node):
                     self.get_logger().info(f"Received: {data}")
             except Exception as e:
                 self.get_logger().error(f"Error reading from serial: {e}")
+                
+                
+    def joint_command_callback(self, msg):
+        try:
+            # Build MCU1 and MCU2 command strings
+            mcu1_cmd = f"<{msg.joint_0},{msg.joint_1}>\n"
+            mcu2_cmd = f"<{msg.joint_2},{msg.joint_3},{msg.joint_4},{self.light_mode}>\n"
+
+            if self.mcu1_serial:
+                self.mcu1_serial.write(mcu1_cmd.encode())
+                self.get_logger().info(f"Sent to MCU1: {mcu1_cmd.strip()}")
+
+            if self.mcu2_serial:
+                self.mcu2_serial.write(mcu2_cmd.encode())
+                self.get_logger().info(f"Sent to MCU2: {mcu2_cmd.strip()}")
+
+        except Exception as e:
+            self.get_logger().error(f"Error sending joint commands: {e}")
+
+            
+            
+    def light_mode_callback(self, msg):
+        try:
+            self.light_mode = int(msg.data)
+            self.get_logger().info(f"Updated light mode to {self.light_mode}")
+        except Exception as e:
+            self.get_logger().error(f"Invalid light mode: {e}")
 
 def main(args=None):
     rclpy.init(args=args)

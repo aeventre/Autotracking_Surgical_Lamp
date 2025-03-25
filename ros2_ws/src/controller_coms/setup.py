@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools', 'pyserial'],
+    install_requires=['setuptools', 'pyserial','surg_lamp_msgs'],
     zip_safe=True,
     maintainer='alec',
     maintainer_email='aeventre@buffalo.edu',
