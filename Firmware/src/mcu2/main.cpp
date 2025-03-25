@@ -24,9 +24,20 @@ void setup() {
 }
 
 void loop() {
-  float joint3Position = map(analogRead(joint3Feedback), 0, 1023, 0, 270);
-  float joint4Position = map(analogRead(joint4Feedback), 0, 1023, 0, 270);
+  float currentAngle3 = map(analogRead(joint3Feedback), 0, 1023, 0, 270);
+  float currentAngle4 = map(analogRead(joint4Feedback), 0, 1023, 0, 270);
   recieveCommand(commandAngle2, commandAngle3, commandAngle4, lightMode);
+
+
+
+  // Send Current Positions to ROS
+  Serial.print("<");
+  Serial.print(currentAngle3);
+  Serial.print(",");
+  Serial.print(currentAngle4);
+  Serial.println(">");
+
+
 }
 
 void recieveCommand(float &angle2, float &angle3, float &angle4,
