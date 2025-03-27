@@ -10,6 +10,8 @@ void controlLight(int lightMode);
 
 #define joint3Feedback A0
 #define joint4Feedback A1
+#define joint2EncoderPower 2
+#define joint1EncoderPower 3
 
 float commandAngle2, commandAngle3, commandAngle4;
 int lightMode;
