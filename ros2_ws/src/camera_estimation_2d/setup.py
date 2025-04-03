@@ -8,7 +8,7 @@ setup(
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/hand_distance.launch.py']),
+        ('share/' + package_name + '/launch', ['launch/hand_position.launch.py']),
     ],
     install_requires=[
         'setuptools',
