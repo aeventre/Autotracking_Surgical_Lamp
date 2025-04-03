@@ -8,25 +8,32 @@ from geometry_msgs.msg import Point
 class HandPositionPublisher(Node):
     def __init__(self):
         super().__init__('hand_position_publisher')
+
+        # ROS publisher
         self.publisher_ = self.create_publisher(Point, 'wrist_position', 10)
 
-        self.cap = cv2.VideoCapture(32)  # Use your working camera index here
+        # Calibrated scale: 29.88 in screen width / 1920 pixels = 0.000396 meters per pixel
+        self.meters_per_pixel = 0.000396
 
+        # Video capture — use your confirmed working device index
+        self.cap = cv2.VideoCapture(32)
+
+        # MediaPipe hand detection
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(
-            max_num_hands=1,  # <- Limit to just one hand detection
+            max_num_hands=1,
             min_detection_confidence=0.7,
             min_tracking_confidence=0.7
         )
         self.mp_drawing = mp.solutions.drawing_utils
 
-    def publish_position(self, x, y):
+    def publish_position(self, x_m, y_m):
         msg = Point()
-        msg.x = float(x)
-        msg.y = float(y)
+        msg.x = x_m
+        msg.y = y_m
         msg.z = 0.0
         self.publisher_.publish(msg)
-        self.get_logger().info(f'Published wrist position: x={x:.1f}, y={y:.1f}')
+        self.get_logger().info(f'Wrist Position (m): x={x_m:.4f}, y={y_m:.4f}')
 
     def run(self):
         while self.cap.isOpened():
@@ -43,17 +50,23 @@ class HandPositionPublisher(Node):
             center_x, center_y = width // 2, height // 2
 
             if results.multi_hand_landmarks:
-                hand_landmarks = results.multi_hand_landmarks[0]  # <- Just the first hand
+                hand_landmarks = results.multi_hand_landmarks[0]
                 wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
                 wrist_x = int(wrist.x * width)
                 wrist_y = int(wrist.y * height)
 
-                self.publish_position(wrist_x, wrist_y)
+                # Convert pixel offset to meters relative to center
+                dx = wrist_x - center_x
+                dy = wrist_y - center_y
+                x_m = dx * self.meters_per_pixel
+                y_m = dy * self.meters_per_pixel
 
-                # Draw stuff
+                self.publish_position(x_m, y_m)
+
+                # Draw visuals
                 cv2.circle(frame, (wrist_x, wrist_y), 10, (0, 255, 0), -1)
                 cv2.circle(frame, (center_x, center_y), 5, (0, 0, 255), -1)
-                cv2.putText(frame, f"({wrist_x}, {wrist_y})", (50, 50),
+                cv2.putText(frame, f"{x_m:.3f}m, {y_m:.3f}m", (50, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 self.mp_drawing.draw_landmarks(frame, hand_landmarks,
                                                self.mp_hands.HAND_CONNECTIONS)
