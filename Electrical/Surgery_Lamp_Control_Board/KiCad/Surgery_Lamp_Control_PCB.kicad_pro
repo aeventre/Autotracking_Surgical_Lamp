@@ -51,7 +51,13 @@
           "min_clearance": 0.5
         }
       },
-      "diff_pair_dimensions": [],
+      "diff_pair_dimensions": [
+        {
+          "gap": 0.0,
+          "via_gap": 0.0,
+          "width": 0.0
+        }
+      ],
       "drc_exclusions": [],
       "meta": {
         "version": 2
@@ -179,7 +185,13 @@
           "td_width_to_size_filter_ratio": 0.9
         }
       ],
-      "track_widths": [],
+      "track_widths": [
+        0.0,
+        0.25,
+        0.76,
+        1.27,
+        2.03
+      ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
           "corner_radius_percentage": 80,
@@ -206,7 +218,12 @@
           "spacing": 0.6
         }
       },
-      "via_dimensions": [],
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        }
+      ],
       "zones_allow_external_fillets": false
     },
     "ipc2581": {
@@ -225,7 +242,24 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      [
+        "lib_symbol_mismatch|1371600|901700|d442fa6d-af5d-437b-ab88-4b83f2f5fe5d|00000000-0000-0000-0000-000000000000|||",
+        ""
+      ],
+      [
+        "power_pin_not_driven|1371600|749300|cefe2adf-3fe7-4a04-867d-09a5bb4c31f8|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/b3ddd8e4-b745-4983-9594-7ac7424eb2f0|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/b3ddd8e4-b745-4983-9594-7ac7424eb2f0|",
+        ""
+      ],
+      [
+        "power_pin_not_driven|1422400|787400|54583590-4cab-442e-9062-e7f2618bf86c|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/56f0e3fe-15ba-42b3-9cc4-5d007aa377e9|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/56f0e3fe-15ba-42b3-9cc4-5d007aa377e9|",
+        ""
+      ],
+      [
+        "power_pin_not_driven|1574800|444500|57032b56-bae2-4ddf-b8bf-0d26927fd0bc|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c|",
+        ""
+      ]
+    ],
     "meta": {
       "version": 0
     },
@@ -404,7 +438,6 @@
       "bus_entry_needed": "error",
       "bus_to_bus_conflict": "error",
       "bus_to_net_conflict": "error",
-      "conflicting_netclasses": "error",
       "different_unit_footprint": "error",
       "different_unit_net": "error",
       "duplicate_reference": "error",
@@ -430,7 +463,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "ignore",
       "power_pin_not_driven": "error",
       "same_local_global_label": "warning",
       "similar_label_and_power": "warning",
@@ -450,8 +483,8 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "schematic.kicad_pro",
-    "version": 1
+    "filename": "Surgery_Lamp_Control_PCB.kicad_pro",
+    "version": 3
   },
   "net_settings": {
     "classes": [
@@ -466,29 +499,67 @@
         "microvia_drill": 0.1,
         "name": "Default",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 2147483647,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.2,
+        "track_width": 0.26,
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
+      },
+      {
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "24V",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 0,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 1.5,
+        "via_diameter": 1.0,
+        "via_drill": 0.4
+      },
+      {
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "5V",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.76,
+        "via_diameter": 0.6,
+        "via_drill": 0.3
       }
     ],
     "meta": {
-      "version": 3
+      "version": 4
     },
     "net_colors": null,
     "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "5V",
+        "pattern": "5V"
+      },
+      {
+        "netclass": "24V",
+        "pattern": "24V"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "surg_lamp_control_board",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "Surgery_Lamp_Control_PCB.step",
       "svg": "",
       "vrml": ""
     },
@@ -533,19 +604,19 @@
           "group_by": true,
           "label": "DNP",
           "name": "${DNP}",
-          "show": true
+          "show": false
         },
         {
           "group_by": true,
           "label": "Exclude from BOM",
           "name": "${EXCLUDE_FROM_BOM}",
-          "show": true
+          "show": false
         },
         {
           "group_by": true,
           "label": "Exclude from Board",
           "name": "${EXCLUDE_FROM_BOARD}",
-          "show": true
+          "show": false
         },
         {
           "group_by": true,
@@ -557,15 +628,75 @@
           "group_by": false,
           "label": "Datasheet",
           "name": "Datasheet",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Link",
+          "name": "Link",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "PART-NUMBER",
+          "name": "PART-NUMBER",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "PurchaseLink",
+          "name": "PurchaseLink",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Device",
+          "name": "Sim.Device",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Pins",
+          "name": "Sim.Pins",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Type",
+          "name": "Sim.Type",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Digikey Product Number",
+          "name": "Digikey Product Number",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Description",
+          "name": "Description",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "#",
+          "name": "${ITEM_NUMBER}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Digikey Part Number",
+          "name": "Digikey Part Number",
           "show": true
         }
       ],
       "filter_string": "",
       "group_symbols": true,
       "include_excluded_from_bom": true,
-      "name": "Default Editing",
-      "sort_asc": true,
-      "sort_field": "Reference"
+      "name": "",
+      "sort_asc": false,
+      "sort_field": "Digikey Part Number"
     },
     "connection_grid_size": 50.0,
     "drawing": {
@@ -609,8 +740,20 @@
   },
   "sheets": [
     [
-      "b2f174f8-2c36-433f-bc92-3459284ca5b3",
+      "07b3e6cf-0da3-49cd-83f5-dd2f3182c01c",
       "Root"
+    ],
+    [
+      "56f0e3fe-15ba-42b3-9cc4-5d007aa377e9",
+      "MAX485"
+    ],
+    [
+      "ea28c297-5c39-4b93-8db7-6e376dbfcf38",
+      "PCA9685"
+    ],
+    [
+      "b3ddd8e4-b745-4983-9594-7ac7424eb2f0",
+      "A4988"
     ]
   ],
   "text_variables": {}
