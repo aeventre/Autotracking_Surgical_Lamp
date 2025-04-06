@@ -1,8 +1,7 @@
-#include "ControllerLib.h"
-#include "EncoderLib.h"
+#include "Controller.h"
 #include <Arduino.h>
 
-ControllerLib controller;
+Controller controller;
 
 float currentAngle1, currentAngle2, currentAngle3, currentAngle4, speed1;
 float desiredAngle1, desiredAngle2, desiredAngle3, desiredAngle4;
