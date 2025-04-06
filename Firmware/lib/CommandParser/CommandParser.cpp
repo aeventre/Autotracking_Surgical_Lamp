@@ -47,7 +47,8 @@ bool CommandParser::readCommand(CommandMessage &msg)
             msg.a3 = buffer.substring(c2 + 1, c3).toFloat();
             msg.a4 = buffer.substring(c3 + 1, c4).toFloat();
             msg.lightMode = buffer.substring(c4 + 1).toInt();
-
+            
+            _receivedFlag = true;  // ✅ New
             return true;
         }
         else if (receiving)
@@ -73,4 +74,12 @@ void CommandParser::sendStatus(const CommandMessage &msg)
     serial->print(",");
     serial->print(msg.a4, 2);
     serial->println(">");
+}
+
+bool CommandParser::messageReceived() const {
+    return _receivedFlag;
+}
+
+void CommandParser::clearReceivedFlag() {
+    _receivedFlag = false;
 }

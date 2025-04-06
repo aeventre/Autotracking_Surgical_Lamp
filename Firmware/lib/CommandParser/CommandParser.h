@@ -14,11 +14,16 @@ class CommandParser
     void begin(HardwareSerial &serial);
     bool readCommand(CommandMessage &msg);
     void sendStatus(const CommandMessage &current);
+    void clearReceivedFlag();
+    bool messageReceived() const;
 
   private:
+
     HardwareSerial *serial;
     String buffer;
     bool receiving;
+
+    bool _receivedFlag = false;
 };
 
 #endif

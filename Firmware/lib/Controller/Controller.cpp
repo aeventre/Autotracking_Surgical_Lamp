@@ -46,32 +46,37 @@ void Controller::begin()
 
 void Controller::update()
 {
-    // 1. Read command
-    if (parser.readCommand(desired))
+    parser.readCommand(desired);  // still call this every loop
+
+    if (parser.messageReceived())
     {
+        // Apply new commands
         joint1.setTarget(desired.a1);
         joint2.setTargetAngle(desired.a2);
         joint3.setTargetAngle(desired.a3);
         joint4.setTargetAngle(desired.a4);
         current.lightMode = desired.lightMode;
+
+        // Run joint updates
+        joint1.update();
+        joint2.update();
+        joint3.update();
+        joint4.update();
+
+        // Update feedback values
+        current.a1 = joint1.getCurrentAngle();
+        current.a2 = joint2.getCurrentAngle();
+        current.a3 = joint3.getCurrentAngle();
+        current.a4 = joint4.getCurrentAngle();
+
+        // Send status only once per command
+        parser.sendStatus(current);
+
+        // Flip the flag
+        parser.clearReceivedFlag();
     }
-
-    // 2. Update all joints
-    joint1.update();
-    joint2.update();
-    joint3.update();
-    joint4.update();
-
-    // 3. Gather feedback
-    current.a1 = joint1.getCurrentAngle();
-    current.a2 = joint2.getCurrentAngle();
-    current.a3 = joint3.getCurrentAngle();
-    current.a4 = joint4.getCurrentAngle();
-
-    // 4. Send status back
-    parser.sendStatus(current);
-
 }
+
 
 void Controller::controlLamp(int lightMode)
 {
