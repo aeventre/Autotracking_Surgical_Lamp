@@ -2,10 +2,13 @@
 #include "EncoderLib.h"
 #include <Wire.h>
 
-EncoderLib::EncoderLib() {}
+EncoderLib::EncoderLib(TwoWire& wirePort) : wire(wirePort) {}
 
-void EncoderLib::begin() {
-  Wire.begin();
+void EncoderLib::begin(uint8_t sdaPin, uint8_t sclPin) {
+  wire.setSDA(sdaPin);
+  wire.setSCL(sclPin);
+  wire.begin();
+
   checkMagnetPresence();
   readRawAngle();
 }
@@ -50,19 +53,19 @@ void EncoderLib::interpolate() {
 }
 
 void EncoderLib::readRawAngle() {
-  Wire.beginTransmission(0x36);
-  Wire.write(0x0D);
-  Wire.endTransmission();
-  Wire.requestFrom(0x36, 1);
-  while (!Wire.available());
-  int low = Wire.read();
+  wire.beginTransmission(0x36);
+  wire.write(0x0D);
+  wire.endTransmission();
+  wire.requestFrom(0x36, 1);
+  while (!wire.available());
+  int low = wire.read();
 
-  Wire.beginTransmission(0x36);
-  Wire.write(0x0C);
-  Wire.endTransmission();
-  Wire.requestFrom(0x36, 1);
-  while (!Wire.available());
-  int high = Wire.read();
+  wire.beginTransmission(0x36);
+  wire.write(0x0C);
+  wire.endTransmission();
+  wire.requestFrom(0x36, 1);
+  while (!wire.available());
+  int high = wire.read();
 
   rawAngle = ((high << 8) | low) & 0x0FFF;
   degAngle = rawAngle * 0.087890625f; // 360 / 4096
@@ -72,12 +75,12 @@ void EncoderLib::checkMagnetPresence() {
   unsigned long start = millis();
   while ((magnetStatus & 0x20) != 0x20) {
     magnetStatus = 0;
-    Wire.beginTransmission(0x36);
-    Wire.write(0x0B);
-    Wire.endTransmission();
-    Wire.requestFrom(0x36, 1);
-    if (Wire.available()) {
-      magnetStatus = Wire.read();
+    wire.beginTransmission(0x36);
+    wire.write(0x0B);
+    wire.endTransmission();
+    wire.requestFrom(0x36, 1);
+    if (wire.available()) {
+      magnetStatus = wire.read();
     }
     if (millis() - start > 3000) {
       break; // timeout if magnet not detected
