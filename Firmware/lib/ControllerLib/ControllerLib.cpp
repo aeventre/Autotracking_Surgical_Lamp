@@ -1,10 +1,11 @@
 #include "ControllerLib.h"
-#include "EncoderLib.h"
 
-ControllerLib::ControllerLib() :
-  encoder1(Wire), // Pass Wire (or Wire1) to EncoderLib constructor
-  encoder2(Wire1)
-{}
+
+ControllerLib::ControllerLib()
+    : encoder1(Wire), // Pass Wire (or Wire1) to EncoderLib constructor
+      encoder2(Wire1)
+{
+}
 
 void ControllerLib::begin()
 {
@@ -21,6 +22,13 @@ void ControllerLib::begin()
 
     encoder1.begin(0, 1); // GPIO 0 = SDA, GPIO 1 = SCL
     encoder2.begin(2, 3); // GPIO 2 = SDA, GPIO 3 = SCL
+
+    pwm.begin();
+    pwm.setPWMFreq(50); // 50 Hz for servos
+
+    Wire1.setSDA(2); // or your actual SDA pin
+    Wire1.setSCL(3); // or your actual SCL pin
+    Wire1.begin();
 }
 
 void ControllerLib::receiveCommand(float *angle1, float *angle2, float *angle3, float *angle4, int *lightMode)
@@ -76,7 +84,8 @@ void ControllerLib::updateJoint1PID()
 {
     unsigned long now = millis();
     float dt = (now - lastPIDTime1) / 1000.0;
-    if (dt <= 0) return;
+    if (dt <= 0)
+        return;
     lastPIDTime1 = now;
 
     currentAngle1 = encoder1.getFilteredAngle();
@@ -91,22 +100,47 @@ void ControllerLib::updateJoint1PID()
     float microstepsPerDeg = (200.0 * 16) / 360.0;
     float stepsPerSecond = abs(outputVelocity) * microstepsPerDeg;
 
-    if (stepsPerSecond > 1) {
+    if (stepsPerSecond > 1)
+    {
         stepIntervalMicros1 = 1e6 / stepsPerSecond;
         digitalWrite(dirPin, outputVelocity >= 0 ? HIGH : LOW);
-    } else {
-        stepIntervalMicros1 = 1e9;  // Stop stepping
+    }
+    else
+    {
+        stepIntervalMicros1 = 1e9; // Stop stepping
     }
 }
 
 void ControllerLib::updateJoint1Stepper()
 {
-    if (stepIntervalMicros1 < 1e6) {
+    if (stepIntervalMicros1 < 1e6)
+    {
         unsigned long now = micros();
-        if (now - lastStepTime1 >= stepIntervalMicros1) {
+        if (now - lastStepTime1 >= stepIntervalMicros1)
+        {
             lastStepTime1 = now;
             stepState1 = !stepState1;
             digitalWrite(stepPin, stepState1);
         }
+    }
+}
+
+void ControllerLib::sendStatus(float *angle1, float *angle2, float *angle3, float *angle4, int *lightMode)
+{
+    if (receiveState)
+    {
+        // Send status
+        Serial2.print("<");
+        Serial2.print(*angle1);
+        Serial2.print(",");
+        Serial2.print(*angle2);
+        Serial2.print(",");
+        Serial2.print(*angle3);
+        Serial2.print(",");
+        Serial2.print(*angle4);
+        Serial2.print(",");
+        Serial2.println(*lightMode);
+
+        receiveState = false;
     }
 }
