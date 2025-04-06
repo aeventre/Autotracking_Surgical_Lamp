@@ -1,26 +1,23 @@
 #include <Arduino.h>
-#include "EncoderLib.h"
+#include "DRV8834.h"
 
-EncoderLib encoder;
+#define dirPin 16
+#define stepPin 17
+#define neoPixelPin 18
+#define laserPin 19
+#define joint3FeedbackPin 26
+#define joint4FeedbackPin 27
+
 
 void setup() {
-  Serial.begin(115200);
-  while (!Serial);  // Teensy or Leonardo-safe
+  // Initialize serial to RS-485 comms
+  Serial2.setTX(4);
+  Serial2.setRX(5);
+  Serial2.begin(115200);
 
-  Serial.println("Initializing encoder...");
-  encoder.begin();  // Starts I2C and checks for magnet
-  Serial.println("Initialization complete.");
 }
 
 void loop() {
-  float raw = encoder.getRawAngle();
-  float filtered = encoder.getFilteredAngle();
 
-  Serial.print("Raw Angle: ");
-  Serial.print(raw, 2);
-  Serial.print(" deg\tFiltered Angle: ");
-  Serial.print(filtered, 2);
-  Serial.println(" deg");
 
-  delay(200);
 }
