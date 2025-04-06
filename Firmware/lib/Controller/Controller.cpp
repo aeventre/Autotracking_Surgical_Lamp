@@ -70,6 +70,7 @@ void Controller::update()
 
     // 4. Send status back
     parser.sendStatus(current);
+
 }
 
 void Controller::controlLamp(int lightMode)
