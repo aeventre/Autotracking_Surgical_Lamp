@@ -77,7 +77,6 @@ void Controller::update()
     }
 }
 
-
 void Controller::controlLamp(int lightMode)
 {
     uint32_t color;
