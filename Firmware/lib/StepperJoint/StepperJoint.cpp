@@ -1,9 +1,11 @@
 #include "StepperJoint.h"
 #include <Arduino.h>
 
-StepperJoint::StepperJoint() {}
+StepperJoint::StepperJoint()
+{
+}
 
-void StepperJoint::begin(uint8_t stepPin, uint8_t dirPin, EncoderLib* encoder)
+void StepperJoint::begin(uint8_t stepPin, uint8_t dirPin, EncoderLib *encoder)
 {
     _stepPin = stepPin;
     _dirPin = dirPin;
@@ -42,7 +44,8 @@ void StepperJoint::update()
 {
     unsigned long now = millis();
     float dt = (now - _lastPIDTime) / 1000.0f;
-    if (dt <= 0.0f) return;
+    if (dt <= 0.0f)
+        return;
     _lastPIDTime = now;
 
     float rawAngle = _encoder->getFilteredAngle();
@@ -62,7 +65,7 @@ void StepperJoint::update()
     float stepsPerSecond = max(abs(velocity) * microstepsPerDeg, 0.5f);
     _stepIntervalMicros = 1e6 / stepsPerSecond;
 
-    digitalWrite(_dirPin, velocity >= 0 ? HIGH : LOW);
+    digitalWrite(_dirPin, velocity >= 0 ? LOW : HIGH);
 
     unsigned long nowMicros = micros();
     if (nowMicros - _lastStepTime >= _stepIntervalMicros)
@@ -81,7 +84,9 @@ void StepperJoint::update()
 float StepperJoint::angleDiff(float target, float current)
 {
     float diff = target - current;
-    while (diff > 180.0f) diff -= 360.0f;
-    while (diff < -180.0f) diff += 360.0f;
+    while (diff > 180.0f)
+        diff -= 360.0f;
+    while (diff < -180.0f)
+        diff += 360.0f;
     return diff;
 }
