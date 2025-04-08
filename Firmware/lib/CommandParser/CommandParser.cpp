@@ -1,16 +1,5 @@
 #include "CommandParser.h"
 
-void CommandParser::begin(HardwareSerial &serial)
-{
-    serial.begin(115200);
-}
-
-#include "CommandParser.h"
-
-CommandParser::CommandParser()
-{
-}
-
 void CommandParser::begin(HardwareSerial &serialPort)
 {
     serial = &serialPort;

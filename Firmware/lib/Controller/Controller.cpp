@@ -46,7 +46,7 @@ void Controller::begin()
 
 void Controller::update()
 {
-    parser.readCommand(desired);  // still call this every loop
+    parser.readCommand(desired); // still call this every loop
 
     if (parser.messageReceived())
     {
