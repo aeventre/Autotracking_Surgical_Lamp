@@ -4,15 +4,15 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         Node(
-            package='2d_camera_estimation',
+            package='camera_estimation_2d',
             executable='hand_position_publisher',
             name='hand_position_publisher',
             output='screen'
         ),
         Node(
-            package='ik_solver_2d',
-            executable='ik_solver_2d',
-            name='ik_solver_2d',
+            package='kinematics_2d',
+            executable='ik_node_2d',
+            name='ik_node_2d',
             output='screen',
             parameters=[
                 {'L1': 0.2032},
@@ -21,7 +21,7 @@ def generate_launch_description():
         ),
         Node(
             package='controller_coms',
-            executable='controller_coms_node',
+            executable='coms_node',
             name='controller_coms',
             output='screen'
         )
