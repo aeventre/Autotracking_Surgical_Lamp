@@ -243,24 +243,7 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [
-      [
-        "lib_symbol_mismatch|1371600|901700|d442fa6d-af5d-437b-ab88-4b83f2f5fe5d|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ],
-      [
-        "power_pin_not_driven|1371600|749300|cefe2adf-3fe7-4a04-867d-09a5bb4c31f8|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/b3ddd8e4-b745-4983-9594-7ac7424eb2f0|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/b3ddd8e4-b745-4983-9594-7ac7424eb2f0|",
-        ""
-      ],
-      [
-        "power_pin_not_driven|1422400|787400|54583590-4cab-442e-9062-e7f2618bf86c|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/56f0e3fe-15ba-42b3-9cc4-5d007aa377e9|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/56f0e3fe-15ba-42b3-9cc4-5d007aa377e9|",
-        ""
-      ],
-      [
-        "power_pin_not_driven|1574800|444500|57032b56-bae2-4ddf-b8bf-0d26927fd0bc|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c|",
-        ""
-      ]
-    ],
+    "erc_exclusions": [],
     "meta": {
       "version": 0
     },

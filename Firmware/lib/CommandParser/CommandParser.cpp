@@ -1,11 +1,33 @@
 #include "CommandParser.h"
 
+#include "CommandParser.h"
+
 void CommandParser::begin(HardwareSerial &serialPort)
 {
     serial = &serialPort;
     buffer = "";
     receiving = false;
+
+    pinMode(RS485_DIR, OUTPUT);
+    digitalWrite(RS485_DIR, LOW);  // Start in RX mode
+
+    // RP2040: explicitly set TX/RX pins
+    #ifdef ARDUINO_ARCH_RP2040
+      Serial2.setTX(4);
+      Serial2.setRX(5);
+    #endif
+
+    serial->begin(115200);
+    delay(200);
+
+    // Send boot message
+    digitalWrite(RS485_DIR, HIGH);  // TX mode
+    serial->println("<BOOT,0.0,0.0,0.0,0>");
+    serial->flush();
+    delayMicroseconds(100);
+    digitalWrite(RS485_DIR, LOW);   // Back to RX
 }
+
 
 bool CommandParser::readCommand(CommandMessage &msg)
 {
@@ -13,35 +35,39 @@ bool CommandParser::readCommand(CommandMessage &msg)
     {
         char c = serial->read();
 
-        if (c == '<')
-        {
+        if (c == '<') {
             buffer = "";
             receiving = true;
         }
-        else if (c == '>' && receiving)
-        {
+        else if (c == '>' && receiving) {
             receiving = false;
 
-            // Parse buffer into CommandMessage
-            int c1 = buffer.indexOf(',');
-            int c2 = buffer.indexOf(',', c1 + 1);
-            int c3 = buffer.indexOf(',', c2 + 1);
-            int c4 = buffer.indexOf(',', c3 + 1);
+            // Split into tokens
+            int values[5];
+            int index = 0;
+            int start = 0;
 
-            if (c1 == -1 || c2 == -1 || c3 == -1 || c4 == -1)
-                return false;
+            for (int i = 0; i < buffer.length() && index < 5; i++) {
+                if (buffer[i] == ',' || i == buffer.length() - 1) {
+                    int end = (buffer[i] == ',') ? i : i + 1;
+                    String token = buffer.substring(start, end);
+                    values[index++] = token.toFloat();
+                    start = i + 1;
+                }
+            }
 
-            msg.a1 = buffer.substring(0, c1).toFloat();
-            msg.a2 = buffer.substring(c1 + 1, c2).toFloat();
-            msg.a3 = buffer.substring(c2 + 1, c3).toFloat();
-            msg.a4 = buffer.substring(c3 + 1, c4).toFloat();
-            msg.lightMode = buffer.substring(c4 + 1).toInt();
-            
-            _receivedFlag = true;  // ✅ New
+            if (index != 5) return false;  // Not enough values
+
+            msg.a1 = values[0];
+            msg.a2 = values[1];
+            msg.a3 = values[2];
+            msg.a4 = values[3];
+            msg.lightMode = values[4];
+
+            _receivedFlag = true;
             return true;
         }
-        else if (receiving)
-        {
+        else if (receiving) {
             buffer += c;
         }
     }
@@ -49,10 +75,13 @@ bool CommandParser::readCommand(CommandMessage &msg)
     return false;
 }
 
+
 void CommandParser::sendStatus(const CommandMessage &msg)
 {
-    if (!serial)
-        return;
+    if (!serial) return;
+
+    digitalWrite(RS485_DIR, HIGH);  // ✅ TX mode
+    delayMicroseconds(10);
 
     serial->print("<");
     serial->print(msg.a1, 2);
@@ -62,8 +91,16 @@ void CommandParser::sendStatus(const CommandMessage &msg)
     serial->print(msg.a3, 2);
     serial->print(",");
     serial->print(msg.a4, 2);
+    serial->print(",");
+    serial->print(msg.lightMode);
     serial->println(">");
+
+    serial->flush();
+    delayMicroseconds(10);
+
+    digitalWrite(RS485_DIR, LOW);
 }
+
 
 bool CommandParser::messageReceived() const {
     return _receivedFlag;
