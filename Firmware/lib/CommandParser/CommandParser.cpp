@@ -12,10 +12,9 @@ void CommandParser::begin(HardwareSerial &serialPort)
     digitalWrite(RS485_DIR, LOW);  // Start in RX mode
 
     // RP2040: explicitly set TX/RX pins
-    #ifdef ARDUINO_ARCH_RP2040
       Serial2.setTX(4);
       Serial2.setRX(5);
-    #endif
+
 
     serial->begin(115200);
     delay(200);
@@ -76,12 +75,17 @@ bool CommandParser::readCommand(CommandMessage &msg)
 }
 
 
+
+
+
+
+
 void CommandParser::sendStatus(const CommandMessage &msg)
 {
     if (!serial) return;
 
-    digitalWrite(RS485_DIR, HIGH);  // ✅ TX mode
-    delayMicroseconds(10);
+    digitalWrite(RS485_DIR, HIGH);  // Switch to TX mode
+    delayMicroseconds(10);          // Allow RS485 chip to settle
 
     serial->print("<");
     serial->print(msg.a1, 2);
@@ -100,6 +104,7 @@ void CommandParser::sendStatus(const CommandMessage &msg)
 
     digitalWrite(RS485_DIR, LOW);
 }
+
 
 
 bool CommandParser::messageReceived() const {

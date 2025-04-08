@@ -3,9 +3,6 @@
 #include "StepperJoint.h"
 #include <Arduino.h>
 
-#define lampPin 18
-#define laserPin 19
-
 StepperJoint joint1;
 EncoderLib encoder1(Wire);
 
@@ -31,8 +28,9 @@ void loop()
 {
 
     parser.readCommand(desired);
-
     joint1.update();
+
+
 
     if (parser.messageReceived())
     {
@@ -42,7 +40,10 @@ void loop()
         parser.sendStatus(current);
         parser.clearReceivedFlag();
     }
-}
+  }
+  
+
+
 
 // ====================================================================
 // Test code for ServoJoint
