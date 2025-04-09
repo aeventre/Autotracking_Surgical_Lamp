@@ -8,9 +8,15 @@ EncoderLib::EncoderLib(TwoWire &wirePort) : wire(wirePort)
 
 void EncoderLib::begin(uint8_t sdaPin, uint8_t sclPin)
 {
+#if defined(ARDUINO_ARCH_RP2040)
     wire.setSDA(sdaPin);
     wire.setSCL(sclPin);
     wire.begin();
+#else
+    (void)sdaPin; // suppress unused variable warnings
+    (void)sclPin;
+    wire.begin(); // Use default I2C pins on Uno (A4 = SDA, A5 = SCL)
+#endif
 
     checkMagnetPresence();
     readRawAngle();

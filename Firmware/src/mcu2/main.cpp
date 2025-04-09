@@ -1,86 +1,66 @@
+#include "EncoderLib.h"
+#include "StepperJoint.h"
 #include <Arduino.h>
-#include <Servo.h>
 
-Servo joint2;
-Servo joint3;
-Servo joint4;
+float readJoint0Command();
 
-void recieveCommand(float &angle2, float &angle3, float &angle4, int &lightMode);
-void controlLight(int lightMode);
+#define stepPin 2
+#define dirPin 3
 
-#define joint3Feedback A0
-#define joint4Feedback A1
-#define joint2EncoderPower 2
-#define joint1EncoderPower 3
+StepperJoint joint0;
+EncoderLib encoder(Wire);
 
-float commandAngle2, commandAngle3, commandAngle4;
-int lightMode;
+unsigned long lastPrint = 0;
 
 void setup()
 {
-    joint2.attach(3);
-    joint3.attach(5);
-    joint4.attach(6);
-
     Serial.begin(115200);
+    encoder.begin(A4, A5);  // Uno SDA/SCL pins
+    joint0.begin(stepPin, dirPin, &encoder);
+    joint0.calibrateFromEncoder(); // Set encoder angle to 0
+    joint0.setPIDGains(5, 1, 0.5);
 }
 
 void loop()
 {
-    float currentAngle3 = map(analogRead(joint3Feedback), 0, 1023, 0, 270);
-    float currentAngle4 = map(analogRead(joint4Feedback), 0, 1023, 0, 270);
-    recieveCommand(commandAngle2, commandAngle3, commandAngle4, lightMode);
+    float angle = readJoint0Command();
 
-    // Send Current Positions to ROS
-    Serial.print("<");
-    Serial.print(currentAngle3);
-    Serial.print(",");
-    Serial.print(currentAngle4);
-    Serial.println(">");
+    if (!isnan(angle)) {
+        joint0.setTarget(angle);
+    }
+
+    joint0.update();
+
+    // Throttle printing to once every 100ms
+    if (millis() - lastPrint > 100) {
+        Serial.print("<");
+        Serial.print(joint0.getCurrentAngle(), 2);
+        Serial.println(">");
+        lastPrint = millis();
+    }
 }
 
-void recieveCommand(float &angle2, float &angle3, float &angle4, int &lightMode)
+float readJoint0Command()
 {
     static String input = "";
+    static bool receiving = false;
+
     while (Serial.available())
     {
         char c = Serial.read();
 
-        if (c == '<')
-        {
-            input = ""; // Start new packet
+        if (c == '<') {
+            input = "";
+            receiving = true;
         }
-        else if (c == '>')
-        {
-            // End of packet: parse
-            int c1 = input.indexOf(',');
-            int c2 = input.indexOf(',', c1 + 1);
-            int c3 = input.indexOf(',', c2 + 1);
-
-            if (c1 == -1 || c2 == -1 || c3 == -1)
-                return;
-
-            angle2 = input.substring(0, c1).toFloat();
-            angle3 = input.substring(c1 + 1, c2).toFloat();
-            angle4 = input.substring(c2 + 1, c3).toFloat();
-            lightMode = input.substring(c3 + 1).toInt();
+        else if (c == '>' && receiving) {
+            receiving = false;
+            return input.toFloat();  // Parse angle
         }
-        else
-        {
+        else if (receiving) {
             input += c;
         }
     }
-}
 
-void controlLight(int lightMode)
-{
-    switch (lightMode)
-    {
-    case 0:
-
-        break;
-
-    default:
-        break;
-    }
+    return NAN;  // Return invalid if no message complete
 }
