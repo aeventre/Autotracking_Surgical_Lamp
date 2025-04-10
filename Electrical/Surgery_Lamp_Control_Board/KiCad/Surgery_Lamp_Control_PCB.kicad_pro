@@ -726,18 +726,6 @@
     [
       "07b3e6cf-0da3-49cd-83f5-dd2f3182c01c",
       "Root"
-    ],
-    [
-      "56f0e3fe-15ba-42b3-9cc4-5d007aa377e9",
-      "MAX485"
-    ],
-    [
-      "ea28c297-5c39-4b93-8db7-6e376dbfcf38",
-      "PCA9685"
-    ],
-    [
-      "b3ddd8e4-b745-4983-9594-7ac7424eb2f0",
-      "A4988"
     ]
   ],
   "text_variables": {}

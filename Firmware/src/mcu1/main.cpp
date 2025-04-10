@@ -14,7 +14,7 @@ static constexpr uint8_t dirPin1 = 16;
 static constexpr uint8_t stepPin1 = 17;
 
 void setup()
-{
+{   
     Serial.begin(115200);
     parser.begin(Serial2);
 
@@ -41,9 +41,6 @@ void loop()
         parser.clearReceivedFlag();
     }
   }
-  
-
-
 
 // ====================================================================
 // Test code for ServoJoint
