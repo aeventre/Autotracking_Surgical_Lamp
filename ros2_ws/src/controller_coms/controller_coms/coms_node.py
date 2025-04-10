@@ -9,8 +9,8 @@ class ControllerComsNode(Node):
     def __init__(self):
         super().__init__('controller_coms')
 
-        self.mcu1_port = '/dev/ttyUSB1'
-        self.mcu2_port = '/dev/ttyUSB0'
+        self.mcu1_port = '/dev/ttyS0'
+        self.mcu2_port = '/dev/ttyACM0'
         self.baud_rate = 115200
         self.light_mode = 0
 
