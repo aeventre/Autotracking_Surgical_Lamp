@@ -9,8 +9,8 @@ class IKSolver(Node):
         super().__init__('ik_solver_2d')
 
         # Declare and retrieve link lengths
-        self.declare_parameter('L1', 0.2032)
-        self.declare_parameter('L2', 0.3175)
+        self.declare_parameter('L1', 0.32)
+        self.declare_parameter('L2', 0.39)
         self.L1 = self.get_parameter('L1').value
         self.L2 = self.get_parameter('L2').value
 
@@ -37,8 +37,8 @@ class IKSolver(Node):
 
     def ik_callback(self, msg):
         # Wrist position in camera frame (meters)
-        x_cam = msg.x
-        y_cam = msg.y
+        x_cam = msg.y
+        y_cam = -msg.x
 
         # Total camera angle = theta0 + theta1
         theta_cam = self.current_theta0 + self.current_theta1
