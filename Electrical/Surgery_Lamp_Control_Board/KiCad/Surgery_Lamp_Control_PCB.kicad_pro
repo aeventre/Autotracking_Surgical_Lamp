@@ -100,7 +100,7 @@
         "padstack": "warning",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
-        "silk_edge_clearance": "warning",
+        "silk_edge_clearance": "ignore",
         "silk_over_copper": "warning",
         "silk_overlap": "warning",
         "skew_out_of_range": "error",
@@ -514,7 +514,7 @@
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.76,
+        "track_width": 0.3,
         "via_diameter": 0.6,
         "via_drill": 0.3
       }
@@ -540,7 +540,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "surg_lamp_control_board",
+      "plot": "surg_lamp_control_board_gerbers",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "Surgery_Lamp_Control_PCB.step",
