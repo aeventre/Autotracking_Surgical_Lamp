@@ -1,0 +1,8 @@
+# Default initial positions for surg_bot's ros2_control fake system
+
+initial_positions:
+  Revolute 1: 0
+  Revolute 2: 0
+  Revolute 3: 0
+  Revolute 4: 0
+  Revolute 5: 0

@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: surg_bot_description
+    relative_path: urdf/surg_bot.xacro
+  srdf:
+    relative_path: config/surg_bot.srdf
+  package_settings:
+    author_name: Alec Ventresca
+    author_email: aeventre@buffalo.edu
+    generated_timestamp: 1744567508
