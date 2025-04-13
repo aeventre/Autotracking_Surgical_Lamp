@@ -4,9 +4,9 @@ moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControll
 
 moveit_simple_controller_manager:
   controller_names:
-    - lamp_arm_controller
+    - arm_control_controller
 
-  lamp_arm_controller:
+  arm_control_controller:
     type: FollowJointTrajectory
     joints:
       - Revolute 1
