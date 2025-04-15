@@ -1,7 +1,7 @@
 # joint_limits.yaml allows the dynamics properties specified in the URDF to be overwritten or augmented as needed
 
 # For beginners, we downscale velocity and acceleration limits.
-# You can always specify higher scaling factors (<= 1.0) in your motion requests.  # Increase the values below to 1.0 to always move at maximum speed.
+# You can always specify higher scaling factors (<= 1.2.0) in your motion requests.  # Increase the values below to 1.2.0 to always move at maximum speed.
 default_velocity_scaling_factor: 0.1
 default_acceleration_scaling_factor: 0.1
 
@@ -10,26 +10,26 @@ default_acceleration_scaling_factor: 0.1
 joint_limits:
   Revolute 1:
     has_velocity_limits: true
-    max_velocity: 1.0
+    max_velocity: 2.0
     has_acceleration_limits: true
     max_acceleration: 2.0
   Revolute 2:
     has_velocity_limits: true
-    max_velocity: 1.0
+    max_velocity: 2.0
     has_acceleration_limits: true
     max_acceleration: 2.0
   Revolute 3:
     has_velocity_limits: true
-    max_velocity: 1.0
+    max_velocity: 12.0
     has_acceleration_limits: true
     max_acceleration: 2.0
   Revolute 4:
     has_velocity_limits: true
-    max_velocity: 1.0
+    max_velocity: 12.0
     has_acceleration_limits: true
     max_acceleration: 2.0
   Revolute 5:
     has_velocity_limits: true
-    max_velocity: 1.0
+    max_velocity: 12.0
     has_acceleration_limits: true
     max_acceleration: 2.0
