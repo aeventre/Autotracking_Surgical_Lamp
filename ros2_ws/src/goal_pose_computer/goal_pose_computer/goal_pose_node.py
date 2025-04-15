@@ -40,7 +40,7 @@ class GoalPoseNode(Node):
         goal_pos = remote_pos + offset_global[:3]
 
         # Vector from goal to remote (direction lamp should face)
-        direction = remote_pos - goal_pos
+        direction = goal_pos - remote_pos
         quat = self.quaternion_look_at(direction)
 
         # Build and publish goal pose
