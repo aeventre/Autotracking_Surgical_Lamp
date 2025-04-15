@@ -2,7 +2,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
-import tf_transformations
+import tf_transformations # type: ignore
 
 class GoalPoseNode(Node):
     def __init__(self):
