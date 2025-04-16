@@ -20,16 +20,16 @@ joint_limits:
     max_acceleration: 2.0
   Revolute 3:
     has_velocity_limits: true
-    max_velocity: 12.0
+    max_velocity: 2.0
     has_acceleration_limits: true
     max_acceleration: 2.0
   Revolute 4:
     has_velocity_limits: true
-    max_velocity: 12.0
+    max_velocity: 2.0
     has_acceleration_limits: true
     max_acceleration: 2.0
   Revolute 5:
     has_velocity_limits: true
-    max_velocity: 12.0
+    max_velocity: 2.0
     has_acceleration_limits: true
     max_acceleration: 2.0
