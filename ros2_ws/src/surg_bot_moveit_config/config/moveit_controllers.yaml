@@ -9,8 +9,8 @@ moveit_simple_controller_manager:
   arm_control_controller:
     type: FollowJointTrajectory
     joints:
-      - Revolute 1
-      - Revolute 2
-      - Revolute 3
-      - Revolute 4
-      - Revolute 5
+      - revolute_1
+      - revolute_2
+      - revolute_3
+      - revolute_4
+      - revolute_5
