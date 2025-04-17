@@ -1,17 +1,20 @@
-#include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <moveit/move_group_interface/move_group_interface.hpp>
+#include <moveit_msgs/msg/constraints.hpp>
+#include <moveit_msgs/msg/orientation_constraint.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <memory>
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
   auto const node = std::make_shared<rclcpp::Node>(
-    "goal_pose_executor",
+    "hello_moveit",
     rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true)
   );
 
-  auto const logger = rclcpp::get_logger("goal_pose_executor");
+  auto const logger = rclcpp::get_logger("hello_moveit");
 
   using moveit::planning_interface::MoveGroupInterface;
   auto arm_group_interface = MoveGroupInterface(node, "arm_control");
@@ -26,30 +29,46 @@ int main(int argc, char *argv[])
   RCLCPP_INFO(logger, "Planner ID: %s", arm_group_interface.getPlannerId().c_str());
   RCLCPP_INFO(logger, "Planning time: %.2f", arm_group_interface.getPlanningTime());
 
-  // Get the current pose of the end-effector
-  auto current_pose = arm_group_interface.getCurrentPose();
+  // Define a reachable target pose
+  auto const arm_target_pose = [&node] {
+    geometry_msgs::msg::PoseStamped msg;
+    msg.header.frame_id = "base_link";
+    msg.header.stamp = node->now();
+    msg.pose.position.x = 0.1;
+    msg.pose.position.y = 0.0;
+    msg.pose.position.z = -0.32;
+    msg.pose.orientation.x = 0.0;
+    msg.pose.orientation.y = 0.0;
+    msg.pose.orientation.z = 0.0;
+    msg.pose.orientation.w = 1.0;  // Make sure this is a valid quaternion
+    return msg;
+  }();
 
-  RCLCPP_INFO(logger, "Current Pose:");
-  RCLCPP_INFO(logger, "  Position - x: %.3f, y: %.3f, z: %.3f",
-              current_pose.pose.position.x,
-              current_pose.pose.position.y,
-              current_pose.pose.position.z);
-  RCLCPP_INFO(logger, "  Orientation - x: %.3f, y: %.3f, z: %.3f, w: %.3f",
-              current_pose.pose.orientation.x,
-              current_pose.pose.orientation.y,
-              current_pose.pose.orientation.z,
-              current_pose.pose.orientation.w);
+  // Set a path constraint that only cares about Z-axis alignment
+  moveit_msgs::msg::OrientationConstraint ocm;
+  ocm.link_name = arm_group_interface.getEndEffectorLink();
+  ocm.header.frame_id = arm_target_pose.header.frame_id;
+  ocm.orientation = arm_target_pose.pose.orientation;
+  ocm.absolute_x_axis_tolerance = M_PI;  // allow full roll
+  ocm.absolute_y_axis_tolerance = M_PI;  // allow full pitch
+  ocm.absolute_z_axis_tolerance = 0.1;   // slightly care about Z-axis
+  ocm.weight = 1.0;
 
-  // Use the current pose as the target (guaranteed reachable)
-  arm_group_interface.setPoseTarget(current_pose);
+  moveit_msgs::msg::Constraints constraints;
+  constraints.orientation_constraints.push_back(ocm);
+  arm_group_interface.setPathConstraints(constraints);
 
-  // Plan to the current pose
+  // Apply the pose target
+  arm_group_interface.setPoseTarget(arm_target_pose);
+
+  // Plan
   auto const [success, plan] = [&arm_group_interface] {
     moveit::planning_interface::MoveGroupInterface::Plan msg;
     auto const ok = static_cast<bool>(arm_group_interface.plan(msg));
     return std::make_pair(ok, msg);
   }();
 
+  // Execute
   if (success)
   {
     RCLCPP_INFO(logger, "Planning succeeded. Executing...");
