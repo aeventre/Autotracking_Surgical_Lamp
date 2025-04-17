@@ -1,61 +1,65 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-
 #include <moveit/move_group_interface/move_group_interface.hpp>
-#include <moveit/robot_state/robot_state.hpp>
-#include <moveit/planning_scene_monitor/planning_scene_monitor.hpp>
-#include <moveit/robot_model_loader/robot_model_loader.hpp>
 
-
-class GoalPoseExecutor : public rclcpp::Node
+int main(int argc, char *argv[])
 {
-public:
-    GoalPoseExecutor() : Node("goal_pose_executor")
-    {
-        using std::placeholders::_1;
+  rclcpp::init(argc, argv);
 
-        // Set up MoveGroupInterface for your MoveIt planning group
-        move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(shared_from_this(), "lamp_arm");
+  auto const node = std::make_shared<rclcpp::Node>(
+    "goal_pose_executor",
+    rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true)
+  );
 
-        // Subscriber to goal pose
-        goal_pose_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-            "/goal_pose", 10, std::bind(&GoalPoseExecutor::goalPoseCallback, this, _1));
+  auto const logger = rclcpp::get_logger("goal_pose_executor");
 
-        RCLCPP_INFO(this->get_logger(), "Goal Pose Executor initialized.");
-    }
+  using moveit::planning_interface::MoveGroupInterface;
+  auto arm_group_interface = MoveGroupInterface(node, "arm_control");
 
-private:
-    void goalPoseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
-    {
-        RCLCPP_INFO(this->get_logger(), "Received new goal pose. Attempting IK...");
+  arm_group_interface.setPlanningPipelineId("ompl");
+  arm_group_interface.setPlannerId("RRTConnectkConfigDefault");
+  arm_group_interface.setPlanningTime(2.0);
+  arm_group_interface.setMaxVelocityScalingFactor(1.0);
+  arm_group_interface.setMaxAccelerationScalingFactor(1.0);
 
-        // Set the target pose
-        move_group_->setPoseTarget(*msg);
+  RCLCPP_INFO(logger, "Planning pipeline: %s", arm_group_interface.getPlanningPipelineId().c_str());
+  RCLCPP_INFO(logger, "Planner ID: %s", arm_group_interface.getPlannerId().c_str());
+  RCLCPP_INFO(logger, "Planning time: %.2f", arm_group_interface.getPlanningTime());
 
-        // Solve IK
-        moveit::planning_interface::MoveGroupInterface::Plan plan;
-        bool success = (move_group_->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+  // Get the current pose of the end-effector
+  auto current_pose = arm_group_interface.getCurrentPose();
 
-        if (success)
-        {
-            RCLCPP_INFO(this->get_logger(), "IK successful. Executing...");
-            move_group_->execute(plan);
-        }
-        else
-        {
-            RCLCPP_WARN(this->get_logger(), "IK failed for the given pose.");
-        }
-    }
+  RCLCPP_INFO(logger, "Current Pose:");
+  RCLCPP_INFO(logger, "  Position - x: %.3f, y: %.3f, z: %.3f",
+              current_pose.pose.position.x,
+              current_pose.pose.position.y,
+              current_pose.pose.position.z);
+  RCLCPP_INFO(logger, "  Orientation - x: %.3f, y: %.3f, z: %.3f, w: %.3f",
+              current_pose.pose.orientation.x,
+              current_pose.pose.orientation.y,
+              current_pose.pose.orientation.z,
+              current_pose.pose.orientation.w);
 
-    rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_pose_sub_;
-    std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_;
-};
+  // Use the current pose as the target (guaranteed reachable)
+  arm_group_interface.setPoseTarget(current_pose);
 
-int main(int argc, char **argv)
-{
-    rclcpp::init(argc, argv);
-    auto node = std::make_shared<GoalPoseExecutor>();
-    rclcpp::spin(node);
-    rclcpp::shutdown();
-    return 0;
+  // Plan to the current pose
+  auto const [success, plan] = [&arm_group_interface] {
+    moveit::planning_interface::MoveGroupInterface::Plan msg;
+    auto const ok = static_cast<bool>(arm_group_interface.plan(msg));
+    return std::make_pair(ok, msg);
+  }();
+
+  if (success)
+  {
+    RCLCPP_INFO(logger, "Planning succeeded. Executing...");
+    arm_group_interface.execute(plan);
+  }
+  else
+  {
+    RCLCPP_ERROR(logger, "Planning failed!");
+  }
+
+  rclcpp::shutdown();
+  return 0;
 }

@@ -1,8 +1,8 @@
 # Default initial positions for surg_bot's ros2_control fake system
 
 initial_positions:
-  revolute_1: 0
-  revolute_2: 0
-  revolute_3: 0
-  revolute_4: 0
-  revolute_5: 0
+  joint0: 0
+  joint1: 0
+  joint2: 0
+  joint3: 0
+  joint4: 0
