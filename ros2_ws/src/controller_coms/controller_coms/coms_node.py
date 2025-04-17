@@ -1,9 +1,9 @@
 import rclpy
 from rclpy.node import Node
 import serial
-from surg_lamp_msgs.msg import LampJointCommands, LampCurrentAngles
-from std_msgs.msg import Int32, String
-
+from std_msgs.msg import Float64MultiArray, String
+from surg_lamp_msgs.msg import LampCurrentAngles
+from surg_lamp_msgs.msg import UserCommand
 
 class ControllerComsNode(Node):
     def __init__(self):
@@ -22,8 +22,8 @@ class ControllerComsNode(Node):
         self.current_angles_pub = self.create_publisher(LampCurrentAngles, 'current_angles', 10)
         self.mcu_status_pub = self.create_publisher(String, 'mcu_status', 10)
 
-        self.create_subscription(LampJointCommands, 'joint_commands', self.joint_command_callback, 10)
-        self.create_subscription(Int32, 'light_mode', self.light_mode_callback, 10)
+        self.create_subscription(Float64MultiArray, 'joint_commands', self.joint_command_callback, 10)
+        self.create_subscription(UserCommand, 'user_command', self.user_command_callback, 10)
 
         self.create_timer(2.0, self.check_mcu_status)
 
@@ -41,10 +41,14 @@ class ControllerComsNode(Node):
     def joint_command_callback(self, msg):
         angles = LampCurrentAngles()
 
+        if len(msg.data) < 5:
+            self.get_logger().warn("Received joint command array with insufficient values.")
+            return
+
         # Send to MCU1: <joint1,joint2,joint3,joint4,lightmode>
         if self.mcu1_serial:
             try:
-                mcu1_cmd = f"<{msg.joint_1},{msg.joint_2},{msg.joint_3},{msg.joint_4},{self.light_mode}>\n"
+                mcu1_cmd = f"<{msg.data[1]},{msg.data[2]},{msg.data[3]},{msg.data[4]},{self.light_mode}>\n"
                 self.mcu1_serial.reset_input_buffer()
                 self.mcu1_serial.write(mcu1_cmd.encode())
                 self.get_logger().debug(f"Sent to MCU1: {mcu1_cmd.strip()}")
@@ -57,7 +61,6 @@ class ControllerComsNode(Node):
                         angles.joint_2 = float(values[1])
                         angles.joint_3 = float(values[2])
                         angles.joint_4 = float(values[3])
-                        # values[4] is light mode feedback (optional to store)
                     else:
                         self.get_logger().warn(f"Unexpected MCU1 response: {response}")
                 else:
@@ -69,7 +72,7 @@ class ControllerComsNode(Node):
         # Send to MCU2: <joint0>
         if self.mcu2_serial:
             try:
-                mcu2_cmd = f"<{msg.joint_0}>\n"
+                mcu2_cmd = f"<{msg.data[0]}>\n"
                 self.mcu2_serial.reset_input_buffer()
                 self.mcu2_serial.write(mcu2_cmd.encode())
                 self.get_logger().debug(f"Sent to MCU2: {mcu2_cmd.strip()}")
@@ -83,8 +86,14 @@ class ControllerComsNode(Node):
             except Exception as e:
                 self.get_logger().error(f"Error communicating with MCU2: {e}")
 
-        # Publish merged result
         self.current_angles_pub.publish(angles)
+
+    def user_command_callback(self, msg):
+        try:
+            self.light_mode = int(msg.light_mode)
+            self.get_logger().info(f"Received light mode from command manager: {self.light_mode}")
+        except Exception as e:
+            self.get_logger().error(f"Failed to parse light mode from user_command: {e}")
 
     def read_serial_line(self, ser):
         try:
@@ -95,13 +104,6 @@ class ControllerComsNode(Node):
         except Exception as e:
             self.get_logger().error(f"Error reading serial: {e}")
             return ""
-
-    def light_mode_callback(self, msg):
-        try:
-            self.light_mode = int(msg.data)
-            self.get_logger().info(f"Light mode set to {self.light_mode}")
-        except ValueError as e:
-            self.get_logger().error(f"Invalid light mode: {e}")
 
     def check_mcu_status(self):
         status = []
@@ -118,14 +120,12 @@ class ControllerComsNode(Node):
         status_msg.data = msg_text
         self.mcu_status_pub.publish(status_msg)
 
-
 def main(args=None):
     rclpy.init(args=args)
     node = ControllerComsNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
