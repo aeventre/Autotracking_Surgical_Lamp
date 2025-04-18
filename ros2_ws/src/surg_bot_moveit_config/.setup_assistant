@@ -7,7 +7,7 @@ moveit_setup_assistant_config:
   package_settings:
     author_name: Alec Ventresca
     author_email: aeventre@buffalo.edu
-    generated_timestamp: 1744921413
+    generated_timestamp: 1744989219
   control_xacro:
     command:
       - position
