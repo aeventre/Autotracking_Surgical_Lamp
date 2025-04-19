@@ -1,8 +1,9 @@
 import rclpy
 from rclpy.node import Node
 import serial
+
 from std_msgs.msg import Float64MultiArray, String
-from surg_lamp_msgs.msg import LampCurrentAngles
+from sensor_msgs.msg import JointState
 from surg_lamp_msgs.msg import UserCommand
 
 class ControllerComsNode(Node):
@@ -18,8 +19,8 @@ class ControllerComsNode(Node):
         self.mcu1_serial = self.init_serial(self.mcu1_port)
         self.mcu2_serial = self.init_serial(self.mcu2_port)
 
-        # ROS interfaces
-        self.current_angles_pub = self.create_publisher(LampCurrentAngles, 'current_angles', 10)
+        # ROS publishers and subscribers
+        self.joint_state_pub = self.create_publisher(JointState, 'joint_states', 10)
         self.mcu_status_pub = self.create_publisher(String, 'mcu_status', 10)
 
         self.create_subscription(Float64MultiArray, 'joint_commands', self.joint_command_callback, 10)
@@ -39,11 +40,11 @@ class ControllerComsNode(Node):
             return None
 
     def joint_command_callback(self, msg):
-        angles = LampCurrentAngles()
-
         if len(msg.data) < 5:
             self.get_logger().warn("Received joint command array with insufficient values.")
             return
+
+        joint_angles = [0.0] * 5
 
         # Send to MCU1: <joint1,joint2,joint3,joint4,lightmode>
         if self.mcu1_serial:
@@ -57,15 +58,14 @@ class ControllerComsNode(Node):
                 if response:
                     values = response.split(',')
                     if len(values) == 5:
-                        angles.joint_1 = float(values[0])
-                        angles.joint_2 = float(values[1])
-                        angles.joint_3 = float(values[2])
-                        angles.joint_4 = float(values[3])
+                        joint_angles[1] = float(values[0])
+                        joint_angles[2] = float(values[1])
+                        joint_angles[3] = float(values[2])
+                        joint_angles[4] = float(values[3])
                     else:
                         self.get_logger().warn(f"Unexpected MCU1 response: {response}")
                 else:
                     self.get_logger().warn("No response from MCU1.")
-
             except Exception as e:
                 self.get_logger().error(f"Error communicating with MCU1: {e}")
 
@@ -79,14 +79,18 @@ class ControllerComsNode(Node):
 
                 response = self.read_serial_line(self.mcu2_serial)
                 if response:
-                    angles.joint_0 = float(response)
+                    joint_angles[0] = float(response)
                 else:
                     self.get_logger().warn("No response from MCU2.")
-
             except Exception as e:
                 self.get_logger().error(f"Error communicating with MCU2: {e}")
 
-        self.current_angles_pub.publish(angles)
+        # Publish joint states to MoveIt / RViz
+        joint_state_msg = JointState()
+        joint_state_msg.header.stamp = self.get_clock().now().to_msg()
+        joint_state_msg.name = ['joint_0', 'joint_1', 'joint_2', 'joint_3', 'joint_4']
+        joint_state_msg.position = joint_angles
+        self.joint_state_pub.publish(joint_state_msg)
 
     def user_command_callback(self, msg):
         try:
