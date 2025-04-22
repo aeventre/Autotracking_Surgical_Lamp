@@ -4,19 +4,20 @@
 #include <moveit_msgs/msg/orientation_constraint.hpp>
 #include <moveit_msgs/msg/constraints.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
-#include <memory>
 #include <map>
+#include <memory>
+#include <vector>
+#include <cmath>
 
 class GoalPoseExecutor
 {
 public:
-  GoalPoseExecutor(const rclcpp::Node::SharedPtr& node)
+  GoalPoseExecutor(const rclcpp::Node::SharedPtr &node)
   : node_(node)
   {
     RCLCPP_INFO(node_->get_logger(), "Initializing MoveGroupInterface...");
 
-    move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(
-      node_, "arm_control");
+    move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, "arm_control");
 
     move_group_->setPlanningPipelineId("ompl");
     move_group_->setPlannerId("RRTConnectkConfigDefault");
@@ -24,12 +25,10 @@ public:
     move_group_->setMaxVelocityScalingFactor(1.0);
     move_group_->setMaxAccelerationScalingFactor(1.0);
 
-    joint_command_pub_ = node_->create_publisher<std_msgs::msg::Float64MultiArray>(
-      "/joint_commands", 10);
+    joint_command_pub_ = node_->create_publisher<std_msgs::msg::Float64MultiArray>("/joint_commands", 10);
 
     goal_pose_sub_ = node_->create_subscription<geometry_msgs::msg::PoseStamped>(
-      "/goal_pose", 10,
-      std::bind(&GoalPoseExecutor::goalPoseCallback, this, std::placeholders::_1));
+      "/goal_pose", 10, std::bind(&GoalPoseExecutor::goalPoseCallback, this, std::placeholders::_1));
 
     RCLCPP_INFO(node_->get_logger(), "GoalPoseExecutor is ready and listening on /goal_pose.");
   }
@@ -59,35 +58,56 @@ private:
 
     if (success)
     {
-      RCLCPP_INFO(node_->get_logger(), "Planning succeeded. Publishing joint commands...");
+      const auto &trajectory = plan.trajectory.joint_trajectory;
+      RCLCPP_INFO(node_->get_logger(), "Trajectory has %ld points.", trajectory.points.size());
 
-      if (plan.trajectory.joint_trajectory.points.empty())
+      if (trajectory.points.empty())
       {
         RCLCPP_ERROR(node_->get_logger(), "Trajectory plan is empty. Nothing to publish.");
         return;
       }
 
-      const auto& point = plan.trajectory.joint_trajectory.points.back();
-      const auto& names = plan.trajectory.joint_trajectory.joint_names;
-      const auto& positions = point.positions;
+      const auto &point = trajectory.points.back();
+      const auto &names = trajectory.joint_names;
+      const auto &positions = point.positions;
 
+      RCLCPP_INFO(node_->get_logger(), "Planning succeeded. Joint names in trajectory:");
+      for (const auto &name : names)
+      {
+        RCLCPP_INFO(node_->get_logger(), "  - %s", name.c_str());
+      }
+
+      // Map joint names to positions
       std::map<std::string, double> joint_map;
       for (size_t i = 0; i < names.size(); ++i)
       {
-        joint_map[names[i]] = positions[i];
+        if (names[i] != "fake_joint")
+        {
+          joint_map[names[i]] = positions[i];
+        }
       }
 
-      // Fill joint values in the correct order
-      std_msgs::msg::Float64MultiArray joint_array;
-      joint_array.data = {
-        joint_map["joint_0"],
-        joint_map["joint_1"],
-        joint_map["joint_2"],
-        joint_map["joint_3"],
-        joint_map["joint_4"]
-      };
+      // Desired joint name order (should match controller expectations)
+      const std::vector<std::string> target_joints = {"joint0", "joint1", "joint2", "joint3", "joint4"};
 
-      joint_command_pub_->publish(joint_array);
+      std_msgs::msg::Float64MultiArray joint_array;
+      try
+      {
+        for (const auto &joint : target_joints)
+        {
+          double deg = joint_map.at(joint) * (180.0 / M_PI);
+          double rounded = std::round(deg * 100.0) / 100.0;
+          joint_array.data.push_back(rounded);
+        }
+
+        joint_command_pub_->publish(joint_array);
+        RCLCPP_INFO(node_->get_logger(), "Published joint commands in degrees (2 decimal places).");
+      }
+      catch (const std::out_of_range &e)
+      {
+        RCLCPP_ERROR(node_->get_logger(), "Missing joint in trajectory: %s", e.what());
+        return;
+      }
     }
     else
     {
@@ -104,7 +124,7 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_pose_sub_;
 };
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("goal_pose_executor");
