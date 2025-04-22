@@ -20,6 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'command_manager_node = command_manager.command_manager_node:main',
+            'gui_node = command_manager.gui_node:main',
         ],
     },
 )
