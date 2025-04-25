@@ -17,7 +17,7 @@ public:
   {
     move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, "arm_control");
 
-    move_group_->setPlanningPipelineId("ompl");
+    move_group_->setPlanningPipelineId("stomp");
     move_group_->setPlannerId("RRTConnectkConfigDefault");
     move_group_->setPlanningTime(5.0);                 // ⬆ Increased planning time
     move_group_->setNumPlanningAttempts(10);           // ⬆ Increased attempts
