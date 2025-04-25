@@ -7,3 +7,4 @@ initial_positions:
   joint3: 0
   joint4: 0
   joint5: 0
+  slider: 0.1

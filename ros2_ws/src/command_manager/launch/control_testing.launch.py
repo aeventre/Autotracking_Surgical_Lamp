@@ -42,12 +42,12 @@ def generate_launch_description():
             output='screen',
         ),
 
-        # Goal Pose Computer (computes pose from vision or remote)
-        Node(
-            package='goal_pose_computer',
-            executable='goal_pose_computer',  # <-- THIS is the correct name
-            name='goal_pose_computer',
-            output='screen',
-        ),
+        # # Goal Pose Computer (computes pose from vision or remote)
+        # Node(
+        #     package='goal_pose_computer',
+        #     executable='goal_pose_computer',  # <-- THIS is the correct name
+        #     name='goal_pose_computer',
+        #     output='screen',
+        # ),
 
     ])
