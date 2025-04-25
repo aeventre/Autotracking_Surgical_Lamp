@@ -130,26 +130,8 @@
   </collision>
 </link>
 
-<link name="AprilTag0_1">
-  <inertial>
-    <origin xyz="-0.06120100000000133 -0.08805614874251824 0.05697699999999984" rpy="0 0 0"/>
-    <mass value="0.0628381454838991"/>
-    <inertia ixx="1.4e-05" iyy="2.9e-05" izz="1.4e-05" ixy="-0.0" iyz="0.0" ixz="-0.0"/>
-  </inertial>
-  <visual>
-    <origin xyz="-0.003901 -0.0572 0.036477" rpy="0 0 0"/>
-    <geometry>
-      <mesh filename="file://$(find surg_bot_description)/meshes/AprilTag0_1.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-    <material name="silver"/>
-  </visual>
-  <collision>
-    <origin xyz="-0.003901 -0.0572 0.036477" rpy="0 0 0"/>
-    <geometry>
-      <mesh filename="file://$(find surg_bot_description)/meshes/AprilTag0_1.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-  </collision>
-</link>
+<link name="AprilTag0_1"/>
+
 
 <link name="base_connector_1">
   <inertial>
@@ -172,26 +154,7 @@
   </collision>
 </link>
 
-<link name="AprilTag1_1">
-  <inertial>
-    <origin xyz="-0.06120100000000168 -0.02589723471612928 -0.0024230000000001577" rpy="0 0 0"/>
-    <mass value="0.0628381454838991"/>
-    <inertia ixx="1.4e-05" iyy="2.9e-05" izz="1.4e-05" ixy="-0.0" iyz="0.0" ixz="0.0"/>
-  </inertial>
-  <visual>
-    <origin xyz="-0.003901 -0.0572 -0.022923" rpy="0 0 0"/>
-    <geometry>
-      <mesh filename="file://$(find surg_bot_description)/meshes/AprilTag1_1.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-    <material name="silver"/>
-  </visual>
-  <collision>
-    <origin xyz="-0.003901 -0.0572 -0.022923" rpy="0 0 0"/>
-    <geometry>
-      <mesh filename="file://$(find surg_bot_description)/meshes/AprilTag1_1.stl" scale="0.001 0.001 0.001"/>
-    </geometry>
-  </collision>
-</link>
+<link name="AprilTag1_1"/>
 
 <link name="link5_1_1">
   <inertial>
@@ -275,11 +238,6 @@
   <limit upper="3.141593" lower="-3.141593" effort="100" velocity="100"/>
 </joint>
 
-<joint name="tag0" type="fixed">
-  <origin xyz="0.003901 0.0478 -0.029477" rpy="0 0 0"/>
-  <parent link="base_connector_1"/>
-  <child link="AprilTag0_1"/>
-</joint>
 
 <joint name="rigid1" type="fixed">
   <origin xyz="0.0 0.0094 -0.007" rpy="0 0 0"/>
@@ -287,8 +245,14 @@
   <child link="base_connector_1"/>
 </joint>
 
+<joint name="tag0" type="fixed">
+  <origin xyz="-0.0572 -0.041877 0.0275" rpy="1.5708 0 0"/>
+  <parent link="base_connector_1"/>
+  <child link="AprilTag0_1"/>
+</joint>
+
 <joint name="tag1" type="fixed">
-  <origin xyz="0.003901 0.0478 0.029923" rpy="0 0 0"/>
+  <origin xyz="-0.0572 0.023523 0.0275" rpy="-1.5708 -3.1416 0"/>
   <parent link="base_connector_1"/>
   <child link="AprilTag1_1"/>
 </joint>
