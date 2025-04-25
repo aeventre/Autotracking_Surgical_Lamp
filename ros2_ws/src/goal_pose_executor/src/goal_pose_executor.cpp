@@ -19,12 +19,12 @@ public:
 
     move_group_->setPlanningPipelineId("stomp");
     move_group_->setPlannerId("RRTConnectkConfigDefault");
-    move_group_->setPlanningTime(5.0);                 // ⬆ Increased planning time
+    move_group_->setPlanningTime(10);                 // ⬆ Increased planning time
     move_group_->setNumPlanningAttempts(10);           // ⬆ Increased attempts
     move_group_->setMaxVelocityScalingFactor(1.0);
     move_group_->setMaxAccelerationScalingFactor(1.0);
     move_group_->setGoalPositionTolerance(0.02);        // ⬆ Increased position tolerance
-    move_group_->setGoalOrientationTolerance(0.2);      // ⬆ Increased orientation tolerance
+    move_group_->setGoalOrientationTolerance(0.5);      // ⬆ Increased orientation tolerance
 
     joint_command_pub_ = node_->create_publisher<std_msgs::msg::Float64MultiArray>("/joint_commands", 10);
     planning_status_pub_ = node_->create_publisher<std_msgs::msg::Bool>("/planning_status", 10);
