@@ -19,6 +19,7 @@ arm_control_controller:
       - joint3
       - joint4
       - joint5
+      - slider
     command_interfaces:
       - position
     state_interfaces:
