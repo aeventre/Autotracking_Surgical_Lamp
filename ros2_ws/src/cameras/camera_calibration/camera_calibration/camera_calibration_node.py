@@ -1,161 +1,137 @@
-# camera_calibration/camera_calibration/camera_calibrator_node.py
-
 import rclpy
 from rclpy.node import Node
+from sensor_msgs.msg import Image
+from geometry_msgs.msg import PoseStamped
+from cv_bridge import CvBridge
 import cv2
 import numpy as np
-import tf2_ros
-from cv_bridge import CvBridge
-from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import TransformStamped
 import tf_transformations
-import apriltag
+import yaml
+import os
 
-class CameraCalibratorNode(Node):
+class CameraPoseEstimatorNode(Node):
     def __init__(self):
-        super().__init__('camera_calibrator_node')
+        super().__init__('camera_pose_estimator_node')
 
-        # Declare parameters
-        self.declare_parameter('image_topic', '/camera/color/image_raw')
-        self.declare_parameter('camera_info_topic', '/camera/color/camera_info')
+        self.declare_parameter('marker_length', 0.05)
         self.declare_parameter('camera_frame', 'camera_link')
-        self.declare_parameter('tag_size', 0.045)  # 45 mm default
+        self.declare_parameter('camera_poses_yaml', '/home/alec/Documents/Autotracking_Surgical_Lamp/ros2_ws/src/cameras/camera_calibration/calibration_data/camera_poses.yaml')
 
-        # Get parameter values
-        image_topic = self.get_parameter('image_topic').value
-        camera_info_topic = self.get_parameter('camera_info_topic').value
+        self.marker_length = self.get_parameter('marker_length').value
         self.camera_frame = self.get_parameter('camera_frame').value
-        self.tag_size = self.get_parameter('tag_size').value
+        self.camera_poses_yaml = self.get_parameter('camera_poses_yaml').value
 
         self.bridge = CvBridge()
 
-        # TF buffer and listener
-        self.tf_buffer = tf2_ros.Buffer()
-        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
-        self.tf_broadcaster = tf2_ros.StaticTransformBroadcaster(self)
+        self.aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+        self.parameters = cv2.aruco.DetectorParameters()
 
-        # Subscriptions
-        self.create_subscription(Image, image_topic, self.image_callback, 10)
-        self.create_subscription(CameraInfo, camera_info_topic, self.camera_info_callback, 10)
+        self.camera_matrix = np.array([[600, 0, 320], [0, 600, 240], [0, 0, 1]], dtype=np.float32)
+        self.dist_coeffs = np.zeros((5, 1))
 
-        self.camera_matrix = None
-        self.dist_coeffs = None
+        self.pose_pub = self.create_publisher(PoseStamped, 'camera_pose', 10)
+        self.create_subscription(Image, 'image_raw', self.image_callback, 10)
 
-        # Initialize the AprilTag detector
-        self.detector = apriltag.Detector()
+        self.camera_poses = {}
 
-        self.get_logger().info("CameraCalibratorNode initialized.")
-
-    def camera_info_callback(self, msg):
-        self.camera_matrix = np.array(msg.k).reshape((3, 3))
-        self.dist_coeffs = np.array(msg.d)
-        self.get_logger().info("Received camera intrinsics.")
+        self.get_logger().info('Camera Pose Estimator Node Initialized.')
 
     def image_callback(self, msg):
-        if self.camera_matrix is None:
-            return
+        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        corners, ids, _ = cv2.aruco.detectMarkers(cv_image, self.aruco_dict, parameters=self.parameters)
 
-        # Convert to OpenCV grayscale image
-        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
+        if ids is not None:
+            self.get_logger().info(f"Detected markers with ids: {ids}")
 
-        # Detect AprilTags
-        detections = self.detector.detect(cv_image)
+            for i, marker_id in enumerate(ids.flatten()):
+                # Estimate pose for THIS marker
+                rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
+                    corners[i], self.marker_length, self.camera_matrix, self.dist_coeffs)
 
-        if len(detections) == 0:
-            self.get_logger().warn("No AprilTags detected.")
-            return
+                rvec = rvecs[0][0]
+                tvec = tvecs[0][0]
 
-        obj_points = []  # 3D points in world
-        img_points = []  # 2D points in image
+                self.get_logger().info(f"Marker ID {marker_id} detected.")
+                self.get_logger().info(f"Translation: {tvec}")
+                self.get_logger().info(f"Rotation (rvec): {rvec}")
 
-        for detection in detections:
-            tag_id = detection.tag_id
+                # Build marker-to-camera transformation
+                rotation_matrix, _ = cv2.Rodrigues(rvec)
+                marker_to_camera = np.eye(4)
+                marker_to_camera[:3, :3] = rotation_matrix
+                marker_to_camera[:3, 3] = tvec
 
-            try:
-                # Lookup transform for tag frame
-                trans = self.tf_buffer.lookup_transform('world', f'AprilTag{tag_id}_1', rclpy.time.Time())
+                # Try to invert to get camera-to-marker
+                try:
+                    camera_to_marker = np.linalg.inv(marker_to_camera)
+                except np.linalg.LinAlgError as e:
+                    self.get_logger().warn(f'Failed to invert transform for marker {marker_id}: {str(e)}')
+                    continue  # Skip this marker safely
 
-                # Extract world position
-                tag_translation = np.array([
-                    trans.transform.translation.x,
-                    trans.transform.translation.y,
-                    trans.transform.translation.z
-                ])
+                # Extract camera position and orientation
+                cam_position = camera_to_marker[:3, 3]
+                cam_quat = tf_transformations.quaternion_from_matrix(camera_to_marker)
 
-                # Get world orientation (quaternion → rotation matrix)
-                quat = trans.transform.rotation
-                rotation_matrix = tf_transformations.quaternion_matrix([
-                    quat.x,
-                    quat.y,
-                    quat.z,
-                    quat.w
-                ])[:3, :3]  # 3x3 rotation matrix
+                # Save camera pose for this marker
+                self.camera_poses[int(marker_id)] = {
+                    'position': [float(cam_position[0]), float(cam_position[1]), float(cam_position[2])],
+                    'orientation': [float(cam_quat[0]), float(cam_quat[1]), float(cam_quat[2]), float(cam_quat[3])]
+                }
 
-                # Define 3D object points (tag corners in tag local frame)
-                half_size = self.tag_size / 2.0
-                tag_local_corners = np.array([
-                    [-half_size,  half_size, 0],  # Top-left
-                    [ half_size,  half_size, 0],  # Top-right
-                    [ half_size, -half_size, 0],  # Bottom-right
-                    [-half_size, -half_size, 0],  # Bottom-left
-                ])
+                # Publish the marker pose (still relative to the camera)
+                pose_msg = PoseStamped()
+                pose_msg.header.stamp = self.get_clock().now().to_msg()
+                pose_msg.header.frame_id = self.camera_frame
 
-                # Transform corners from tag local frame to world frame
-                tag_world_corners = (rotation_matrix @ tag_local_corners.T).T + tag_translation
+                pose_msg.pose.position.x = float(tvec[0])
+                pose_msg.pose.position.y = float(tvec[1])
+                pose_msg.pose.position.z = float(tvec[2])
 
-                # Add corresponding 2D image points (detected corners)
-                for i in range(4):
-                    obj_points.append(tag_world_corners[i])
-                    img_points.append(detection.corners[i])
+                # For publishing: reuse marker rotation
+                quat_for_pub = tf_transformations.quaternion_from_matrix(np.vstack([
+                    np.hstack([rotation_matrix, np.array([[0], [0], [0]])]),
+                    np.array([0, 0, 0, 1])
+                ]))
 
-            except Exception as e:
-                self.get_logger().warn(f"Could not find TF for AprilTag{tag_id}_1: {str(e)}")
-                continue
+                pose_msg.pose.orientation.x = quat_for_pub[0]
+                pose_msg.pose.orientation.y = quat_for_pub[1]
+                pose_msg.pose.orientation.z = quat_for_pub[2]
+                pose_msg.pose.orientation.w = quat_for_pub[3]
 
-        if len(obj_points) < 4:
-            self.get_logger().warn("Not enough correspondences to solve PnP.")
-            return
+                self.pose_pub.publish(pose_msg)
 
-        obj_points = np.array(obj_points, dtype=np.float32)
-        img_points = np.array(img_points, dtype=np.float32)
+                # Draw marker axis
+                cv2.drawFrameAxes(cv_image, self.camera_matrix, self.dist_coeffs, rvec, tvec, 0.03)
 
-        # Solve PnP
-        success, rvec, tvec = cv2.solvePnP(obj_points, img_points, self.camera_matrix, self.dist_coeffs)
+            # After all markers processed, save the poses
+            self.save_camera_poses_to_yaml()
 
-        if not success:
-            self.get_logger().error("PnP solution failed.")
-            return
+        else:
+            self.get_logger().info("No markers detected.")
 
-        # Convert rotation vector to quaternion
-        R, _ = cv2.Rodrigues(rvec)
-        quat = tf_transformations.quaternion_from_matrix(np.vstack((
-            np.hstack((R, np.zeros((3,1)))), 
-            np.array([0,0,0,1])
-        )))
+        # Always show the frame
+        cv2.imshow('Camera View', cv_image)
+        cv2.waitKey(1)
 
-        # Publish the camera pose relative to world
-        transform = TransformStamped()
-        transform.header.stamp = msg.header.stamp
-        transform.header.frame_id = 'world'
-        transform.child_frame_id = self.camera_frame
 
-        transform.transform.translation.x = tvec[0][0]
-        transform.transform.translation.y = tvec[1][0]
-        transform.transform.translation.z = tvec[2][0]
-        transform.transform.rotation.x = quat[0]
-        transform.transform.rotation.y = quat[1]
-        transform.transform.rotation.z = quat[2]
-        transform.transform.rotation.w = quat[3]
 
-        self.tf_broadcaster.sendTransform(transform)
-        self.get_logger().info(f"Published transform: world -> {self.camera_frame}")
+    def save_camera_poses_to_yaml(self):
+        os.makedirs(os.path.dirname(self.camera_poses_yaml), exist_ok=True)
+        with open(self.camera_poses_yaml, 'w') as file:
+            yaml.dump(self.camera_poses, file)
+        self.get_logger().info(f"Camera poses saved to {os.path.abspath(self.camera_poses_yaml)}")
 
 def main(args=None):
     rclpy.init(args=args)
-    node = CameraCalibratorNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    node = CameraPoseEstimatorNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cv2.destroyAllWindows()
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
