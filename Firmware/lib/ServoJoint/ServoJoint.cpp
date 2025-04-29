@@ -1,6 +1,8 @@
 #include "ServoJoint.h"
 
-ServoJoint::ServoJoint() {}
+ServoJoint::ServoJoint()
+{
+}
 
 void ServoJoint::attach(uint8_t pwmChannel, Adafruit_PWMServoDriver* driver)
 {
@@ -11,6 +13,8 @@ void ServoJoint::attach(uint8_t pwmChannel, Adafruit_PWMServoDriver* driver)
 void ServoJoint::setFeedbackType(FeedbackType type)
 {
     _fbType = type;
+    _lastPIDTime = millis();
+    resetFilter();
 }
 
 void ServoJoint::setAnalogPin(uint8_t pin)
@@ -26,7 +30,8 @@ void ServoJoint::setEncoder(EncoderLib* encoder)
 
 void ServoJoint::setTargetAngle(float angle)
 {
-    _targetAngle = constrain(angle, 0.0f, 180.0f);
+    angle = constrain(angle, 0.0f, _angleRange);
+    _targetAngle = angle;
 }
 
 void ServoJoint::setPIDGains(float kp, float ki, float kd)
@@ -34,6 +39,29 @@ void ServoJoint::setPIDGains(float kp, float ki, float kd)
     _kp = kp;
     _ki = ki;
     _kd = kd;
+}
+
+void ServoJoint::setAngleRange(float rangeDegrees)
+{
+    _angleRange = constrain(rangeDegrees, 1.0f, 360.0f);
+}
+
+void ServoJoint::setPulseRange(uint16_t minPulse, uint16_t maxPulse)
+{
+    _pulseMin = minPulse;
+    _pulseMax = maxPulse;
+}
+
+void ServoJoint::setAnalogMapping(float slope, float intercept)
+{
+    _analogSlope = slope;
+    _analogIntercept = intercept;
+}
+
+void ServoJoint::setAnalogLimits(int minADC, int maxADC)
+{
+    _analogMin = minADC;
+    _analogMax = maxADC;
 }
 
 float ServoJoint::getCurrentAngle() const
@@ -48,9 +76,20 @@ float ServoJoint::getTargetAngle() const
 
 void ServoJoint::writePWM(float angle)
 {
-    angle = constrain(angle, 0.0f, 180.0f);
-    uint16_t pulse = map(angle, 0, 180, pulseMin, pulseMax);
-    _driver->setPWM(_channel, 0, pulse);
+    angle = constrain(angle, 0.0f, _angleRange);
+    float normalized = angle / _angleRange;
+    float pulse = _pulseMin + (_pulseMax - _pulseMin) * normalized;
+
+    if (_driver)
+        _driver->setPWM(_channel, 0, (uint16_t)pulse);
+}
+
+void ServoJoint::resetFilter()
+{
+    adc_sum = 0;
+    sampleIndex = 0;
+    for (int i = 0; i < filterWindow; ++i)
+        adc_samples[i] = 0;
 }
 
 void ServoJoint::update()
@@ -61,22 +100,48 @@ void ServoJoint::update()
         return;
     }
 
-    // --- Get current angle ---
+    int rawADC = 0;
+
     switch (_fbType)
     {
         case ANALOG:
             if (_analogPin != 255)
-                _currentAngle = analogRead(_analogPin) * 270.0f / 4095.0f;
+                rawADC = analogRead(_analogPin);
             break;
         case ENCODER:
             if (_encoder)
+            {
                 _currentAngle = _encoder->getFilteredAngle();
-            break;
+                break;
+            }
+            return;
         default:
             _currentAngle = 0;
+            return;
     }
 
-    // --- PID ---
+    int clampedADC = constrain(rawADC, _analogMin, _analogMax);
+    float unfilteredAngle = (_analogSlope != 0.0f)
+        ? (_analogSlope * clampedADC + _analogIntercept) + _angleOffset
+        : 0.0f;
+
+    if (_kp != 0.0f || _ki != 0.0f || _kd != 0.0f)
+    {
+        adc_sum -= adc_samples[sampleIndex];
+        adc_samples[sampleIndex] = clampedADC;
+        adc_sum += adc_samples[sampleIndex];
+        sampleIndex = (sampleIndex + 1) % filterWindow;
+
+        int filteredADC = adc_sum / filterWindow;
+        _currentAngle = (_analogSlope != 0.0f)
+            ? (_analogSlope * filteredADC + _analogIntercept)+ _angleOffset
+            : 0.0f;
+    }
+    else
+    {
+        _currentAngle = unfilteredAngle;
+    }
+
     unsigned long now = millis();
     float dt = (now - _lastPIDTime) / 1000.0f;
     if (dt <= 0.0f) return;
@@ -88,7 +153,12 @@ void ServoJoint::update()
     _lastError = error;
 
     float outputAngle = _kp * error + _ki * _integral + _kd * derivative;
-    float commandedAngle = constrain(_currentAngle + outputAngle, 0.0f, 180.0f);
+    float commandedAngle = constrain(_currentAngle + outputAngle, 0.0f, _angleRange);
 
     writePWM(commandedAngle);
+}
+
+void ServoJoint::setAngleOffset(float offset)
+{
+    _angleOffset = offset;
 }
