@@ -1,13 +1,15 @@
+// ServoJoint.cpp
 #include "ServoJoint.h"
 
 ServoJoint::ServoJoint()
 {
 }
 
-void ServoJoint::attach(uint8_t pwmChannel, Adafruit_PWMServoDriver* driver)
+void ServoJoint::attach(uint8_t pwmChannel, Adafruit_PWMServoDriver* driver, bool reversed)
 {
     _channel = pwmChannel;
     _driver = driver;
+    _reverse = reversed;
 }
 
 void ServoJoint::setFeedbackType(FeedbackType type)
@@ -30,8 +32,7 @@ void ServoJoint::setEncoder(EncoderLib* encoder)
 
 void ServoJoint::setTargetAngle(float angle)
 {
-    angle = constrain(angle, 0.0f, _angleRange);
-    _targetAngle = angle;
+    _targetAngle = constrain(angle, 0.0f, _angleRange);
 }
 
 void ServoJoint::setPIDGains(float kp, float ki, float kd)
@@ -64,6 +65,11 @@ void ServoJoint::setAnalogLimits(int minADC, int maxADC)
     _analogMax = maxADC;
 }
 
+void ServoJoint::setAngleOffset(float offset)
+{
+    _angleOffset = offset;
+}
+
 float ServoJoint::getCurrentAngle() const
 {
     return _currentAngle;
@@ -78,10 +84,21 @@ void ServoJoint::writePWM(float angle)
 {
     angle = constrain(angle, 0.0f, _angleRange);
     float normalized = angle / _angleRange;
-    float pulse = _pulseMin + (_pulseMax - _pulseMin) * normalized;
+
+    uint16_t pulse;
+    if (_reverse)
+    {
+        pulse = _pulseMax - (_pulseMax - _pulseMin) * normalized;
+    }
+    else
+    {
+        pulse = _pulseMin + (_pulseMax - _pulseMin) * normalized;
+    }
+
+    pulse = constrain(pulse, _pulseMin, _pulseMax);
 
     if (_driver)
-        _driver->setPWM(_channel, 0, (uint16_t)pulse);
+        _driver->setPWM(_channel, 0, pulse);
 }
 
 void ServoJoint::resetFilter()
@@ -134,7 +151,7 @@ void ServoJoint::update()
 
         int filteredADC = adc_sum / filterWindow;
         _currentAngle = (_analogSlope != 0.0f)
-            ? (_analogSlope * filteredADC + _analogIntercept)+ _angleOffset
+            ? (_analogSlope * filteredADC + _analogIntercept) + _angleOffset
             : 0.0f;
     }
     else
@@ -156,9 +173,4 @@ void ServoJoint::update()
     float commandedAngle = constrain(_currentAngle + outputAngle, 0.0f, _angleRange);
 
     writePWM(commandedAngle);
-}
-
-void ServoJoint::setAngleOffset(float offset)
-{
-    _angleOffset = offset;
 }

@@ -7,6 +7,7 @@
 Adafruit_PWMServoDriver pca9685(0x40, Wire1);
 
 // Servo joints
+ServoJoint joint2;
 ServoJoint joint3;
 ServoJoint joint4;
 
@@ -22,6 +23,12 @@ void setup()
     pca9685.begin();
     pca9685.setPWMFreq(50);
     delay(10);
+
+    joint2.attach(0, &pca9685, true);
+    joint2.setFeedbackType(ServoJoint::NONE); // Open loop control
+    joint2.setAngleRange(180.0f);  
+    joint2.setPulseRange(102, 512); // 500-2500 μs
+    joint2.setTargetAngle(7.0f); // 7 is actual 0 pos
 
     // --- Joint 3 Setup ---
     joint3.attach(1, &pca9685);
@@ -52,21 +59,18 @@ void setup()
 
 void loop()
 {
+    joint2.update();
     joint3.update();
     joint4.update();
 
     // Print feedback
-    Serial.print("Target: 135.0 | Joint3 Angle: ");
+    Serial.print("Target: 100 | Joint3 Angle: ");
     Serial.print(joint3.getCurrentAngle(), 1);
     Serial.print(" | Joint4 Angle: ");
     Serial.println(joint4.getCurrentAngle(), 1);
 
     delay(100);
 }
-
-
-
-
 
 // #include "ServoJoint.h"
 // #include <Adafruit_PWMServoDriver.h>

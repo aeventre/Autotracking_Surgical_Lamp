@@ -1,23 +1,18 @@
-#ifndef SERVOJOINT_H
-#define SERVOJOINT_H
+// ServoJoint.h
+#pragma once
 
 #include <Adafruit_PWMServoDriver.h>
-#include "EncoderLib.h"
 #include <Arduino.h>
+#include "EncoderLib.h"
 
 class ServoJoint
 {
 public:
-    enum FeedbackType
-    {
-        NONE,
-        ANALOG,
-        ENCODER
-    };
+    enum FeedbackType { NONE, ANALOG, ENCODER };
 
     ServoJoint();
 
-    void attach(uint8_t pwmChannel, Adafruit_PWMServoDriver* driver);
+    void attach(uint8_t pwmChannel, Adafruit_PWMServoDriver* driver, bool reversed = false);
     void setFeedbackType(FeedbackType type);
     void setAnalogPin(uint8_t pin);
     void setEncoder(EncoderLib* encoder);
@@ -26,13 +21,13 @@ public:
     void setAngleRange(float rangeDegrees);
     void setPulseRange(uint16_t minPulse, uint16_t maxPulse);
     void setAnalogMapping(float slope, float intercept);
-    void setAnalogLimits(int minADC, int maxADC);  // ✅ NEW
+    void setAnalogLimits(int minADC, int maxADC);
+    void setAngleOffset(float offset);
 
     float getCurrentAngle() const;
     float getTargetAngle() const;
 
     void update();
-    void setAngleOffset(float offset);
 
 private:
     void writePWM(float angle);
@@ -40,6 +35,7 @@ private:
 
     uint8_t _channel = 0;
     Adafruit_PWMServoDriver* _driver = nullptr;
+
     FeedbackType _fbType = NONE;
 
     uint8_t _analogPin = 255;
@@ -47,27 +43,30 @@ private:
 
     float _targetAngle = 0.0f;
     float _currentAngle = 0.0f;
-    float _kp = 0.0f, _ki = 0.0f, _kd = 0.0f;
-    float _integral = 0.0f;
-    float _lastError = 0.0f;
+
+    float _kp = 0.0f;
+    float _ki = 0.0f;
+    float _kd = 0.0f;
+
     float _angleRange = 180.0f;
+    uint16_t _pulseMin = 102;
+    uint16_t _pulseMax = 512;
 
-    unsigned long _lastPIDTime = 0;
-
-    uint16_t _pulseMin = 150;
-    uint16_t _pulseMax = 600;
-
-    float _analogSlope = 1.0f;
+    float _analogSlope = 0.0f;
     float _analogIntercept = 0.0f;
-    int _analogMin = 0;        
-    int _analogMax = 1023;    
+    int _analogMin = 0;
+    int _analogMax = 4095;
+
     float _angleOffset = 0.0f;
 
+    unsigned long _lastPIDTime = 0;
+    float _lastError = 0.0f;
+    float _integral = 0.0f;
 
     static constexpr int filterWindow = 10;
     int adc_samples[filterWindow] = {0};
     int adc_sum = 0;
     int sampleIndex = 0;
-};
 
-#endif
+    bool _reverse = false;
+};
