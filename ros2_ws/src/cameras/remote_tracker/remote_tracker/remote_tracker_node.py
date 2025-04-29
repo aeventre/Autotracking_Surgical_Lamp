@@ -120,9 +120,26 @@ class RemoteTrackerNode(Node):
 
         # Detect green ball
         hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)
-        lower_green = np.array([40, 40, 40])
-        upper_green = np.array([80, 255, 255])
-        mask = cv2.inRange(hsv, lower_green, upper_green)
+        # lower_green = np.array([40, 40, 40])
+        # upper_green = np.array([80, 255, 255])
+        
+        lower_orange = np.array([5, 100, 100])
+        upper_orange = np.array([20, 255, 255])
+        
+        # Threshold
+       # mask = cv2.inRange(hsv, lower_green, upper_green)
+        mask = cv2.inRange(hsv, lower_orange, upper_orange)
+
+        # Reduce random speckle noise
+        mask = cv2.GaussianBlur(mask, (9, 9), 2)
+
+        # Further clean noise, preserve real blobs
+        mask = cv2.medianBlur(mask, 5)
+
+        # Final cleanup with a smooth elliptical kernel
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
 
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -140,9 +157,24 @@ class RemoteTrackerNode(Node):
 
         # Draw circle around ball
         cv2.circle(display_image, (cx, cy), 10, (0, 0, 255), 2)
+        
+        # Clamp cy to depth image size
+        cy = np.clip(cy, 0, depth_image.shape[0] - 1)
+        cx = np.clip(cx, 0, depth_image.shape[1] - 1)
+
 
         # Depth lookup
-        depth = depth_image[cy, cx]
+        # Scale (cx, cy) from color image size to depth image size
+        scaled_cx = int(cx * (depth_image.shape[1] / color_image.shape[1]))
+        scaled_cy = int(cy * (depth_image.shape[0] / color_image.shape[0]))
+
+        # Make sure indices are safe
+        scaled_cx = np.clip(scaled_cx, 0, depth_image.shape[1] - 1)
+        scaled_cy = np.clip(scaled_cy, 0, depth_image.shape[0] - 1)
+
+        # Now access depth at the scaled position
+        depth = depth_image[scaled_cy, scaled_cx]
+
         if np.isnan(depth) or depth <= 0.0:
             return None, display_image
 
