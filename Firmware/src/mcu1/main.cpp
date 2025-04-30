@@ -2,21 +2,30 @@
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include "ServoJoint.h"
+#include "StepperJoint.h"
+#include "EncoderLib.h"
 
-// PCA9685 driver
+// --- PCA9685 Driver ---
 Adafruit_PWMServoDriver pca9685(0x40, Wire1);
 
-// Servo joints
+// --- Servo Joints ---
 ServoJoint joint2;
 ServoJoint joint3;
 ServoJoint joint4;
 
+// --- Stepper + Encoder ---
+StepperJoint stepperJoint;
+EncoderLib stepperEncoder(Wire);  // AS5600 encoder on Wire (default)
+
+// --- Serial Buffer for Stepper Commands ---
+String serialBuffer;
+
 void setup()
 {
     Serial.begin(115200);
-    delay(2000); // Give time for Serial Monitor
+    delay(2000); // Give Serial Monitor time
 
-    // Initialize I2C and PCA9685
+    // --- I2C and PCA9685 ---
     Wire1.setSDA(2);
     Wire1.setSCL(3);
     Wire1.begin();
@@ -24,13 +33,24 @@ void setup()
     pca9685.setPWMFreq(50);
     delay(10);
 
-    joint2.attach(0, &pca9685, true);
-    joint2.setFeedbackType(ServoJoint::NONE); // Open loop control
-    joint2.setAngleRange(180.0f);  
-    joint2.setPulseRange(102, 512); // 500-2500 μs
-    joint2.setTargetAngle(7.0f); // 7 is actual 0 pos
+    // --- Stepper Encoder (AS5600) on default Wire pins (e.g. A4/A5) ---
+    stepperEncoder.begin(0, 1);
+    delay(10);
 
-    // --- Joint 3 Setup ---
+    // --- StepperJoint Setup ---
+    stepperJoint.begin(17, 16, &stepperEncoder, 18, 19); // step, dir, encoder, ms1, ms2
+    stepperJoint.setMicrostepping(4); // 1/8 microstepping
+    stepperJoint.setPIDGains(10.0f, 0.5f, 0.05f);
+    stepperJoint.setTarget(90.0f); // Initial center
+
+    // --- Joint 2: Open Loop Servo ---
+    joint2.attach(0, &pca9685, true);
+    joint2.setFeedbackType(ServoJoint::NONE);
+    joint2.setAngleRange(180.0f);
+    joint2.setPulseRange(102, 512);
+    joint2.setTargetAngle(7.0f); // ~zero-positioned
+
+    // --- Joint 3: Analog PID Servo ---
     joint3.attach(1, &pca9685);
     joint3.setFeedbackType(ServoJoint::ANALOG);
     joint3.setAnalogPin(A0);
@@ -39,10 +59,10 @@ void setup()
     joint3.setAnalogMapping(0.413f, -7.57f);
     joint3.setAnalogLimits(30, 680);
     joint3.setAngleOffset(-7.0f);
-    joint3.setPIDGains(2.0f, 1.0f, 0.05f); // PID tuned
-    joint3.setTargetAngle(135.0f);          // Center
+    joint3.setPIDGains(2.0f, 1.0f, 0.05f);
+    joint3.setTargetAngle(135.0f);
 
-    // --- Joint 4 Setup ---
+    // --- Joint 4: Analog PID Servo ---
     joint4.attach(2, &pca9685);
     joint4.setFeedbackType(ServoJoint::ANALOG);
     joint4.setAnalogPin(A1);
@@ -51,25 +71,50 @@ void setup()
     joint4.setAnalogMapping(0.407f, -2.81f);
     joint4.setAnalogLimits(30, 675);
     joint4.setAngleOffset(5.0f);
-    joint4.setPIDGains(2.0f, 1.0f, 0.05f); // PID tuned
-    joint4.setTargetAngle(135.0f);          // Center
+    joint4.setPIDGains(2.0f, 1.0f, 0.05f);
+    joint4.setTargetAngle(135.0f);
 
-    Serial.println("PID control to 135 degrees started...");
+    Serial.println("System initialized. Type a number to set stepper angle.");
 }
+
+float localStepperTarget = 0.0f; // default starting target
 
 void loop()
 {
+    // --- Updates ---
     joint2.update();
     joint3.update();
     joint4.update();
+    stepperJoint.update();
 
-    // Print feedback
-    Serial.print("Target: 100 | Joint3 Angle: ");
-    Serial.print(joint3.getCurrentAngle(), 1);
-    Serial.print(" | Joint4 Angle: ");
-    Serial.println(joint4.getCurrentAngle(), 1);
+    // --- Serial Input for Stepper ---
+    while (Serial.available())
+    {
+        char c = Serial.read();
+        if (c == '\n' || c == '\r')
+        {
+            if (serialBuffer.length() > 0)
+            {
+                float target = serialBuffer.toFloat();
+                localStepperTarget = target;
+                stepperJoint.setTarget(target);
+                Serial.print(">> New Stepper Target: ");
+                Serial.println(target);
+                serialBuffer = "";
+            }
+        }
+        else if (isDigit(c) || c == '.' || c == '-')
+        {
+            serialBuffer += c;
+        }
+    }
 
-    delay(100);
+    // --- Print Feedback ---
+    Serial.print("Stepper Target: ");
+    Serial.print(localStepperTarget, 1);
+    Serial.print(" | Current: ");
+    Serial.println(stepperJoint.getCurrentAngle(), 1);
+
 }
 
 // #include "ServoJoint.h"
