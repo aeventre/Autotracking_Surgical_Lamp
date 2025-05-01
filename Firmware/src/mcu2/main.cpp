@@ -4,8 +4,8 @@
 
 float readJoint0Command();
 
-#define stepPin 2
-#define dirPin 3
+#define stepPin 3
+#define dirPin 2
 
 StepperJoint joint0;
 EncoderLib encoder(Wire);
@@ -14,32 +14,23 @@ unsigned long lastPrint = 0;
 
 void setup()
 {
+    pinMode(2,OUTPUT);
+    pinMode(3,OUTPUT);
+    pinMode(4,OUTPUT);
+    pinMode(5,OUTPUT);
+    //digitalWrite(4,HIGH);
     Serial.begin(115200);
     encoder.begin(A4, A5); // Uno SDA/SCL pins
-    joint0.begin(stepPin, dirPin, &encoder);
+    joint0.begin(stepPin, dirPin, &encoder, 4,5);
     joint0.calibrateFromEncoder(); // Set encoder angle to 0
     joint0.setPIDGains(5, 1, 0.5);
+    joint0.setTarget(0); 
 }
 
 void loop()
 {
-    float angle = readJoint0Command();
 
-    if (!isnan(angle))
-    {
-        joint0.setTarget(angle);
-    }
 
-    joint0.update();
-
-    // Throttle printing to once every 100ms
-    if (millis() - lastPrint > 100)
-    {
-        Serial.print("<");
-        Serial.print(joint0.getCurrentAngle(), 2);
-        Serial.println(">");
-        lastPrint = millis();
-    }
 }
 
 float readJoint0Command()
