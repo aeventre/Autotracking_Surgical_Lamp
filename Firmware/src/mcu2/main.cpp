@@ -18,8 +18,11 @@ void setup()
     pinMode(3,OUTPUT);
     pinMode(4,OUTPUT);
     pinMode(5,OUTPUT);
-    //digitalWrite(4,HIGH);
+    digitalWrite(4,HIGH);
+
+
     Serial.begin(115200);
+    Serial.println("Starting up...");
     encoder.begin(A4, A5); // Uno SDA/SCL pins
     joint0.begin(stepPin, dirPin, &encoder, 4,5);
     joint0.calibrateFromEncoder(); // Set encoder angle to 0
@@ -29,9 +32,26 @@ void setup()
 
 void loop()
 {
+    joint0.update();
 
+    float newTarget = readJoint0Command();
+    if (!isnan(newTarget))
+    {
+        joint0.setTarget(newTarget);
+        Serial.print("New target: ");
+        Serial.println(newTarget);
+    }
 
+    // Optional debug
+    unsigned long now = millis();
+    if (now - lastPrint > 500)
+    {
+        lastPrint = now;
+        Serial.print("Current angle: ");
+        Serial.println(joint0.getCurrentAngle(), 1);
+    }
 }
+
 
 float readJoint0Command()
 {
