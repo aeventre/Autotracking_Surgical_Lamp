@@ -4,29 +4,40 @@ import serial
 
 from std_msgs.msg import Float64MultiArray, String
 from sensor_msgs.msg import JointState
+from geometry_msgs.msg import QuaternionStamped
 from surg_lamp_msgs.msg import UserCommand
 
 class ControllerComsNode(Node):
     def __init__(self):
         super().__init__('controller_coms')
 
+        # Serial port configuration
         self.mcu1_port = '/dev/ttyUSB0'
         self.mcu2_port = '/dev/ttyACM0'
+        self.remote_port = '/dev/ttyUSB1'
         self.baud_rate = 115200
-        self.light_mode = 0
+        self.light_mode = 0  # updated via user_command subscription
 
         # Serial connections
         self.mcu1_serial = self.init_serial(self.mcu1_port)
         self.mcu2_serial = self.init_serial(self.mcu2_port)
+        self.remote_serial = self.init_serial(self.remote_port)
 
-        # ROS publishers and subscribers
+        # ROS publishers
         self.joint_state_pub = self.create_publisher(JointState, 'joint_states', 10)
-        self.mcu_status_pub = self.create_publisher(String, 'mcu_status', 10)
+        self.mcu_status_pub  = self.create_publisher(String, 'mcu_status', 10)
+        # Remote input commands (buttons, light, reset)
+        self.user_command_pub      = self.create_publisher(UserCommand, 'remote_user_command', 10)
+        # Separated orientation stream
+        self.remote_orientation_pub = self.create_publisher(QuaternionStamped, 'remote_orientation', 10)
 
+        # ROS subscribers
         self.create_subscription(Float64MultiArray, 'joint_commands', self.joint_command_callback, 10)
         self.create_subscription(UserCommand, 'user_command', self.user_command_callback, 10)
 
+        # Timers
         self.create_timer(2.0, self.check_mcu_status)
+        self.create_timer(0.1, self.read_remote_serial)
 
         self.get_logger().info("Controller Communications Node is Running (Half-Duplex Mode).")
 
@@ -39,14 +50,14 @@ class ControllerComsNode(Node):
             self.get_logger().error(f"Failed to open {port}: {e}")
             return None
 
-    def joint_command_callback(self, msg):
+    def joint_command_callback(self, msg: Float64MultiArray):
         if len(msg.data) < 5:
             self.get_logger().warn("Received joint command array with insufficient values.")
             return
 
         joint_angles = [0.0] * 5
 
-        # Send to MCU1: <joint1,joint2,joint3,joint4,lightmode>
+        # MCU1 handles joints 1–4 and light mode
         if self.mcu1_serial:
             try:
                 mcu1_cmd = f"<{msg.data[1]},{msg.data[2]},{msg.data[3]},{msg.data[4]},{self.light_mode}>\n"
@@ -58,10 +69,7 @@ class ControllerComsNode(Node):
                 if response:
                     values = response.split(',')
                     if len(values) == 5:
-                        joint_angles[1] = float(values[0])
-                        joint_angles[2] = float(values[1])
-                        joint_angles[3] = float(values[2])
-                        joint_angles[4] = float(values[3])
+                        joint_angles[1:5] = [float(v) for v in values[:4]]
                     else:
                         self.get_logger().warn(f"Unexpected MCU1 response: {response}")
                 else:
@@ -69,7 +77,7 @@ class ControllerComsNode(Node):
             except Exception as e:
                 self.get_logger().error(f"Error communicating with MCU1: {e}")
 
-        # Send to MCU2: <joint0>
+        # MCU2 handles joint 0
         if self.mcu2_serial:
             try:
                 mcu2_cmd = f"<{msg.data[0]}>\n"
@@ -85,29 +93,75 @@ class ControllerComsNode(Node):
             except Exception as e:
                 self.get_logger().error(f"Error communicating with MCU2: {e}")
 
-        # Publish joint states to MoveIt / RViz
+        # Publish joint states
         joint_state_msg = JointState()
         joint_state_msg.header.stamp = self.get_clock().now().to_msg()
-        joint_state_msg.name = ['joint_0', 'joint_1', 'joint_2', 'joint_3', 'joint_4']
+        joint_state_msg.name = [f'joint_{i}' for i in range(5)]
         joint_state_msg.position = joint_angles
         self.joint_state_pub.publish(joint_state_msg)
 
-    def user_command_callback(self, msg):
+    def user_command_callback(self, msg: UserCommand):
         try:
             self.light_mode = int(msg.light_mode)
             self.get_logger().info(f"Received light mode from command manager: {self.light_mode}")
         except Exception as e:
             self.get_logger().error(f"Failed to parse light mode from user_command: {e}")
 
+    def read_remote_serial(self):
+        if not self.remote_serial or not self.remote_serial.is_open:
+            return
+
+        try:
+            line = self.remote_serial.readline().decode().strip()
+            if not (line.startswith('<') and line.endswith('>')):
+                return
+
+            values = line[1:-1].split(',')
+            if len(values) != 7:
+                self.get_logger().warn(f"Invalid remote serial format: {line}")
+                return
+
+            # Parse quaternion & normalize
+            x, y, z, w = map(float, values[:4])
+            norm = (x*x + y*y + z*z + w*w) ** 0.5
+            if norm == 0:
+                self.get_logger().warn("Received zero quaternion.")
+                return
+            x, y, z, w = x/norm, y/norm, z/norm, w/norm
+
+            # Publish orientation separately
+            quat_msg = QuaternionStamped()
+            quat_msg.header.stamp = self.get_clock().now().to_msg()
+            quat_msg.header.frame_id = 'remote_frame'
+            quat_msg.quaternion.x = x
+            quat_msg.quaternion.y = y
+            quat_msg.quaternion.z = z
+            quat_msg.quaternion.w = w
+            self.remote_orientation_pub.publish(quat_msg)
+
+            # Parse other fields
+            buttonstate     = int(values[4])
+            desired_light   = int(values[5])
+            reset_flag      = int(values[6])
+
+            # Publish UserCommand without quaternion
+            cmd = UserCommand()
+            cmd.button_pressed    = bool(buttonstate)
+            cmd.reset_requested   = bool(reset_flag)
+            cmd.light_mode        = desired_light
+            self.user_command_pub.publish(cmd)
+
+        except Exception as e:
+            self.get_logger().error(f"Failed to read from remote serial: {e}")
+
     def read_serial_line(self, ser):
         try:
             line = ser.readline().decode().strip()
             if line.startswith('<') and line.endswith('>'):
                 return line[1:-1]
-            return ""
         except Exception as e:
             self.get_logger().error(f"Error reading serial: {e}")
-            return ""
+        return ""
 
     def check_mcu_status(self):
         status = []
@@ -115,6 +169,8 @@ class ControllerComsNode(Node):
             status.append("MCU1 disconnected")
         if not self.mcu2_serial or not self.mcu2_serial.is_open:
             status.append("MCU2 disconnected")
+        if not self.remote_serial or not self.remote_serial.is_open:
+            status.append("Remote disconnected")
 
         msg_text = "OK" if not status else ", ".join(status)
         if msg_text != "OK":
@@ -123,6 +179,7 @@ class ControllerComsNode(Node):
         status_msg = String()
         status_msg.data = msg_text
         self.mcu_status_pub.publish(status_msg)
+
 
 def main(args=None):
     rclpy.init(args=args)
