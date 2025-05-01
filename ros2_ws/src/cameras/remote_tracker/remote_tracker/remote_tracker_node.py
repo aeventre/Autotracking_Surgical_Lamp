@@ -11,6 +11,8 @@ import numpy as np
 import yaml
 import os
 from tf_transformations import quaternion_matrix
+import time
+
 
 class RemoteTrackerNode(Node):
     def __init__(self):
@@ -54,6 +56,20 @@ class RemoteTrackerNode(Node):
             allow_headerless=True
         )
         self.sync_cam2.registerCallback(self.camera_callback_cam2)
+        
+                # Kalman filter initialization
+        self.kf_initialized = False
+        self.kf_state = np.zeros((6, 1))  # [x, y, z, vx, vy, vz]
+        self.kf_P = np.eye(6) * 1.0
+        self.kf_Q = np.eye(6) * 0.01  # process noise
+        self.kf_R = np.eye(3) * 0.05  # measurement noise
+        self.kf_H = np.zeros((3, 6))
+        self.kf_H[0, 0] = 1
+        self.kf_H[1, 1] = 1
+        self.kf_H[2, 2] = 1
+
+        self.last_kf_time = time.time()
+
 
 
         # Publisher
@@ -120,15 +136,13 @@ class RemoteTrackerNode(Node):
 
         # Detect green ball
         hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)
-        # lower_green = np.array([40, 40, 40])
-        # upper_green = np.array([80, 255, 255])
+       
         
-        lower_orange = np.array([5, 100, 100])
-        upper_orange = np.array([20, 255, 255])
+        lower_neon_green = np.array([38, 101, 102])
+        upper_neon_green = np.array([74, 189, 248])
         
         # Threshold
-       # mask = cv2.inRange(hsv, lower_green, upper_green)
-        mask = cv2.inRange(hsv, lower_orange, upper_orange)
+        mask = cv2.inRange(hsv, lower_neon_green, upper_neon_green)
 
         # Reduce random speckle noise
         mask = cv2.GaussianBlur(mask, (9, 9), 2)
@@ -207,6 +221,7 @@ class RemoteTrackerNode(Node):
         if self.position_cam1 is None and self.position_cam2 is None:
             return
 
+        # Fuse positions
         if self.position_cam1 is not None and self.position_cam2 is not None:
             fused = (self.position_cam1 + self.position_cam2) / 2.0
         elif self.position_cam1 is not None:
@@ -214,18 +229,59 @@ class RemoteTrackerNode(Node):
         else:
             fused = self.position_cam2
 
+        if fused is None:
+            return
+
+        if not self.kf_initialized:
+            self.kf_state[0:3] = np.array(fused).reshape((3, 1))
+            self.kf_initialized = True
+
+        filtered = self.run_kalman_filter(fused)
+
+        # Check for NaN just in case
+        if np.isnan(filtered).any():
+            self.get_logger().warn("Filtered output contains NaNs. Skipping publish.")
+            return
+
         msg = PoseStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'base_link'  # or whatever your base frame is
+        msg.header.frame_id = 'base_link'
 
-        msg.pose.position.x = fused[0]
-        msg.pose.position.y = fused[1]
-        msg.pose.position.z = fused[2]
-
-        # No orientation needed yet (so just default 0,0,0,1)
-        msg.pose.orientation.w = 1.0
+        msg.pose.position.x = filtered[0]
+        msg.pose.position.y = filtered[1]
+        msg.pose.position.z = filtered[2]
+        msg.pose.orientation.w = 1.0  # No rotation yet
 
         self.pose_pub.publish(msg)
+
+        
+    def run_kalman_filter(self, position):
+        z = np.array(position).reshape((3, 1))  # measurement
+
+        current_time = time.time()
+        dt = current_time - self.last_kf_time
+        self.last_kf_time = current_time
+
+        # State transition matrix
+        F = np.eye(6)
+        F[0, 3] = dt
+        F[1, 4] = dt
+        F[2, 5] = dt
+
+        # Predict
+        self.kf_state = F @ self.kf_state
+        self.kf_P = F @ self.kf_P @ F.T + self.kf_Q
+
+        # Update
+        y = z - self.kf_H @ self.kf_state  # innovation
+        S = self.kf_H @ self.kf_P @ self.kf_H.T + self.kf_R
+        K = self.kf_P @ self.kf_H.T @ np.linalg.inv(S)  # Kalman gain
+
+        self.kf_state += K @ y
+        self.kf_P = (np.eye(6) - K @ self.kf_H) @ self.kf_P
+
+        return self.kf_state[0:3].flatten()
+
 
 def main(args=None):
     rclpy.init(args=args)
