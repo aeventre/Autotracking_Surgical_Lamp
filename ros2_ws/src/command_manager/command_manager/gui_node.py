@@ -1,19 +1,20 @@
+import sys
+import signal
 import rclpy
 from rclpy.node import Node
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QLabel, QPushButton,
+    QComboBox, QSlider, QHBoxLayout, QLineEdit,
+    QFormLayout, QGroupBox
+)
+from PyQt5.QtCore import Qt, QTimer
+from std_msgs.msg import Int32, Float64MultiArray, Bool
 from geometry_msgs.msg import PoseStamped
 from surg_lamp_msgs.msg import UserCommand
 
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel, QPushButton,
-                             QComboBox, QSlider, QHBoxLayout, QLineEdit, QFormLayout,
-                             QGroupBox)
-from PyQt5.QtCore import Qt, QTimer
-from std_msgs.msg import Int32, Float64MultiArray, Bool
-import sys
-
 class LampGui(Node, QWidget):
     def __init__(self):
-        # Initialize ROS
-        rclpy.init(args=None)
+        # Initialize both ROS node and Qt widget
         Node.__init__(self, 'lamp_gui')
         QWidget.__init__(self)
 
@@ -22,12 +23,13 @@ class LampGui(Node, QWidget):
         self.setGeometry(200, 200, 400, 350)
         layout = QVBoxLayout()
 
-        # Status label for remote tracking and planning
+        # Status label
         self.status_label = QLabel("Status: Idle")
         self.status_label.setStyleSheet("font-weight: bold; padding: 4px;")
         layout.addWidget(self.status_label)
 
         # System Mode dropdown
+        layout.addWidget(QLabel("System Mode"))
         self.mode_dropdown = QComboBox()
         self.mode_dropdown.addItems([
             "Idle", "Track Remote", "Hold Position",
@@ -35,15 +37,14 @@ class LampGui(Node, QWidget):
             "Preset Pose", "Light-Only Mode"
         ])
         self.mode_dropdown.currentIndexChanged.connect(self.publish_mode)
-        layout.addWidget(QLabel("System Mode"))
         layout.addWidget(self.mode_dropdown)
 
         # Light Mode buttons
-        light_layout = QHBoxLayout()
         layout.addWidget(QLabel("Light Mode"))
+        light_layout = QHBoxLayout()
         for i in range(4):
             btn = QPushButton(f"Mode {i}")
-            btn.clicked.connect(lambda _, mode=i: self.publish_light_mode(mode))
+            btn.clicked.connect(lambda _, m=i: self.publish_light_mode(m))
             light_layout.addWidget(btn)
         layout.addLayout(light_layout)
 
@@ -59,8 +60,8 @@ class LampGui(Node, QWidget):
             self.sliders.append(slider)
             layout.addWidget(slider)
 
-        # Joint publish timer
-        self.timer = QTimer()
+        # Timer to publish joint angles
+        self.timer = QTimer(self)
         self.timer.timeout.connect(self.publish_joint_angles)
         self.timer.start(500)
 
@@ -86,43 +87,43 @@ class LampGui(Node, QWidget):
         self.joint_pub = self.create_publisher(Float64MultiArray, 'manual_joint_input', 10)
         self.pose_pub = self.create_publisher(PoseStamped, 'manual_pose_input', 10)
 
-        # ROS subscribers for UX feedback
-        self.create_subscription(UserCommand, 'remote_user_command',
-                                 self.on_remote_user, 10)
-        self.create_subscription(PoseStamped, 'goal_pose',
-                                 self.on_goal_pose, 10)
-        # New: subscribe to planning status
-        self.create_subscription(Bool, 'planning_status',
-                                 self.on_planning_status, 10)
+        # ROS subscriptions for UX feedback
+        self.create_subscription(UserCommand, 'remote_user_command', self.on_remote_user, 10)
+        self.create_subscription(PoseStamped, 'goal_pose', self.on_goal_pose, 10)
+        self.create_subscription(Bool, 'planning_status', self.on_planning_status, 10)
 
-        # Need to spin ROS in background
-        self.ros_timer = QTimer()
-        self.ros_timer.timeout.connect(self.ros_spin_once)
+        # Qt timer to spin ROS
+        self.ros_timer = QTimer(self)
+        self.ros_timer.timeout.connect(lambda: rclpy.spin_once(self, timeout_sec=0.01))
         self.ros_timer.start(50)
 
+        # Ensure closeEvent is called
+        self.setAttribute(Qt.WA_DeleteOnClose)
         self.show()
 
-    def ros_spin_once(self):
-        rclpy.spin_once(self, timeout_sec=0)
+    def closeEvent(self, event):
+        # Clean shutdown: stop timer, destroy node, shutdown ROS
+        self.ros_timer.stop()
+        try:
+            self.destroy_node()
+        except Exception:
+            pass
+        rclpy.shutdown()
+        event.accept()
 
     def on_remote_user(self, msg: UserCommand):
-        # Update reset status or button state
         if msg.reset:
             self.status_label.setText("Status: Resetting")
         else:
-            state = "Pressed" if msg.button_state else "Released"
+            state = "Pressed" if msg.button_pressed else "Released"
             self.status_label.setText(f"Remote Button: {state}")
 
     def on_goal_pose(self, msg: PoseStamped):
-        # Indicate tracking active
         self.status_label.setText("Tracking Remote Pose")
 
     def on_planning_status(self, msg: Bool):
-        # Show planning success/failure
-        if msg.data:
-            self.status_label.setText("Planning: Succeeded")
-        else:
-            self.status_label.setText("Planning: Failed")
+        text = "Planning: Succeeded" if msg.data else "Planning: Failed"
+        self.status_label.setText(text)
 
     def publish_mode(self):
         m = Int32(); m.data = self.mode_dropdown.currentIndex()
@@ -157,9 +158,21 @@ class LampGui(Node, QWidget):
 
 
 def main():
+    # Initialize ROS and Qt
+    rclpy.init(args=None)
     app = QApplication(sys.argv)
+    signal.signal(signal.SIGINT, lambda *args: app.quit())
+
     gui = LampGui()
-    sys.exit(app.exec_())
+    exit_code = app.exec_()
+
+    # Ensure clean shutdown if window closed without closeEvent
+    if rclpy.ok():
+        try:
+            gui.close()
+        except Exception:
+            pass
+    sys.exit(exit_code)
 
 if __name__ == '__main__':
     main()
