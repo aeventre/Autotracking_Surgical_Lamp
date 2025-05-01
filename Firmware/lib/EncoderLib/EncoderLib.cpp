@@ -1,10 +1,7 @@
-// EncoderLib.cpp
 #include "EncoderLib.h"
 #include <Wire.h>
 
-EncoderLib::EncoderLib(TwoWire &wirePort) : wire(wirePort)
-{
-}
+EncoderLib::EncoderLib(TwoWire &wirePort) : wire(wirePort) {}
 
 void EncoderLib::begin(uint8_t sdaPin, uint8_t sclPin)
 {
@@ -13,9 +10,9 @@ void EncoderLib::begin(uint8_t sdaPin, uint8_t sclPin)
     wire.setSCL(sclPin);
     wire.begin();
 #else
-    (void)sdaPin; // suppress unused variable warnings
+    (void)sdaPin;
     (void)sclPin;
-    wire.begin(); // Use default I2C pins on Uno (A4 = SDA, A5 = SCL)
+    wire.begin();
 #endif
 
     checkMagnetPresence();
@@ -52,7 +49,15 @@ float EncoderLib::getFilteredAngle()
 {
     readRawAngle();
     interpolate();
-    return interpolatedAngle;
+    float angle = interpolatedAngle - zeroOffset;
+    if (angle < 0.0f) angle += 360.0f;
+    return angle;
+}
+
+void EncoderLib::zero()
+{
+    readRawAngle();
+    zeroOffset = degAngle;
 }
 
 void EncoderLib::interpolate()
@@ -67,7 +72,7 @@ void EncoderLib::interpolate()
             return;
         }
     }
-    interpolatedAngle = degAngle; // fallback if not interpolated
+    interpolatedAngle = degAngle;
 }
 
 void EncoderLib::readRawAngle()
@@ -76,16 +81,14 @@ void EncoderLib::readRawAngle()
     wire.write(0x0D);
     wire.endTransmission();
     wire.requestFrom(0x36, 1);
-    while (!wire.available())
-        ;
+    while (!wire.available());
     int low = wire.read();
 
     wire.beginTransmission(0x36);
     wire.write(0x0C);
     wire.endTransmission();
     wire.requestFrom(0x36, 1);
-    while (!wire.available())
-        ;
+    while (!wire.available());
     int high = wire.read();
 
     rawAngle = ((high << 8) | low) & 0x0FFF;
@@ -108,7 +111,7 @@ void EncoderLib::checkMagnetPresence()
         }
         if (millis() - start > 3000)
         {
-            break; // timeout if magnet not detected
+            break;
         }
         delay(100);
     }

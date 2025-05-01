@@ -36,12 +36,14 @@ void setup()
     // --- Stepper Encoder (AS5600) on default Wire pins (e.g. A4/A5) ---
     stepperEncoder.begin(0, 1);
     delay(10);
+    stepperEncoder.zero();  // <<< Set current encoder position as 0 degrees
+    Serial.println("Stepper encoder zeroed to current position.");
 
     // --- StepperJoint Setup ---
     stepperJoint.begin(17, 16, &stepperEncoder, 18, 19); // step, dir, encoder, ms1, ms2
-    stepperJoint.setMicrostepping(4); // 1/8 microstepping
-    stepperJoint.setPIDGains(10.0f, 0.5f, 0.05f);
-    stepperJoint.setTarget(90.0f); // Initial center
+    stepperJoint.setMicrostepping(1); // full stepping
+    stepperJoint.setPIDGains(80.0f, 0.2f, 0.5f); // Initial PID for tuning
+    stepperJoint.setTarget(stepperEncoder.getFilteredAngle()); // Match current physical angle
 
     // --- Joint 2: Open Loop Servo ---
     joint2.attach(0, &pca9685, true);
@@ -50,29 +52,59 @@ void setup()
     joint2.setPulseRange(102, 512);
     joint2.setTargetAngle(7.0f); // ~zero-positioned
 
-    // --- Joint 3: Analog PID Servo ---
-    joint3.attach(1, &pca9685);
-    joint3.setFeedbackType(ServoJoint::ANALOG);
-    joint3.setAnalogPin(A0);
-    joint3.setAngleRange(270.0f);
-    joint3.setPulseRange(102, 512);
-    joint3.setAnalogMapping(0.413f, -7.57f);
-    joint3.setAnalogLimits(30, 680);
-    joint3.setAngleOffset(-7.0f);
-    joint3.setPIDGains(2.0f, 1.0f, 0.05f);
-    joint3.setTargetAngle(135.0f);
+// --- Joint 3: Analog PID Servo ---
+joint3.attach(1, &pca9685);
+joint3.setFeedbackType(ServoJoint::ANALOG);
+joint3.setAnalogPin(A0);
+joint3.setAngleRange(270.0f);
+joint3.setPulseRange(102, 512);
+joint3.setAnalogMapping(0.413f, -7.57f);
+joint3.setAnalogLimits(30, 680);
+joint3.setAngleOffset(-7.0f);
+joint3.setPIDGains(2.0f, 0.0f, 0.1f);
 
-    // --- Joint 4: Analog PID Servo ---
-    joint4.attach(2, &pca9685);
-    joint4.setFeedbackType(ServoJoint::ANALOG);
-    joint4.setAnalogPin(A1);
-    joint4.setAngleRange(270.0f);
-    joint4.setPulseRange(102, 512);
-    joint4.setAnalogMapping(0.407f, -2.81f);
-    joint4.setAnalogLimits(30, 675);
-    joint4.setAngleOffset(5.0f);
-    joint4.setPIDGains(2.0f, 1.0f, 0.05f);
-    joint4.setTargetAngle(135.0f);
+// --- Force a stable reading before enabling control ---
+for (int i = 0; i < 10; ++i) {
+    joint3.update();   // Feed the filter
+    delay(10);
+}
+float stableStartAngle = joint3.getCurrentAngle();
+joint3.setTargetAngle(stableStartAngle);
+joint3.setPIDGains(1.0f, 0.2f, 0.2f); // Reapply gains after stabilization (safety)
+
+Serial.print("Servo 3 initialized at angle: ");
+Serial.println(stableStartAngle, 1);
+;
+
+// --- Joint 4: Analog PID Servo ---
+joint4.attach(2, &pca9685);       // Using PWM channel 2 for Servo 4
+joint4.setFeedbackType(ServoJoint::ANALOG);
+joint4.setAnalogPin(A1);          // Connect to analog pin A1 for feedback
+joint4.setAngleRange(270.0f);
+joint4.setPulseRange(102, 512);
+joint4.setAnalogMapping(0.407f, -2.81f);
+joint4.setAnalogLimits(30, 675);
+joint4.setAngleOffset(-8.0f);
+
+// --- INITIAL “GENTLE” PID GAINS BEFORE STABILIZATION ---
+joint4.setPIDGains(1.0f, 0.0f, 0.1f);
+
+// --- Prime the filter with a few reads ---
+for (int i = 0; i < 10; ++i) {
+    joint4.update();
+    delay(10);
+}
+float stableStartAngle2 = joint4.getCurrentAngle();
+joint4.setTargetAngle(stableStartAngle2);
+
+// --- REAPPLY THE STRONGER GAINS AFTER STABILIZATION ---
+joint4.setPIDGains(4.0f, 0.3f, 0.2f);
+
+Serial.print("Servo 4 initialized at angle: ");
+Serial.println(stableStartAngle2, 1);
+
+
+
 
     Serial.println("System initialized. Type a number to set stepper angle.");
 }
@@ -114,8 +146,9 @@ void loop()
     Serial.print(localStepperTarget, 1);
     Serial.print(" | Current: ");
     Serial.println(stepperJoint.getCurrentAngle(), 1);
-
 }
+
+
 
 // #include "ServoJoint.h"
 // #include <Adafruit_PWMServoDriver.h>

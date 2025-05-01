@@ -1,4 +1,3 @@
-// ServoJoint.cpp
 #include "ServoJoint.h"
 
 ServoJoint::ServoJoint()
@@ -165,11 +164,21 @@ void ServoJoint::update()
     _lastPIDTime = now;
 
     float error = _targetAngle - _currentAngle;
+
+    // Deadband implementation
+    if (abs(error) < 0.5f) {
+        return; // Skip correction if error is too small
+    }
+
     _integral += error * dt;
     float derivative = (error - _lastError) / dt;
     _lastError = error;
 
     float outputAngle = _kp * error + _ki * _integral + _kd * derivative;
+    // Limit outputAngle to slow movement (degrees per update)
+float maxStep = 3.0f; // max degrees per update (adjust as needed)
+outputAngle = constrain(outputAngle, -maxStep, maxStep);
+
     float commandedAngle = constrain(_currentAngle + outputAngle, 0.0f, _angleRange);
 
     writePWM(commandedAngle);

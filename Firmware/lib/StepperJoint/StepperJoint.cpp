@@ -93,7 +93,7 @@ void StepperJoint::update()
 
     // --- Amplify PID velocity ---
     float velocity = _kp * error + _ki * _integral + _kd * derivative;
-    velocity *= 10.0f;  // Amplify movement rate
+    velocity *= 100.0f;  // Amplify movement rate
 
     static constexpr float stepsPerRev = 200.0f;
     float microstepsPerDeg = (stepsPerRev * _microsteps) / 360.0f;
