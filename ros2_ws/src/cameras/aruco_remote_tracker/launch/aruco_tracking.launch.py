@@ -21,12 +21,13 @@ def generate_launch_description():
                         {'serial_number': 'AY31341002B'},
                         {'enable_depth': True},
                         {'enable_color': True},
+                        {'depth_align_to_color': True},
                         {'depth_width': 1280},
                         {'depth_height': 800},
                         {'depth_fps': 30},
                         {'color_width': 1280},
                         {'color_height': 720},
-                        {'color_fps': 30},
+                        {'color_fps': 30}
                     ],
                     remappings=[
                         ('color/image_raw', 'camera_01/color/image_raw'),
@@ -71,12 +72,13 @@ def generate_launch_description():
                                     {'serial_number': 'AY3134100C3'},
                                     {'enable_depth': True},
                                     {'enable_color': True},
-                                    {'depth_width': 640},
-                                    {'depth_height': 400},
+                                    {'depth_align_to_color': True},
+                                    {'depth_width': 1280},
+                                    {'depth_height': 800},
                                     {'depth_fps': 30},
-                                    {'color_width': 640},
-                                    {'color_height': 360},
-                                    {'color_fps': 30},
+                                    {'color_width': 1280},
+                                    {'color_height': 720},
+                                    {'color_fps': 30}
                                 ],
                                 remappings=[
                                     ('color/image_raw', 'camera_02/color/image_raw'),
