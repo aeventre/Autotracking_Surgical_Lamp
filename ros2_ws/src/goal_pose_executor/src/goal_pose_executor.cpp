@@ -17,14 +17,16 @@ public:
   {
     move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, "arm_control");
 
-    move_group_->setPlanningPipelineId("stomp");
-    move_group_->setPlannerId("RRTConnectkConfigDefault");
-    move_group_->setPlanningTime(10);                 // ⬆ Increased planning time
-    move_group_->setNumPlanningAttempts(10);           // ⬆ Increased attempts
+    // Switch to STOMP
+    move_group_->setPlanningPipelineId("ompl");
+    move_group_->setPlannerId("OMPL");
+
+    move_group_->setPlanningTime(10.0);
+    move_group_->setNumPlanningAttempts(10);
     move_group_->setMaxVelocityScalingFactor(1.0);
     move_group_->setMaxAccelerationScalingFactor(1.0);
-    move_group_->setGoalPositionTolerance(0.02);        // ⬆ Increased position tolerance
-    move_group_->setGoalOrientationTolerance(0.5);      // ⬆ Increased orientation tolerance
+    move_group_->setGoalPositionTolerance(0.02);
+    move_group_->setGoalOrientationTolerance(0.5);
 
     joint_command_pub_ = node_->create_publisher<std_msgs::msg::Float64MultiArray>("/joint_commands", 10);
     planning_status_pub_ = node_->create_publisher<std_msgs::msg::Bool>("/planning_status", 10);
@@ -33,7 +35,7 @@ public:
       "/goal_pose", 10,
       std::bind(&GoalPoseExecutor::goalPoseCallback, this, std::placeholders::_1));
 
-    RCLCPP_INFO(node_->get_logger(), "GoalPoseExecutor initialized.");
+    RCLCPP_INFO(node_->get_logger(), "GoalPoseExecutor initialized with STOMP.");
   }
 
 private:
@@ -45,7 +47,7 @@ private:
     ocm.link_name = move_group_->getEndEffectorLink();
     ocm.header.frame_id = msg->header.frame_id;
     ocm.orientation = msg->pose.orientation;
-    ocm.absolute_x_axis_tolerance = 0.3;  // ⬆ Slightly more lenient
+    ocm.absolute_x_axis_tolerance = 0.3;
     ocm.absolute_y_axis_tolerance = 0.3;
     ocm.absolute_z_axis_tolerance = 0.3;
     ocm.weight = 1.0;
@@ -66,11 +68,14 @@ private:
     if (success)
     {
       RCLCPP_INFO(node_->get_logger(), "Planning succeeded, publishing final joint positions.");
+
+      const auto &positions = plan.trajectory.joint_trajectory.points.back().positions;
       std_msgs::msg::Float64MultiArray joint_array;
 
-      for (const auto &position : plan.trajectory.joint_trajectory.points.back().positions)
+      // Only take the first 5 joint values and convert to degrees
+      for (size_t i = 0; i < std::min(size_t(5), positions.size()); ++i)
       {
-        double deg = position * (180.0 / M_PI);
+        double deg = positions[i] * (180.0 / M_PI);
         joint_array.data.push_back(std::round(deg * 100.0) / 100.0);
       }
 

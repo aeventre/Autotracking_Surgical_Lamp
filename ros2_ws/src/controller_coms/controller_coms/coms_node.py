@@ -13,8 +13,8 @@ class ControllerComsNode(Node):
 
         # Serial port configuration
         self.mcu1_port = '/dev/ttyUSB0'
-        self.mcu2_port = '/dev/ttyACM0'
-        self.remote_port = '/dev/ttyUSB1'
+        self.mcu2_port = '/dev/ttyUSB1'
+        self.remote_port = '/dev/ttyUSB2'
         self.baud_rate = 115200
         self.light_mode = 0  # updated via user_command subscription
 

@@ -1,18 +1,24 @@
+// StepperJoint.cpp
 #include "StepperJoint.h"
-#include <Arduino.h>
 
 StepperJoint::StepperJoint()
 {
 }
 
-void StepperJoint::begin(uint8_t stepPin, uint8_t dirPin, EncoderLib *encoder)
+void StepperJoint::begin(uint8_t stepPin, uint8_t dirPin, EncoderLib* encoder, uint8_t ms1Pin, uint8_t ms2Pin)
 {
     _stepPin = stepPin;
     _dirPin = dirPin;
     _encoder = encoder;
+    _ms1Pin = ms1Pin;
+    _ms2Pin = ms2Pin;
 
     pinMode(_stepPin, OUTPUT);
     pinMode(_dirPin, OUTPUT);
+    pinMode(_ms1Pin, OUTPUT);
+    pinMode(_ms2Pin, OUTPUT);
+
+    setMicrostepping(1); // Default full step
 
     _lastPIDTime = millis();
     _lastStepTime = micros();
@@ -40,6 +46,34 @@ void StepperJoint::setPIDGains(float kp, float ki, float kd)
     _kd = kd;
 }
 
+void StepperJoint::setMicrostepping(int mode)
+{
+    _microsteps = mode;
+    switch (mode)
+    {
+    case 1:
+        digitalWrite(_ms1Pin, LOW);
+        digitalWrite(_ms2Pin, LOW);
+        break;
+    case 2:
+        digitalWrite(_ms1Pin, HIGH);
+        digitalWrite(_ms2Pin, LOW);
+        break;
+    case 4:
+        digitalWrite(_ms1Pin, LOW);
+        digitalWrite(_ms2Pin, HIGH);
+        break;
+    case 8:
+        digitalWrite(_ms1Pin, HIGH);
+        digitalWrite(_ms2Pin, HIGH);
+        break;
+    default:
+        digitalWrite(_ms1Pin, LOW);
+        digitalWrite(_ms2Pin, LOW);
+        _microsteps = 1;
+    }
+}
+
 void StepperJoint::update()
 {
     unsigned long now = millis();
@@ -49,8 +83,6 @@ void StepperJoint::update()
     _lastPIDTime = now;
 
     float rawAngle = _encoder->getFilteredAngle();
-
-    // Apply calibration offset and wrap to [0, 360)
     float logicalAngle = fmod((rawAngle - _angleOffset + 360.0f), 360.0f);
     _currentAngle = logicalAngle;
 
@@ -59,10 +91,15 @@ void StepperJoint::update()
     float derivative = (error - _lastError) / dt;
     _lastError = error;
 
+    // --- Amplify PID velocity ---
     float velocity = _kp * error + _ki * _integral + _kd * derivative;
+    velocity *= 100.0f;  // Amplify movement rate
 
-    static constexpr float microstepsPerDeg = (200.0f * 16.0f) / 360.0f;
-    float stepsPerSecond = max(abs(velocity) * microstepsPerDeg, 0.5f);
+    static constexpr float stepsPerRev = 200.0f;
+    float microstepsPerDeg = (stepsPerRev * _microsteps) / 360.0f;
+
+    // --- Clamp speed ---
+    float stepsPerSecond = constrain(abs(velocity) * microstepsPerDeg, 50.0f, 3000.0f);
     _stepIntervalMicros = 1e6 / stepsPerSecond;
 
     digitalWrite(_dirPin, velocity >= 0 ? LOW : HIGH);
@@ -74,12 +111,8 @@ void StepperJoint::update()
         _stepState = !_stepState;
         digitalWrite(_stepPin, _stepState);
     }
-
-    // Optional debug
-    // Serial.print("Target: "); Serial.print(_targetAngle);
-    // Serial.print(" | Current: "); Serial.print(_currentAngle);
-    // Serial.print(" | Error: "); Serial.println(error);
 }
+
 
 float StepperJoint::angleDiff(float target, float current)
 {
