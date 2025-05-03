@@ -4,6 +4,7 @@
 #include "ServoJoint.h"
 #include "StepperJoint.h"
 #include "EncoderLib.h"
+#include "CommandParser.h"
 
 // --- PCA9685 Driver ---
 Adafruit_PWMServoDriver pca9685(0x40, Wire1);
@@ -17,13 +18,18 @@ ServoJoint joint4;
 StepperJoint stepperJoint;
 EncoderLib stepperEncoder(Wire);  // AS5600 encoder on Wire (default)
 
-// --- Serial Buffer for Stepper Commands ---
-String serialBuffer;
+// --- RS‑485 Command Parser ---
+CommandParser rs485;
+CommandMessage cmdMsg;
 
 void setup()
 {
+    // --- USB‑Serial for debug ---
     Serial.begin(115200);
-    delay(2000); // Give Serial Monitor time
+    delay(2000);
+
+    // --- RS‑485 on Serial2 (Pico TX=4, RX=5) ---
+    rs485.begin(Serial2);
 
     // --- I2C and PCA9685 ---
     Wire1.setSDA(2);
@@ -33,119 +39,91 @@ void setup()
     pca9685.setPWMFreq(50);
     delay(10);
 
-    // --- Stepper Encoder (AS5600) on default Wire pins (e.g. A4/A5) ---
+    // --- Stepper Encoder (AS5600) ---
     stepperEncoder.begin(0, 1);
     delay(10);
-    stepperEncoder.zero();  // <<< Set current encoder position as 0 degrees
+    stepperEncoder.zero();
     Serial.println("Stepper encoder zeroed to current position.");
 
     // --- StepperJoint Setup ---
     stepperJoint.begin(17, 16, &stepperEncoder, 18, 19); // step, dir, encoder, ms1, ms2
-    stepperJoint.setMicrostepping(1); // full stepping
-    stepperJoint.setPIDGains(80.0f, 0.2f, 0.5f); // Initial PID for tuning
-    stepperJoint.setTarget(stepperEncoder.getFilteredAngle()); // Match current physical angle
+    stepperJoint.setMicrostepping(1);                    // full stepping
+    stepperJoint.setPIDGains(80.0f, 0.2f, 0.5f);          // initial PID
+    stepperJoint.setTarget(stepperEncoder.getFilteredAngle());
 
     // --- Joint 2: Open Loop Servo ---
     joint2.attach(0, &pca9685, true);
     joint2.setFeedbackType(ServoJoint::NONE);
     joint2.setAngleRange(180.0f);
     joint2.setPulseRange(102, 512);
-    joint2.setTargetAngle(7.0f); // ~zero-positioned
+    joint2.setTargetAngle(7.0f);
 
-// --- Joint 3: Analog PID Servo ---
-joint3.attach(1, &pca9685);
-joint3.setFeedbackType(ServoJoint::ANALOG);
-joint3.setAnalogPin(A0);
-joint3.setAngleRange(270.0f);
-joint3.setPulseRange(102, 512);
-joint3.setAnalogMapping(0.413f, -7.57f);
-joint3.setAnalogLimits(30, 680);
-joint3.setAngleOffset(-7.0f);
-joint3.setPIDGains(2.0f, 0.0f, 0.1f);
+    // --- Joint 3: Analog PID Servo ---
+    joint3.attach(1, &pca9685);
+    joint3.setFeedbackType(ServoJoint::ANALOG);
+    joint3.setAnalogPin(A0);
+    joint3.setAngleRange(270.0f);
+    joint3.setPulseRange(102, 512);
+    joint3.setAnalogMapping(0.413f, -7.57f);
+    joint3.setAnalogLimits(30, 680);
+    joint3.setAngleOffset(-7.0f);
+    joint3.setPIDGains(2.0f, 0.0f, 0.1f);
+    // stabilize filter
+    for (int i = 0; i < 10; ++i) { joint3.update(); delay(10); }
+    float stable3 = joint3.getCurrentAngle();
+    joint3.setTargetAngle(stable3);
+    joint3.setPIDGains(1.0f, 0.2f, 0.2f);
+    Serial.print("Servo 3 initialized at angle: ");
+    Serial.println(stable3, 1);
 
-// --- Force a stable reading before enabling control ---
-for (int i = 0; i < 10; ++i) {
-    joint3.update();   // Feed the filter
-    delay(10);
+    // --- Joint 4: Analog PID Servo ---
+    joint4.attach(2, &pca9685);
+    joint4.setFeedbackType(ServoJoint::ANALOG);
+    joint4.setAnalogPin(A1);
+    joint4.setAngleRange(270.0f);
+    joint4.setPulseRange(102, 512);
+    joint4.setAnalogMapping(0.407f, -2.81f);
+    joint4.setAnalogLimits(30, 675);
+    joint4.setAngleOffset(-7.0f);
+    joint4.setPIDGains(1.0f, 0.0f, 0.1f);
+    // stabilize filter
+    for (int i = 0; i < 10; ++i) { joint4.update(); delay(10); }
+    float stable4 = joint4.getCurrentAngle();
+    joint4.setTargetAngle(stable4);
+    joint4.setPIDGains(5.0f, 0.2f, 0.1f);
+    Serial.print("Servo 4 initialized at angle: ");
+    Serial.println(stable4, 1);
+
+    Serial.println("System initialized. Listening for RS‑485 commands.");
 }
-float stableStartAngle = joint3.getCurrentAngle();
-joint3.setTargetAngle(stableStartAngle);
-joint3.setPIDGains(1.0f, 0.2f, 0.2f); // Reapply gains after stabilization (safety)
-
-Serial.print("Servo 3 initialized at angle: ");
-Serial.println(stableStartAngle, 1);
-;
-
-// --- Joint 4: Analog PID Servo ---
-joint4.attach(2, &pca9685);       // Using PWM channel 2 for Servo 4
-joint4.setFeedbackType(ServoJoint::ANALOG);
-joint4.setAnalogPin(A1);          // Connect to analog pin A1 for feedback
-joint4.setAngleRange(270.0f);
-joint4.setPulseRange(102, 512);
-joint4.setAnalogMapping(0.407f, -2.81f);
-joint4.setAnalogLimits(30, 675);
-joint4.setAngleOffset(-8.0f);
-
-// --- INITIAL “GENTLE” PID GAINS BEFORE STABILIZATION ---
-joint4.setPIDGains(1.0f, 0.0f, 0.1f);
-
-// --- Prime the filter with a few reads ---
-for (int i = 0; i < 10; ++i) {
-    joint4.update();
-    delay(10);
-}
-float stableStartAngle2 = joint4.getCurrentAngle();
-joint4.setTargetAngle(stableStartAngle2);
-
-// --- REAPPLY THE STRONGER GAINS AFTER STABILIZATION ---
-joint4.setPIDGains(4.0f, 0.3f, 0.2f);
-
-Serial.print("Servo 4 initialized at angle: ");
-Serial.println(stableStartAngle2, 1);
-
-
-
-
-    Serial.println("System initialized. Type a number to set stepper angle.");
-}
-
-float localStepperTarget = 0.0f; // default starting target
 
 void loop()
 {
-    // --- Updates ---
+    // --- Update all joints ---
     joint2.update();
     joint3.update();
     joint4.update();
     stepperJoint.update();
 
-    // --- Serial Input for Stepper ---
-    while (Serial.available())
-    {
-        char c = Serial.read();
-        if (c == '\n' || c == '\r')
-        {
-            if (serialBuffer.length() > 0)
-            {
-                float target = serialBuffer.toFloat();
-                localStepperTarget = target;
-                stepperJoint.setTarget(target);
-                Serial.print(">> New Stepper Target: ");
-                Serial.println(target);
-                serialBuffer = "";
-            }
-        }
-        else if (isDigit(c) || c == '.' || c == '-')
-        {
-            serialBuffer += c;
-        }
+    // --- Process incoming RS‑485 frame ---
+    if (rs485.readCommand(cmdMsg)) {
+        // Map fields to targets
+        stepperJoint.setTarget(cmdMsg.a1);
+        joint2.setTargetAngle(cmdMsg.a2);
+        joint3.setTargetAngle(cmdMsg.a3);
+        joint4.setTargetAngle(cmdMsg.a4);
+        rs485.clearReceivedFlag();
     }
 
-    // --- Print Feedback ---
-    Serial.print("Stepper Target: ");
-    Serial.print(localStepperTarget, 1);
-    Serial.print(" | Current: ");
-    Serial.println(stepperJoint.getCurrentAngle(), 1);
+    // --- Debug print to USB‑Serial ---
+    Serial.print("Stepper → ");
+    Serial.print(cmdMsg.a1, 1);
+    Serial.print(" | J2 → ");
+    Serial.print(cmdMsg.a2, 1);
+    Serial.print(" | J3 → ");
+    Serial.print(cmdMsg.a3, 1);
+    Serial.print(" | J4 → ");
+    Serial.println(cmdMsg.a4, 1);
 }
 
 

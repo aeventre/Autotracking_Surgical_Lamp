@@ -1,62 +1,113 @@
+// main.ino
+
 #include "EncoderLib.h"
 #include "StepperJoint.h"
 #include <Arduino.h>
 
 float readJoint0Command();
+void readPIDCommand();
 
 #define stepPin 3
-#define dirPin 2
+#define dirPin  2
 
 StepperJoint joint0;
-EncoderLib encoder(Wire);
+EncoderLib   encoder(Wire);
 
-unsigned long lastPrint = 0;
+void setup() {
+    // Motor pins
+    pinMode(dirPin,  OUTPUT);
+    pinMode(stepPin, OUTPUT);
+    pinMode(4,       OUTPUT);
+    pinMode(5,       OUTPUT);
 
-void setup()
-{
-    pinMode(2,OUTPUT);
-    pinMode(3,OUTPUT);
-    pinMode(4,OUTPUT);
-    pinMode(5,OUTPUT);
-    //digitalWrite(4,HIGH);
     Serial.begin(115200);
-    encoder.begin(A4, A5); // Uno SDA/SCL pins
-    joint0.begin(stepPin, dirPin, &encoder, 4,5);
-    joint0.calibrateFromEncoder(); // Set encoder angle to 0
-    joint0.setPIDGains(5, 1, 0.5);
-    joint0.setTarget(0); 
+
+    // Encoder init & zero at startup
+    encoder.begin(A4, A5);
+    encoder.zero();
+
+    // Joint init & zero calibration
+    joint0.begin(stepPin, dirPin, &encoder, 4, 5);
+    joint0.calibrateFromEncoder();
+
+    // Initial PID & target
+    joint0.setPIDGains(0.5f, 1.0f, 2.5f);
+    joint0.setDeadband(0.5f);    // <–– within ±0.5° no ticking
+    joint0.setTarget(0.0f);
+
 }
 
-void loop()
-{
+void loop() {
+    // Angle‐target commands: <<angle>>
+    float newTarget = readJoint0Command();
+    if (!isnan(newTarget)) {
+        joint0.setTarget(newTarget);
+        Serial.print("New target: ");
+        Serial.println(newTarget);
+    }
 
+    // PID tuning commands: <P<value>>, <I<value>>, <D<value>>
+    readPIDCommand();
 
+    // Run control loop
+    joint0.update();
 }
 
-float readJoint0Command()
-{
-    static String input = "";
-    static bool receiving = false;
+void readPIDCommand() {
+    static String input;
+    static bool   receiving = false;
 
-    while (Serial.available())
-    {
+    while (Serial.available()) {
         char c = Serial.read();
 
-        if (c == '<')
-        {
-            input = "";
+        if (c == '<') {
+            input     = "";
             receiving = true;
         }
-        else if (c == '>' && receiving)
-        {
+        else if (c == '>' && receiving) {
             receiving = false;
-            return input.toFloat(); // Parse angle
+            float val = input.substring(1).toFloat();
+
+            if (input.startsWith("P")) {
+                joint0.setKp(val);
+                Serial.print("Kp = ");
+                Serial.println(val);
+            }
+            else if (input.startsWith("I")) {
+                joint0.setKi(val);
+                Serial.print("Ki = ");
+                Serial.println(val);
+            }
+            else if (input.startsWith("D")) {
+                joint0.setKd(val);
+                Serial.print("Kd = ");
+                Serial.println(val);
+            }
         }
-        else if (receiving)
-        {
+        else if (receiving) {
             input += c;
         }
     }
+}
 
-    return NAN; // Return invalid if no message complete
+float readJoint0Command() {
+    static String input;
+    static bool   receiving = false;
+
+    while (Serial.available()) {
+        char c = Serial.read();
+
+        if (c == '<') {
+            input     = "";
+            receiving = true;
+        }
+        else if (c == '>' && receiving) {
+            receiving = false;
+            return input.toFloat();
+        }
+        else if (receiving) {
+            input += c;
+        }
+    }
+    return NAN;
 }

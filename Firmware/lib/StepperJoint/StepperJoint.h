@@ -1,11 +1,12 @@
+// StepperJoint.h
+
 #ifndef STEPPERJOINT_H
 #define STEPPERJOINT_H
 
 #include <Arduino.h>
 #include "EncoderLib.h"
 
-class StepperJoint
-{
+class StepperJoint {
 public:
     StepperJoint();
 
@@ -16,36 +17,37 @@ public:
     void calibrateFromEncoder();
     void update();
 
-    float getCurrentAngle();
+    float getCurrentAngle() const;
+
+    // PID setters/getters
+    void setKp(float kp);
+    void setKi(float ki);
+    void setKd(float kd);
+    float getKp() const;
+    float getKi() const;
+    float getKd() const;
+
+    // ── New: deadband setter ────────────────────────────
+    /// Only drive if |error| ≥ this many degrees
+    void setDeadband(float degrees);
 
 private:
     float angleDiff(float target, float current);
 
-    uint8_t _stepPin = 255;
-    uint8_t _dirPin = 255;
-    uint8_t _ms1Pin = 255;
-    uint8_t _ms2Pin = 255;
+    uint8_t _stepPin, _dirPin, _ms1Pin, _ms2Pin;
+    EncoderLib* _encoder;
 
-    EncoderLib* _encoder = nullptr;
+    float _targetAngle, _currentAngle, _angleOffset;
+    float _kp, _ki, _kd;
+    float _lastError, _integral;
 
-    float _targetAngle = 0.0f;
-    float _currentAngle = 0.0f;
-    float _angleOffset = 0.0f;
+    int _microsteps;
+    unsigned long _lastPIDTime, _lastStepTime;
+    float _stepIntervalMicros;
+    bool _stepState;
 
-    float _kp = 0.0f;
-    float _ki = 0.0f;
-    float _kd = 0.0f;
-
-    float _lastError = 0.0f;
-    float _integral = 0.0f;
-
-    int _microsteps = 1;
-
-    unsigned long _lastPIDTime = 0;
-    unsigned long _lastStepTime = 0;
-    float _stepIntervalMicros = 2000.0f;
-
-    bool _stepState = false;
+    // ── New member ─────────────────────────────────────
+    float _deadbandDeg;  // if |error| < this, don’t step
 };
 
 #endif
