@@ -50,6 +50,7 @@ class LampGui(Node, QWidget):
         # Manual Joint Sliders
         layout.addWidget(QLabel("Manual Joint Angles (degrees)"))
         self.sliders = []
+        self.slider_displays = []
         self.joint_limits_deg = [
             (-180, 180),     # joint0
             (-180, 180),     # joint1
@@ -58,13 +59,44 @@ class LampGui(Node, QWidget):
             (-130, 130),     # joint4
         ]
         for i, (low, high) in enumerate(self.joint_limits_deg):
-            layout.addWidget(QLabel(f"Joint {i}"))
+            joint_layout = QHBoxLayout()
+            
+            label = QLabel(f"Joint {i}")
+            joint_layout.addWidget(label)
+
             slider = QSlider(Qt.Horizontal)
             slider.setMinimum(int(low))
             slider.setMaximum(int(high))
             slider.setValue(0)
+            slider.setSingleStep(1)
+            slider.setPageStep(5)
+            joint_layout.addWidget(slider)
+
+            display = QLineEdit("0")
+            display.setFixedWidth(50)
+            display.setAlignment(Qt.AlignRight)
+            joint_layout.addWidget(display)
+            
+            def make_slider_to_display_cb(display_widget):
+                return lambda val: display_widget.setText(str(val))
+
+            def make_display_to_slider_cb(slider_widget, display_widget):
+                def cb():
+                    try:
+                        val = int(float(display_widget.text()))
+                        slider_widget.setValue(val)
+                    except ValueError:
+                        pass  # Ignore bad input
+                return cb
+
+            slider.valueChanged.connect(make_slider_to_display_cb(display))
+            display.editingFinished.connect(make_display_to_slider_cb(slider, display))
+
+
             self.sliders.append(slider)
-            layout.addWidget(slider)
+            self.slider_displays.append(display)
+            layout.addLayout(joint_layout)
+
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.publish_joint_angles)

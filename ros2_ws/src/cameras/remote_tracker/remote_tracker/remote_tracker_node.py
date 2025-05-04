@@ -39,6 +39,7 @@ class RemoteTrackerNode(Node):
 
         self.cam_info_cam1 = None
         self.cam_info_cam2 = None
+        
 
         # Subscribers (using TimeSynchronizer to pair color and depth images)
         self.color_sub_cam1 = message_filters.Subscriber(self, CompressedImage, '/camera_01/color/image_raw/compressed')
@@ -53,7 +54,7 @@ class RemoteTrackerNode(Node):
         self.sync_cam1 = message_filters.ApproximateTimeSynchronizer(
             [self.color_sub_cam1, self.depth_sub_cam1], 
             queue_size=10, 
-            slop=0.2, 
+            slop=0.5, 
             allow_headerless=True
         )
         self.sync_cam1.registerCallback(self.camera_callback_cam1)
@@ -144,9 +145,11 @@ class RemoteTrackerNode(Node):
         self.position_cam1 = position
         self.uv_cam1 = uv
 
+        # Always show a window, fallback to color if image is None
         display_image = image if image is not None else color
         cv2.imshow("Camera 1 View", display_image)
         cv2.waitKey(1)
+
 
 
 
@@ -165,9 +168,11 @@ class RemoteTrackerNode(Node):
         self.position_cam2 = position
         self.uv_cam2 = uv
 
+        # Always show a window, fallback to color if image is None
         display_image = image if image is not None else color
         cv2.imshow("Camera 2 View", display_image)
         cv2.waitKey(1)
+
 
 
 

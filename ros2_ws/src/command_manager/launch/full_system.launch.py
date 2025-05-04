@@ -50,7 +50,7 @@ def generate_launch_description():
             output='screen'
         ),
 
-        # Camera 02 (slave)
+        # Camera 02
         ComposableNodeContainer(
             name='camera_02_camera_container', namespace='camera_02',
             package='rclcpp_components', executable='component_container', output='screen',
@@ -59,12 +59,12 @@ def generate_launch_description():
                     package='orbbec_camera', plugin='orbbec_camera::OBCameraNodeDriver',
                     name='camera_02_driver',
                     parameters=[
-                        {'serial_number': 'AY3134100C3'}, {'enable_depth': True}, {'enable_color': True},
+                        {'serial_number': 'AY3134100C3'},  # Restored original CAM2 ID
+                        {'enable_depth': True}, {'enable_color': True},
                         {'depth_width': 640}, {'depth_height': 400}, {'depth_fps': 15},
-                        {'color_width': 640}, {'color_height': 400}, {'color_fps': 15},
-                        {'sync_mode': True}, {'sync_signal_input': True}, {'sync_signal_output': False},
-                        {'depth_to_color': True}, {'use_device_time': True},
-                        {'ir_mirror': False}, {'color_mirror': False},
+                        {'color_width': 640}, {'color_height': 480}, {'color_fps': 15},
+                        {'depth_to_color': True},
+                        {'sync_mode': 0},  # <- Force standalone mode
                     ],
                     remappings=[
                         ('color/image_raw',            'camera_02/color/image_raw'),
@@ -79,7 +79,7 @@ def generate_launch_description():
             ],
         ),
 
-        # Delay then camera 01 (master)
+        # Delay then camera 01
         TimerAction(
             period=2.0,
             actions=[
@@ -91,12 +91,13 @@ def generate_launch_description():
                             package='orbbec_camera', plugin='orbbec_camera::OBCameraNodeDriver',
                             name='camera_01_driver',
                             parameters=[
-                                {'serial_number': 'AY31341002B'}, {'enable_depth': True}, {'enable_color': True},
+                                {'serial_number': 'AY31341002B'},  # Restored original CAM1 ID
+                                {'enable_depth': True}, {'enable_color': True},
                                 {'depth_width': 640}, {'depth_height': 400}, {'depth_fps': 15},
                                 {'color_width': 640}, {'color_height': 480}, {'color_fps': 15},
-                                {'sync_mode': True}, {'sync_signal_input': False}, {'sync_signal_output': True},
-                                {'depth_to_color': True}, {'use_device_time': True},
-                                {'ir_mirror': False}, {'color_mirror': False},
+                                {'depth_to_color': True},
+                                {'use_device_time': True},
+                                {'sync_mode': 0},  # <- Force standalone mode
                             ],
                             remappings=[
                                 ('color/image_raw',            'camera_01/color/image_raw'),
