@@ -16,7 +16,7 @@ ServoJoint joint4;
 
 // --- Stepper + Encoder ---
 StepperJoint stepperJoint;
-EncoderLib stepperEncoder(Wire);  // AS5600 encoder on Wire (default)
+EncoderLib stepperEncoder(Wire); // AS5600 encoder on Wire (default)
 
 // --- RS‑485 Command Parser ---
 CommandParser rs485;
@@ -48,7 +48,7 @@ void setup()
     // --- StepperJoint Setup ---
     stepperJoint.begin(17, 16, &stepperEncoder, 18, 19); // step, dir, encoder, ms1, ms2
     stepperJoint.setMicrostepping(1);                    // full stepping
-    stepperJoint.setPIDGains(80.0f, 0.2f, 0.5f);          // initial PID
+    stepperJoint.setPIDGains(80.0f, 0.2f, 0.5f);         // initial PID
     stepperJoint.setTarget(stepperEncoder.getFilteredAngle());
 
     // --- Joint 2: Open Loop Servo ---
@@ -69,7 +69,11 @@ void setup()
     joint3.setAngleOffset(-7.0f);
     joint3.setPIDGains(2.0f, 0.0f, 0.1f);
     // stabilize filter
-    for (int i = 0; i < 10; ++i) { joint3.update(); delay(10); }
+    for (int i = 0; i < 10; ++i)
+    {
+        joint3.update();
+        delay(10);
+    }
     float stable3 = joint3.getCurrentAngle();
     joint3.setTargetAngle(stable3);
     joint3.setPIDGains(1.0f, 0.2f, 0.2f);
@@ -87,7 +91,11 @@ void setup()
     joint4.setAngleOffset(-7.0f);
     joint4.setPIDGains(1.0f, 0.0f, 0.1f);
     // stabilize filter
-    for (int i = 0; i < 10; ++i) { joint4.update(); delay(10); }
+    for (int i = 0; i < 10; ++i)
+    {
+        joint4.update();
+        delay(10);
+    }
     float stable4 = joint4.getCurrentAngle();
     joint4.setTargetAngle(stable4);
     joint4.setPIDGains(5.0f, 0.2f, 0.1f);
@@ -99,34 +107,35 @@ void setup()
 
 void loop()
 {
+    // --- Process incoming RS‑485 frame ---
+    if (rs485.readCommand(cmdMsg))
+    {
+        // Map fields to targets
+        stepperJoint.setTarget(cmdMsg.a1);
+        joint2.setTargetAngle(-1.0*cmdMsg.a2);
+        joint3.setTargetAngle(cmdMsg.a3);
+        joint4.setTargetAngle(cmdMsg.a4);
+        rs485.clearReceivedFlag();
+        rs485.sendStatus(cmdMsg);
+    }
+
     // --- Update all joints ---
     joint2.update();
     joint3.update();
     joint4.update();
     stepperJoint.update();
 
-    // --- Process incoming RS‑485 frame ---
-    if (rs485.readCommand(cmdMsg)) {
-        // Map fields to targets
-        stepperJoint.setTarget(cmdMsg.a1);
-        joint2.setTargetAngle(cmdMsg.a2);
-        joint3.setTargetAngle(cmdMsg.a3);
-        joint4.setTargetAngle(cmdMsg.a4);
-        rs485.clearReceivedFlag();
-    }
 
     // --- Debug print to USB‑Serial ---
-    Serial.print("Stepper → ");
-    Serial.print(cmdMsg.a1, 1);
-    Serial.print(" | J2 → ");
-    Serial.print(cmdMsg.a2, 1);
-    Serial.print(" | J3 → ");
-    Serial.print(cmdMsg.a3, 1);
-    Serial.print(" | J4 → ");
-    Serial.println(cmdMsg.a4, 1);
+    // Serial.print("Stepper → ");
+    // Serial.print(cmdMsg.a1, 1);
+    // Serial.print(" | J2 → ");
+    // Serial.print(cmdMsg.a2, 1);
+    // Serial.print(" | J3 → ");
+    // Serial.print(cmdMsg.a3, 1);
+    // Serial.print(" | J4 → ");
+    // Serial.println(cmdMsg.a4, 1);
 }
-
-
 
 // #include "ServoJoint.h"
 // #include <Adafruit_PWMServoDriver.h>
