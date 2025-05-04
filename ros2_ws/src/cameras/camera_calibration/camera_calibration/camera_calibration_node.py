@@ -97,11 +97,12 @@ class CameraPoseEstimatorNode(Node):
                     continue
 
                 # Convert known tag RPY to matrix
-                tag_rotation_quat = tf_transformations.quaternion_from_euler(
-                    tag_rotation_rpy[0], tag_rotation_rpy[1], tag_rotation_rpy[2])
-
-                tag_to_base = tf_transformations.quaternion_matrix(tag_rotation_quat)
+                # Convert known tag RPY to matrix using extrinsic axes (URDF-style)
+                tag_to_base = tf_transformations.euler_matrix(
+                tag_rotation_rpy[0], tag_rotation_rpy[1], tag_rotation_rpy[2]
+                )
                 tag_to_base[0:3, 3] = tag_translation
+
 
                 # Compute final camera-in-base
                 camera_in_base = tag_to_base @ camera_to_marker

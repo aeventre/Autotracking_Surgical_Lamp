@@ -215,11 +215,12 @@ class RemoteTrackerNode(Node):
 
         fx, fy = cam_info.k[0], cam_info.k[4]
         cx0, cy0 = cam_info.k[2], cam_info.k[5]
-        x_norm = (cx - cx0) / fx
-        y_norm = (cy - cy0) / fy
-        ray = np.array([x_norm, y_norm, 1.0])
-        ray /= np.linalg.norm(ray)
-        cam_pt = ray * d
+
+        cam_pt = np.array([
+            (cx - cx0) * d / fx,
+            (cy - cy0) * d / fy,
+            d
+        ])
 
         base_pt = cam_to_base @ np.append(cam_pt, 1.0)
         label = f"x:{base_pt[0]:.2f} y:{base_pt[1]:.2f} z:{base_pt[2]:.2f}"
