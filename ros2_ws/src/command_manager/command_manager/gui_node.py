@@ -118,7 +118,7 @@ class LampGui(Node, QWidget):
         if msg.reset:
             self.status_label.setText("Status: Resetting")
         else:
-            state = "Pressed" if msg.button_pressed else "Released"
+            state = "Pressed" if msg.button_state else "Released"
             self.status_label.setText(f"Remote Button: {state}")
 
     def on_goal_pose(self, msg: PoseStamped):
@@ -139,8 +139,8 @@ class LampGui(Node, QWidget):
     def publish_joint_angles(self):
         if self.mode_dropdown.currentIndex() == 3:
             msg = Float64MultiArray()
-            # Convert to radians
-            msg.data = [math.radians(s.value()) for s in self.sliders]
+            # Output in degrees (no conversion)
+            msg.data = [s.value() for s in self.sliders]
             self.joint_pub.publish(msg)
 
     def publish_manual_pose(self):

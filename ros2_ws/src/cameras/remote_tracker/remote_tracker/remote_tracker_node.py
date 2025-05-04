@@ -17,6 +17,15 @@ import time
 class RemoteTrackerNode(Node):
     def __init__(self):
         super().__init__('remote_tracker')
+        
+        self.declare_parameter('reprojection_threshold', 10.0)
+        self.reprojection_threshold = self.get_parameter('reprojection_threshold').value
+        
+        self.declare_parameter('hsv_lower', [38, 101, 102])
+        self.declare_parameter('hsv_upper', [74, 189, 248])
+        self.hsv_lower = np.array(self.get_parameter('hsv_lower').value, dtype=np.uint8)
+        self.hsv_upper = np.array(self.get_parameter('hsv_upper').value, dtype=np.uint8)
+
 
         self.bridge = CvBridge()
 
@@ -44,7 +53,7 @@ class RemoteTrackerNode(Node):
         self.sync_cam1 = message_filters.ApproximateTimeSynchronizer(
             [self.color_sub_cam1, self.depth_sub_cam1], 
             queue_size=10, 
-            slop=0.5, 
+            slop=0.2, 
             allow_headerless=True
         )
         self.sync_cam1.registerCallback(self.camera_callback_cam1)
@@ -52,7 +61,7 @@ class RemoteTrackerNode(Node):
         self.sync_cam2 = message_filters.ApproximateTimeSynchronizer(
             [self.color_sub_cam2, self.depth_sub_cam2], 
             queue_size=10, 
-            slop=0.5, 
+            slop=0.05, 
             allow_headerless=True
         )
         self.sync_cam2.registerCallback(self.camera_callback_cam2)
@@ -69,6 +78,8 @@ class RemoteTrackerNode(Node):
         self.kf_H[2, 2] = 1
 
         self.last_kf_time = time.time()
+        
+
 
 
 
@@ -81,178 +92,176 @@ class RemoteTrackerNode(Node):
 
         # Timer to fuse and publish
         self.timer = self.create_timer(0.05, self.publish_fused_pose)  # 20Hz
-
-    def load_transform(self, filepath):
-        with open(filepath, 'r') as f:
-            data = yaml.safe_load(f)
-
-        translation = np.array([
-            data['position']['x'],
-            data['position']['y'],
-            data['position']['z']
-        ])
-        quaternion = np.array([
-            data['orientation']['x'],
-            data['orientation']['y'],
-            data['orientation']['z'],
-            data['orientation']['w']
-        ])
-
-        matrix = quaternion_matrix(quaternion)
-        matrix[0:3, 3] = translation
-        return matrix
-
+        
+        
     def cam_info_callback_cam1(self, msg):
-        self.cam_info_cam1 = msg
+        self.get_logger().info("CAM1 callback hit")
+        if self.cam_info_cam1 is None:
+            self.cam_info_cam1 = msg
+            self.get_logger().info("Cached cam1 intrinsics.")
+            self.destroy_subscription(self.info_sub_cam1)
+
+
 
     def cam_info_callback_cam2(self, msg):
-        self.cam_info_cam2 = msg
+        self.get_logger().info("CAM2 callback hit")
+        if self.cam_info_cam2 is None:
+            self.cam_info_cam2 = msg
+            self.get_logger().info("Cached cam2 intrinsics.")
+            self.destroy_subscription(self.info_sub_cam2)
+
+
+
+    def load_transform(self, filepath):
+            try:
+                with open(filepath, 'r') as f:
+                    data = yaml.safe_load(f)
+                t = np.array([data['position'][k] for k in ('x', 'y', 'z')])
+                q = np.array([data['orientation'][k] for k in ('x', 'y', 'z', 'w')])
+                M = quaternion_matrix(q)
+                M[0:3, 3] = t
+
+                if np.linalg.norm(t) > 5.0:
+                    self.get_logger().warn(f"Transform from {filepath} has large translation: {t}")
+
+                return M
+            except Exception as e:
+                self.get_logger().error(f"Failed to load transform from {filepath}: {e}")
+                return np.eye(4)
+
 
     def camera_callback_cam1(self, color_msg, depth_msg):
-        print("[RemoteTrackerNode] Camera 1 callback triggered!")
-        if self.cam_info_cam1:
-            position, image = self.process_camera(color_msg, depth_msg, self.cam_info_cam1, self.cam1_to_base)
-            self.position_cam1 = position
-            cv2.imshow('Camera 1 View', image)
-            cv2.waitKey(1)
+        self.get_logger().info("CAM1 image/depth callback hit")
+
+        if self.cam_info_cam1 is None:
+            self.get_logger().warn("cam_info_cam1 is None! Skipping processing.")
+            return
+
+        np_arr = np.frombuffer(color_msg.data, np.uint8)
+        color = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        position, uv, image = self.process_camera_data(color, depth_msg, self.cam_info_cam1, self.cam1_to_base)
+        self.position_cam1 = position
+        self.uv_cam1 = uv
+
+        display_image = image if image is not None else color
+        cv2.imshow("Camera 1 View", display_image)
+        cv2.waitKey(1)
+
+
+
 
     def camera_callback_cam2(self, color_msg, depth_msg):
-        print("[RemoteTrackerNode] Camera 2 callback triggered!")
-        if self.cam_info_cam2:
-            position, image = self.process_camera(color_msg, depth_msg, self.cam_info_cam2, self.cam2_to_base)
-            self.position_cam2 = position
-            cv2.imshow('Camera 2 View', image)
-            cv2.waitKey(1)
+        self.get_logger().info("CAM2 image/depth callback hit")
 
-    def process_camera(self, color_msg, depth_msg, cam_info, cam_to_base):
-        # Decode compressed color image
+        if self.cam_info_cam2 is None:
+            self.get_logger().warn("cam_info_cam2 is None! Skipping processing.")
+            return
+
         np_arr = np.frombuffer(color_msg.data, np.uint8)
-        color_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        color = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-        # Depth image (still raw)
-        depth_image = self.bridge.imgmsg_to_cv2(depth_msg, desired_encoding='passthrough')
+        position, uv, image = self.process_camera_data(color, depth_msg, self.cam_info_cam2, self.cam2_to_base)
+        self.position_cam2 = position
+        self.uv_cam2 = uv
 
-        display_image = color_image.copy()
+        display_image = image if image is not None else color
+        cv2.imshow("Camera 2 View", display_image)
+        cv2.waitKey(1)
 
-        # Detect green ball
-        hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)
-       
-        
-        lower_neon_green = np.array([38, 101, 102])
-        upper_neon_green = np.array([74, 189, 248])
-        
-        # Threshold
-        mask = cv2.inRange(hsv, lower_neon_green, upper_neon_green)
 
-        # Reduce random speckle noise
+
+
+
+
+    def process_camera_data(self, color, depth_msg, cam_info, cam_to_base):
+        depth = self.bridge.imgmsg_to_cv2(depth_msg, 'passthrough')
+        display = color.copy()
+        hsv = cv2.cvtColor(color, cv2.COLOR_BGR2HSV)
+
+        # Threshold for green color
+        mask = cv2.inRange(hsv, self.hsv_lower, self.hsv_upper)
         mask = cv2.GaussianBlur(mask, (9, 9), 2)
-
-        # Further clean noise, preserve real blobs
         mask = cv2.medianBlur(mask, 5)
-
-        # Final cleanup with a smooth elliptical kernel
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
-
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        if not contours:
-            return None, display_image
-
-        largest_contour = max(contours, key=cv2.contourArea)
-        M = cv2.moments(largest_contour)
-
+        cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not cnts:
+            return None, None, display
+        c = max(cnts, key=cv2.contourArea)
+        M = cv2.moments(c)
         if M['m00'] == 0:
-            return None, display_image
+            return None, None, display
 
-        cx = int(M['m10'] / M['m00'])
-        cy = int(M['m01'] / M['m00'])
+        cx, cy = int(M['m10'] / M['m00']), int(M['m01'] / M['m00'])
+        cv2.circle(display, (cx, cy), 10, (0, 0, 255), 2)
 
-        # Draw circle around ball
-        cv2.circle(display_image, (cx, cy), 10, (0, 0, 255), 2)
-        
-        # Clamp cy to depth image size
-        cy = np.clip(cy, 0, depth_image.shape[0] - 1)
-        cx = np.clip(cx, 0, depth_image.shape[1] - 1)
+        win = 2
+        y0, y1 = max(cy - win, 0), min(cy + win + 1, depth.shape[0])
+        x0, x1 = max(cx - win, 0), min(cx + win + 1, depth.shape[1])
+        patch = depth[y0:y1, x0:x1].astype(np.float32)
 
+        # Apply depth value filtering
+        vals = patch[(patch > 100) & (patch < 2000) & (~np.isnan(patch))]
+        if vals.size == 0:
+            return None, None, display
+        d = float(np.median(vals))
 
-        # Depth lookup
-        # Scale (cx, cy) from color image size to depth image size
-        scaled_cx = int(cx * (depth_image.shape[1] / color_image.shape[1]))
-        scaled_cy = int(cy * (depth_image.shape[0] / color_image.shape[0]))
+        fx, fy = cam_info.k[0], cam_info.k[4]
+        cx0, cy0 = cam_info.k[2], cam_info.k[5]
+        x_norm = (cx - cx0) / fx
+        y_norm = (cy - cy0) / fy
+        ray = np.array([x_norm, y_norm, 1.0])
+        ray /= np.linalg.norm(ray)
+        cam_pt = ray * d
 
-        # Make sure indices are safe
-        scaled_cx = np.clip(scaled_cx, 0, depth_image.shape[1] - 1)
-        scaled_cy = np.clip(scaled_cy, 0, depth_image.shape[0] - 1)
+        base_pt = cam_to_base @ np.append(cam_pt, 1.0)
+        label = f"x:{base_pt[0]:.2f} y:{base_pt[1]:.2f} z:{base_pt[2]:.2f}"
+        cv2.putText(display, label, (cx + 10, cy - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
-        # Now access depth at the scaled position
-        depth = depth_image[scaled_cy, scaled_cx]
-
-        if np.isnan(depth) or depth <= 0.0:
-            return None, display_image
-
-        # Deproject to 3D
-        fx = cam_info.k[0]
-        fy = cam_info.k[4]
-        cx_intrinsic = cam_info.k[2]
-        cy_intrinsic = cam_info.k[5]
-
-        x = (cx - cx_intrinsic) * depth / fx
-        y = (cy - cy_intrinsic) * depth / fy
-        z = depth
-
-        point_cam = np.array([x, y, z, 1.0])  # homogeneous
-
-        # Transform to base frame
-        point_base = cam_to_base @ point_cam
-
-        # Draw the 3D coordinates text
-        text = f"x: {point_base[0]:.2f}  y: {point_base[1]:.2f}  z: {point_base[2]:.2f}"
-        cv2.putText(display_image, text, (cx + 15, cy - 15),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-
-        return point_base[0:3], display_image
-
-
+        return base_pt[:3], (cx, cy), display
 
 
     def publish_fused_pose(self):
-        if self.position_cam1 is None and self.position_cam2 is None:
-            return
-
-        # Fuse positions
+        fused = None
         if self.position_cam1 is not None and self.position_cam2 is not None:
             fused = (self.position_cam1 + self.position_cam2) / 2.0
         elif self.position_cam1 is not None:
             fused = self.position_cam1
-        else:
+        elif self.position_cam2 is not None:
             fused = self.position_cam2
-
-        if fused is None:
+        else:
+            self.get_logger().warn("No valid position data from either camera.")
             return
 
         if not self.kf_initialized:
             self.kf_state[0:3] = np.array(fused).reshape((3, 1))
+            self.kf_state[3:6] = 0.0
             self.kf_initialized = True
 
-        filtered = self.run_kalman_filter(fused)
 
-        # Check for NaN just in case
-        if np.isnan(filtered).any():
-            self.get_logger().warn("Filtered output contains NaNs. Skipping publish.")
-            return
+        filt = self.run_kalman_filter(fused)
+        if filt is None:
+            return  # skipped due to large jump
+
+        self.get_logger().info(f"Raw fused: {fused}, Filtered: {filt}")
 
         msg = PoseStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = 'base_link'
+        msg.pose.position.x = float(filt[0]) / 1000.0
+        msg.pose.position.y = float(filt[1]) / 1000.0
+        msg.pose.position.z = float(filt[2]) / 1000.0
 
-        msg.pose.position.x = filtered[0]
-        msg.pose.position.y = filtered[1]
-        msg.pose.position.z = filtered[2]
-        msg.pose.orientation.w = 1.0  # No rotation yet
-
+        msg.pose.orientation.x = 0.0
+        msg.pose.orientation.y = 0.0
+        msg.pose.orientation.z = 0.0
+        msg.pose.orientation.w = 1.0
         self.pose_pub.publish(msg)
+
+
+
 
         
     def run_kalman_filter(self, position):
@@ -269,7 +278,15 @@ class RemoteTrackerNode(Node):
         F[2, 5] = dt
 
         # Predict
-        self.kf_state = F @ self.kf_state
+        predicted_state = F @ self.kf_state
+        predicted_pos = predicted_state[0:3].flatten()
+
+        # Reject large jumps (>20 cm)
+        if np.linalg.norm(predicted_pos - position) > 200:
+            self.get_logger().warn(f"Skipping Kalman update: large input jump from {predicted_pos} to {position}")
+            return predicted_pos
+
+        self.kf_state = predicted_state
         self.kf_P = F @ self.kf_P @ F.T + self.kf_Q
 
         # Update
@@ -281,6 +298,7 @@ class RemoteTrackerNode(Node):
         self.kf_P = (np.eye(6) - K @ self.kf_H) @ self.kf_P
 
         return self.kf_state[0:3].flatten()
+
 
 
 def main(args=None):
@@ -297,4 +315,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-    cv2.destroyAllWindows()

@@ -77,7 +77,6 @@ class CommandManager(Node):
                 f"Remote light-mode override: {msg.lightmode_remote_command}")
 
     def _try_publish_remote_pose(self):
-        # Only in Track Remote when button is pressed
         if (self.mode == 1 and self.latest_orientation and
                 self.latest_position and self.latest_button_state):
             ps = PoseStamped()
@@ -86,8 +85,11 @@ class CommandManager(Node):
             ps.pose.position = self.latest_position
             ps.pose.orientation = self.latest_orientation
             self.goal_pose_pub.publish(ps)
-            self.get_logger().info(
-                "Published remote goal pose to /goal_pose (button pressed)")
+            self.get_logger().info("Published remote goal pose to /goal_pose (button pressed)")
+
+            # ✅ Reset only if we actually published
+            self.latest_button_state = False
+
 
     def light_mode_callback(self, msg: Int32):
         # GUI light-mode only when not tracking remote

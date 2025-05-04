@@ -14,7 +14,7 @@ class ControllerComsNode(Node):
         # Serial port configuration
         self.mcu1_port = '/dev/ttyUSB0'
         self.mcu2_port = '/dev/ttyUSB1'
-        self.remote_port = '/dev/ttyUSB2'
+        self.remote_port = '/dev/ttyACM0'
         self.baud_rate = 115200
         self.light_mode = 0  # updated via user_command subscription
 
@@ -34,6 +34,17 @@ class ControllerComsNode(Node):
         # ROS subscribers
         self.create_subscription(Float64MultiArray, 'joint_commands', self.joint_command_callback, 10)
         self.create_subscription(UserCommand, 'user_command', self.user_command_callback, 10)
+        
+        # Skip initial garbage lines from remote
+        if self.remote_serial:
+            self.get_logger().info("Flushing initial remote serial output...")
+            for i in range(5):
+                try:
+                    flushed = self.remote_serial.readline().decode(errors='ignore').strip()
+                    if flushed:
+                        self.get_logger().debug(f"Flushed line [{i+1}]: {flushed}")
+                except Exception as e:
+                    self.get_logger().warn(f"Exception while flushing remote: {e}")
 
         # Timers
         self.create_timer(2.0, self.check_mcu_status)
@@ -63,11 +74,11 @@ class ControllerComsNode(Node):
                 mcu1_cmd = f"<{msg.data[1]},{msg.data[2]},{msg.data[3]},{msg.data[4]},{self.light_mode}>\n"
                 self.mcu1_serial.reset_input_buffer()
                 self.mcu1_serial.write(mcu1_cmd.encode())
-                self.get_logger().debug(f"Sent to MCU1: {mcu1_cmd.strip()}")
-
                 response = self.read_serial_line(self.mcu1_serial)
                 if response:
                     values = response.split(',')
+                    self.get_logger().debug(f"Sent to MCU1: {mcu1_cmd.strip()}")
+
                     if len(values) == 5:
                         joint_angles[1:5] = [float(v) for v in values[:4]]
                     else:
@@ -112,24 +123,26 @@ class ControllerComsNode(Node):
             return
 
         try:
-            line = self.remote_serial.readline().decode().strip()
+            line = self.remote_serial.readline().decode(errors='ignore').strip()
+            self.get_logger().debug(f"Received from remote: '{line}'")
+
             if not (line.startswith('<') and line.endswith('>')):
+                self.get_logger().debug("Line skipped (wrong format)")
                 return
 
             values = line[1:-1].split(',')
             if len(values) != 7:
-                self.get_logger().warn(f"Invalid remote serial format: {line}")
+                self.get_logger().warn(f"Invalid number of values in remote line: {line}")
                 return
 
-            # Parse quaternion & normalize
+            # Parse quaternion
             x, y, z, w = map(float, values[:4])
             norm = (x*x + y*y + z*z + w*w) ** 0.5
             if norm == 0:
-                self.get_logger().warn("Received zero quaternion.")
+                self.get_logger().warn("Received zero-norm quaternion.")
                 return
             x, y, z, w = x/norm, y/norm, z/norm, w/norm
 
-            # Publish orientation separately
             quat_msg = QuaternionStamped()
             quat_msg.header.stamp = self.get_clock().now().to_msg()
             quat_msg.header.frame_id = 'remote_frame'
@@ -138,21 +151,23 @@ class ControllerComsNode(Node):
             quat_msg.quaternion.z = z
             quat_msg.quaternion.w = w
             self.remote_orientation_pub.publish(quat_msg)
+            self.get_logger().debug(f"Published orientation: ({x:.3f}, {y:.3f}, {z:.3f}, {w:.3f})")
 
-            # Parse other fields
+            # Parse and publish command
             buttonstate     = int(values[4])
             desired_light   = int(values[5])
             reset_flag      = int(values[6])
 
-            # Publish UserCommand without quaternion
             cmd = UserCommand()
-            cmd.button_pressed    = bool(buttonstate)
-            cmd.reset_requested   = bool(reset_flag)
-            cmd.light_mode        = desired_light
+            cmd.button_state               = bool(buttonstate)
+            cmd.light_mode = desired_light
+            cmd.reset                      = bool(reset_flag)
+
             self.user_command_pub.publish(cmd)
+            self.get_logger().info(f"Published UserCommand — button: {cmd.button_state}, light: {cmd.light_mode}, reset: {cmd.reset}")
 
         except Exception as e:
-            self.get_logger().error(f"Failed to read from remote serial: {e}")
+            self.get_logger().error(f"Failed to process remote input: {e}")
 
     def read_serial_line(self, ser):
         try:

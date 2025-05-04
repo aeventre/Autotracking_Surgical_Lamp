@@ -1,3 +1,5 @@
+# wrist_tracker/launch/wrist_tracker.launch.py
+
 from launch import LaunchDescription
 from launch.actions import TimerAction
 from launch_ros.actions import Node, ComposableNodeContainer
@@ -5,7 +7,7 @@ from launch_ros.descriptions import ComposableNode
 
 def generate_launch_description():
     return LaunchDescription([
-        # Start camera_02 first
+        # Start camera_02 container FIRST (no delay)
         ComposableNodeContainer(
             name='camera_02_camera_container',
             namespace='camera_02',
@@ -24,34 +26,25 @@ def generate_launch_description():
                         {'depth_height': 400},
                         {'depth_fps': 15},
                         {'color_width': 640},
-                        {'color_height': 400},
+                        {'color_height': 480},
                         {'color_fps': 15},
-                        {'depth_to_color': True},
-                        {'sync_mode': True},
-                        {'sync_signal_output': False},
-                        {'sync_signal_input': True},  
-                        {'use_device_time': True},         # Makes timestamps consistent between cameras
-                        {'ir_mirror': False},              # Prevents flipped depth images
-                        {'color_mirror': False},           # Prevents flipped RGB images
                     ],
                     remappings=[
-                        ('color/image_raw',            'camera_02/color/image_raw'),
+                        ('color/image_raw', 'camera_02/color/image_raw'),
                         ('color/image_raw/compressed', 'camera_02/color/image_raw/compressed'),
-                        ('depth/image_raw',            'camera_02/depth/image_raw'),
+                        ('depth/image_raw', 'camera_02/depth/image_raw'),
                         ('depth/image_raw/compressed', 'camera_02/depth/image_raw/compressed'),
-                        # <— add this so your node can subscribe to the aligned depth
-                        ('depth_to_color',             'camera_02/depth_to_color'),
-                        ('color/camera_info',          'camera_02/color/camera_info'),
-                        ('depth/camera_info',          'camera_02/depth/camera_info'),
-                    ]
+                        ('color/camera_info', 'camera_02/color/camera_info'),
+                        ('depth/camera_info', 'camera_02/depth/camera_info'),
+                    ],
                 ),
             ],
             output='screen',
         ),
 
-        # Then camera_01 after 2 s
+        # Delay before launching camera_01
         TimerAction(
-            period=2.0,
+            period=2.0,  # wait 2 seconds to start camera_01
             actions=[
                 ComposableNodeContainer(
                     name='camera_01_camera_container',
@@ -71,45 +64,41 @@ def generate_launch_description():
                                 {'depth_height': 400},
                                 {'depth_fps': 15},
                                 {'color_width': 640},
-                                {'color_height': 400},
+                                {'color_height': 480},
                                 {'color_fps': 15},
-                                {'depth_to_color': True},
-                                {'sync_mode': True},
-                                {'sync_signal_output': True},
-                                {'sync_signal_input': False},
-                                {'use_device_time': True},         # Makes timestamps consistent between cameras
-                                {'ir_mirror': False},              # Prevents flipped depth images
-                                {'color_mirror': False},           # Prevents flipped RGB images
                             ],
                             remappings=[
-                                ('color/image_raw',            'camera_01/color/image_raw'),
+                                ('color/image_raw', 'camera_01/color/image_raw'),
                                 ('color/image_raw/compressed', 'camera_01/color/image_raw/compressed'),
-                                ('depth/image_raw',            'camera_01/depth/image_raw'),
+                                ('depth/image_raw', 'camera_01/depth/image_raw'),
                                 ('depth/image_raw/compressed', 'camera_01/depth/image_raw/compressed'),
-                                ('depth_to_color',             'camera_01/depth_to_color'),
-                                ('color/camera_info',          'camera_01/color/camera_info'),
-                                ('depth/camera_info',          'camera_01/depth/camera_info'),
-                            ]
+                                ('color/camera_info', 'camera_01/color/camera_info'),
+                                ('depth/camera_info', 'camera_01/depth/camera_info'),
+                            ],
                         ),
                     ],
                     output='screen',
                 ),
-            ]
+            ],
         ),
 
-        # Finally the tracker
+        # Further delay before launching the wrist_tracker node
         TimerAction(
-            period=5.0,
+            period=5.0,  # wait a total of 5 seconds before starting wrist_tracker
             actions=[
                 Node(
-                    package='remote_tracker',
-                    executable='remote_tracker_node',
-                    name='remote_tracker_node',
+                    package='wrist_tracker',
+                    executable='wrist_tracker_node',
+                    name='wrist_tracker_node',
                     output='screen',
-                    # make sure this node is subscribing to:
-                    #   – /camera_0X/color/image_raw[/compressed]
-                    #   – /camera_0X/depth_to_color
+                    parameters=[
+                        # you can add ROS2 parameters here if needed, e.g.:
+                        # {'hand_detection_confidence': 0.6},
+                    ],
+                    remappings=[
+                        # if you need to remap topics, add them here
+                    ],
                 ),
-            ]
+            ],
         ),
     ])
