@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int32, Float64MultiArray
+from std_msgs.msg import Int32, Float64MultiArray, Bool
 from geometry_msgs.msg import PoseStamped, QuaternionStamped
 from surg_lamp_msgs.msg import UserCommand
 
@@ -12,6 +12,10 @@ class CommandManager(Node):
         self.latest_orientation = None  # geometry_msgs/Quaternion
         self.latest_position = None     # geometry_msgs/Point
         self.latest_button_state = False  # Remote button state
+        
+        self.previous_light_mode = 0  # Stores user-selected mode (from GUI or remote)
+        self.planning_active = False  # Tracks if we're currently expecting planning result
+
 
         # Publishers
         self.joint_command_pub = self.create_publisher(
@@ -36,6 +40,8 @@ class CommandManager(Node):
                                  self.manual_joint_callback, 10)
         self.create_subscription(UserCommand, 'remote_user_command',
                                  self.remote_user_callback, 10)
+        self.create_subscription(Bool, 'planning_status', self.planning_status_callback, 10)
+
 
         # Timer for preset poses
         self.create_timer(1.0, self.timer_callback)
@@ -102,7 +108,10 @@ class CommandManager(Node):
             self.goal_pose_pub.publish(ps)
             self.get_logger().info("Published remote goal pose to /goal_pose (button pressed)")
 
+            self.planning_active = True
+            self._set_light_mode(2)  # Set light mode to 2 during planning
             self.latest_button_state = False
+
 
 
     def manual_pose_callback(self, msg: PoseStamped):
@@ -129,6 +138,27 @@ class CommandManager(Node):
 
     def timer_callback(self):
         self.publish_preset_pose()
+        
+        
+    def planning_status_callback(self, msg: Bool):
+        if not self.planning_active:
+            return  # Ignore if we didn't initiate planning
+
+        if msg.data:  # planning succeeded
+            self._set_light_mode(self.previous_light_mode)
+            self.get_logger().info("Planning succeeded, restoring previous light mode")
+        else:  # planning failed
+            self._set_light_mode(1)
+            self.get_logger().warn("Planning failed, light mode set to 1")
+
+        self.planning_active = False
+        
+    def _set_light_mode(self, mode):
+        cmd = UserCommand()
+        cmd.button_state = False
+        cmd.reset = False
+        cmd.light_mode = mode
+        self.user_command_pub.publish(cmd)
 
 
 def main(args=None):
