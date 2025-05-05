@@ -17,16 +17,15 @@ public:
   {
     move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, "arm_control");
 
-    // Switch to STOMP
+    // Planner settings
     move_group_->setPlanningPipelineId("ompl");
-    move_group_->setPlannerId("OMPL");
-
-    move_group_->setPlanningTime(10.0);
-    move_group_->setNumPlanningAttempts(10);
+    move_group_->setPlannerId("PRMkConfigDefault");
+    move_group_->setPlanningTime(15.0);
+    move_group_->setNumPlanningAttempts(20);
     move_group_->setMaxVelocityScalingFactor(1.0);
     move_group_->setMaxAccelerationScalingFactor(1.0);
     move_group_->setGoalPositionTolerance(0.02);
-    move_group_->setGoalOrientationTolerance(0.5);
+    move_group_->setGoalOrientationTolerance(0.5); 
 
     joint_command_pub_ = node_->create_publisher<std_msgs::msg::Float64MultiArray>("/joint_commands", 10);
     planning_status_pub_ = node_->create_publisher<std_msgs::msg::Bool>("/planning_status", 10);
@@ -35,7 +34,9 @@ public:
       "/goal_pose", 10,
       std::bind(&GoalPoseExecutor::goalPoseCallback, this, std::placeholders::_1));
 
-    RCLCPP_INFO(node_->get_logger(), "GoalPoseExecutor initialized with STOMP.");
+    RCLCPP_INFO(node_->get_logger(), "GoalPoseExecutor initialized with RRTConnect.");
+    RCLCPP_INFO(node_->get_logger(), "Planning frame: %s", move_group_->getPlanningFrame().c_str());
+    RCLCPP_INFO(node_->get_logger(), "End-effector link: %s", move_group_->getEndEffectorLink().c_str());
   }
 
 private:
@@ -43,20 +44,24 @@ private:
   {
     RCLCPP_INFO(node_->get_logger(), "Received new goal pose.");
 
+    // Optional: orientation constraint
     moveit_msgs::msg::OrientationConstraint ocm;
     ocm.link_name = move_group_->getEndEffectorLink();
-    ocm.header.frame_id = msg->header.frame_id;
+    ocm.header.frame_id = move_group_->getPlanningFrame(); 
     ocm.orientation = msg->pose.orientation;
-    ocm.absolute_x_axis_tolerance = 0.3;
-    ocm.absolute_y_axis_tolerance = 0.3;
-    ocm.absolute_z_axis_tolerance = 0.3;
+    ocm.absolute_x_axis_tolerance = 1.57;  // ~90 degrees
+    ocm.absolute_y_axis_tolerance = 1.57;
+    ocm.absolute_z_axis_tolerance = 3.14;
     ocm.weight = 1.0;
 
     moveit_msgs::msg::Constraints constraints;
     constraints.orientation_constraints.push_back(ocm);
-    move_group_->setPathConstraints(constraints);
 
-    move_group_->setPoseTarget(*msg, move_group_->getEndEffectorLink());
+    move_group_->clearPoseTargets();
+    move_group_->clearPathConstraints();
+
+    // move_group_->setPathConstraints(constraints);
+    move_group_->setPoseTarget(*msg);
 
     moveit::planning_interface::MoveGroupInterface::Plan plan;
     bool success = static_cast<bool>(move_group_->plan(plan));
@@ -67,12 +72,11 @@ private:
 
     if (success)
     {
-      RCLCPP_INFO(node_->get_logger(), "Planning succeeded, publishing final joint positions.");
+      RCLCPP_INFO(node_->get_logger(), "Planning succeeded. Sending joint commands.");
 
       const auto &positions = plan.trajectory.joint_trajectory.points.back().positions;
       std_msgs::msg::Float64MultiArray joint_array;
 
-      // Only take the first 5 joint values and convert to degrees
       for (size_t i = 0; i < std::min(size_t(5), positions.size()); ++i)
       {
         double deg = positions[i] * (180.0 / M_PI);
