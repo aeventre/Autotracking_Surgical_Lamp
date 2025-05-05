@@ -60,21 +60,36 @@ class CommandManager(Node):
         self._try_publish_remote_pose()
 
     def remote_user_callback(self, msg: UserCommand):
-        # Capture button state and reset
         self.latest_button_state = msg.button_state
+
+        # Handle reset request
         if msg.reset:
             zero_msg = Float64MultiArray()
             zero_msg.data = [0.0] * 5
             self.joint_command_pub.publish(zero_msg)
-            self.get_logger().info(
-                "Reset requested: published zero positions to /joint_commands")
-        # Remote light-mode only in Track Remote
+            self.get_logger().info("Reset requested: published zero joint commands")
+
+        # Light mode override (only if in remote tracking mode)
         if self.mode == 1:
             cmd = UserCommand()
-            cmd.lightmode_remote_command = msg.lightmode_remote_command
+            cmd.button_state = False
+            cmd.light_mode = msg.light_mode
+            cmd.reset = False
             self.user_command_pub.publish(cmd)
-            self.get_logger().info(
-                f"Remote light-mode override: {msg.lightmode_remote_command}")
+            self.get_logger().info(f"Remote light-mode override: {msg.light_mode}")
+
+    def light_mode_callback(self, msg: Int32):
+        # Only allow GUI light mode when not tracking remote
+        if self.mode != 1:
+            cmd = UserCommand()
+            cmd.button_state = False
+            cmd.light_mode = msg.data
+            cmd.reset = False
+            self.user_command_pub.publish(cmd)
+            self.get_logger().info(f"GUI light-mode command: {msg.data}")
+        else:
+            self.get_logger().debug("Ignored GUI light-mode during remote tracking")
+
 
     def _try_publish_remote_pose(self):
         if (self.mode == 1 and self.latest_orientation and
@@ -87,20 +102,8 @@ class CommandManager(Node):
             self.goal_pose_pub.publish(ps)
             self.get_logger().info("Published remote goal pose to /goal_pose (button pressed)")
 
-            # ✅ Reset only if we actually published
             self.latest_button_state = False
 
-
-    def light_mode_callback(self, msg: Int32):
-        # GUI light-mode only when not tracking remote
-        if self.mode != 1:
-            cmd = UserCommand()
-            cmd.lightmode_remote_command = msg.data
-            self.user_command_pub.publish(cmd)
-            self.get_logger().info(f"GUI light-mode: {msg.data}")
-        else:
-            self.get_logger().debug(
-                "Ignored GUI light-mode during remote tracking")
 
     def manual_pose_callback(self, msg: PoseStamped):
         if self.mode == 4:
