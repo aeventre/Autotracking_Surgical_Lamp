@@ -15,7 +15,7 @@ void setLightMode(int mode) {
 
     switch (mode)
     {
-        case 1: // All OFF
+        case 1: // All RED
             digitalWrite(laserPin, LOW);
             lamp.clear();
             lamp.show();
@@ -33,7 +33,7 @@ void setLightMode(int mode) {
             lamp.show();
             break;
 
-        case 4: // Laser + White LEDs
+        case 4: // Laser Only
             digitalWrite(laserPin, HIGH);
             lamp.fill(lamp.Color(0, 0, 0, 255));
             lamp.show();

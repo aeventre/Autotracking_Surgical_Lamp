@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
+#include <Adafruit_NeoPixel.h>
+
 #include "ServoJoint.h"
 #include "StepperJoint.h"
 #include "EncoderLib.h"
@@ -16,114 +18,174 @@ ServoJoint joint4;
 
 // --- Stepper + Encoder ---
 StepperJoint stepperJoint;
-EncoderLib stepperEncoder(Wire); // AS5600 encoder on Wire (default)
+EncoderLib stepperEncoder(Wire);
 
 // --- RS‑485 Command Parser ---
 CommandParser rs485;
 CommandMessage cmdMsg;
 
+// --- Joint 2 slew‑rate limiter globals ---
+float joint2DesiredAngle   = 7.0f;
+float joint2CommandedAngle = 7.0f;
+const float joint2MaxDelta = 0.5f;
+
+// --- Joint 3 & 4 offset globals ---
+float joint3Offset = 135.0f;
+float joint4Offset = 135.0f;
+
+// --- NeoPixel Ring & Laser ---
+#define NEOPIXEL_PIN    20
+#define NEOPIXEL_COUNT  24
+#define LASER_PIN       21
+
+Adafruit_NeoPixel ring(NEOPIXEL_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+
+//------------------------------------------------------------------------------
+// Apply the “INT” field: select a ring pattern *and* laser on/off
+//------------------------------------------------------------------------------
+void setLightMode(int mode) {
+  switch (mode) {
+    case 0:  // all off
+      ring.clear();
+      break;
+
+    case 1:  // solid red
+      for (int i = 0; i < NEOPIXEL_COUNT; i++)
+        ring.setPixelColor(i, ring.Color(255, 0, 0));
+      break;
+
+    case 2:  // green chase
+      {
+        static uint8_t idx = 0;
+        ring.clear();
+        ring.setPixelColor(idx % NEOPIXEL_COUNT, ring.Color(0, 255, 0));
+        idx++;
+      }
+      break;
+
+    case 3:  // rainbow wipe
+      for (int i = 0; i < NEOPIXEL_COUNT; i++) {
+        uint16_t hue = map(i, 0, NEOPIXEL_COUNT - 1, 0, 65535);
+        ring.setPixelColor(i, ring.gamma32(ring.ColorHSV(hue)));
+      }
+      break;
+
+    default: // unknown → off
+      ring.clear();
+      break;
+  }
+
+  ring.show();
+
+  // Laser = ON for any non-zero mode, OFF for mode==0
+  digitalWrite(LASER_PIN, (mode != 0) ? HIGH : LOW);
+}
+
+//------------------------------------------------------------------------------
 void setup()
 {
-    // --- USB‑Serial for debug ---
-    Serial.begin(115200);
-    delay(2000);
+  // --- USB‑Serial for debug ---
+  Serial.begin(115200);
+  delay(2000);
 
-    // --- RS‑485 on Serial2 (Pico TX=4, RX=5) ---
-    rs485.begin(Serial2);
+  // --- RS‑485 on Serial2 (Pico TX=4, RX=5) ---
+  rs485.begin(Serial2);
 
-    // --- I2C and PCA9685 ---
-    Wire1.setSDA(2);
-    Wire1.setSCL(3);
-    Wire1.begin();
-    pca9685.begin();
-    pca9685.setPWMFreq(50);
-    delay(10);
+  // --- Laser pin ---
+  pinMode(LASER_PIN, OUTPUT);
+  digitalWrite(LASER_PIN, LOW);
 
-    // --- Stepper Encoder (AS5600) ---
-    stepperEncoder.begin(0, 1);
-    delay(10);
-    stepperEncoder.zero();
-    Serial.println("Stepper encoder zeroed to current position.");
+  // --- NeoPixel init ---
+  ring.begin();
+  ring.setBrightness(50);
+  ring.clear();
+  ring.show();
 
-    // --- StepperJoint Setup ---
-    stepperJoint.begin(17, 16, &stepperEncoder, 18, 19); // step, dir, encoder, ms1, ms2
-    stepperJoint.setMicrostepping(1);                    // full stepping
-    stepperJoint.setPIDGains(80.0f, 0.2f, 0.5f);         // initial PID
-    stepperJoint.setTarget(stepperEncoder.getFilteredAngle());
+  // --- I2C and PCA9685 ---
+  Wire1.setSDA(2);
+  Wire1.setSCL(3);
+  Wire1.begin();
+  pca9685.begin();
+  pca9685.setPWMFreq(50);
+  delay(10);
 
-    // --- Joint 2: Open Loop Servo ---
-    joint2.attach(0, &pca9685, true);
-    joint2.setFeedbackType(ServoJoint::NONE);
-    joint2.setAngleRange(180.0f);
-    joint2.setPulseRange(102, 512);
-    joint2.setTargetAngle(7.0f);
+  // --- Stepper Encoder (AS5600) ---
+  stepperEncoder.begin(0, 1);
+  delay(10);
+  stepperEncoder.zero();
+  Serial.println("Stepper encoder zeroed to current position.");
 
-    // --- Joint 3: Analog PID Servo ---
-    joint3.attach(1, &pca9685);
-    joint3.setFeedbackType(ServoJoint::ANALOG);
-    joint3.setAnalogPin(A0);
-    joint3.setAngleRange(270.0f);
-    joint3.setPulseRange(102, 512);
-    joint3.setAnalogMapping(0.413f, -7.57f);
-    joint3.setAnalogLimits(30, 680);
-    joint3.setAngleOffset(-7.0f);
-    joint3.setPIDGains(2.0f, 0.0f, 0.1f);
-    // stabilize filter
-    for (int i = 0; i < 10; ++i)
-    {
-        joint3.update();
-        delay(10);
-    }
-    float stable3 = joint3.getCurrentAngle();
-    joint3.setTargetAngle(stable3);
-    joint3.setPIDGains(1.0f, 0.2f, 0.2f);
-    Serial.print("Servo 3 initialized at angle: ");
-    Serial.println(stable3, 1);
+  // --- StepperJoint Setup ---
+  stepperJoint.begin(17, 16, &stepperEncoder, 18, 19);
+  stepperJoint.setMicrostepping(1);
+  stepperJoint.setPIDGains(80.0f, 0.2f, 0.5f);
+  stepperJoint.setTarget(stepperEncoder.getFilteredAngle());
 
-    // --- Joint 4: Analog PID Servo ---
-    joint4.attach(2, &pca9685);
-    joint4.setFeedbackType(ServoJoint::ANALOG);
-    joint4.setAnalogPin(A1);
-    joint4.setAngleRange(270.0f);
-    joint4.setPulseRange(102, 512);
-    joint4.setAnalogMapping(0.407f, -2.81f);
-    joint4.setAnalogLimits(30, 675);
-    joint4.setAngleOffset(-7.0f);
-    joint4.setPIDGains(1.0f, 0.0f, 0.1f);
-    // stabilize filter
-    for (int i = 0; i < 10; ++i)
-    {
-        joint4.update();
-        delay(10);
-    }
-    float stable4 = joint4.getCurrentAngle();
-    joint4.setTargetAngle(stable4);
-    joint4.setPIDGains(5.0f, 0.2f, 0.1f);
-    Serial.print("Servo 4 initialized at angle: ");
-    Serial.println(stable4, 1);
+  // --- Joint 2: Open Loop Servo ---
+  joint2.attach(0, &pca9685, true);
+  joint2.setFeedbackType(ServoJoint::NONE);
+  joint2.setAngleRange(180.0f);
+  joint2.setPulseRange(102, 512);
+  joint2.setTargetAngle(joint2CommandedAngle);
 
-    Serial.println("System initialized. Listening for RS‑485 commands.");
+  // --- Joint 3: Open Loop Servo w/ offset ---
+  joint3.attach(1, &pca9685);
+  joint3.setFeedbackType(ServoJoint::NONE);
+  joint3.setAngleRange(270.0f);
+  joint3.setPulseRange(102, 512);
+  joint3.setTargetAngle(joint3Offset);
+
+  // --- Joint 4: Open Loop Servo w/ offset ---
+  joint4.attach(2, &pca9685);
+  joint4.setFeedbackType(ServoJoint::NONE);
+  joint4.setAngleRange(270.0f);
+  joint4.setPulseRange(102, 512);
+  joint4.setTargetAngle(joint4Offset);
+
+  Serial.println("System initialized. Listening for RS‑485 commands.");
 }
 
 void loop()
 {
-    // --- Process incoming RS‑485 frame ---
-    if (rs485.readCommand(cmdMsg))
-    {
-        // Map fields to targets
-        stepperJoint.setTarget(cmdMsg.a1);
-        joint2.setTargetAngle(-1.0*cmdMsg.a2);
-        joint3.setTargetAngle(cmdMsg.a3);
-        joint4.setTargetAngle(cmdMsg.a4);
-        rs485.clearReceivedFlag();
-        rs485.sendStatus(cmdMsg);
-    }
+  // --- Process incoming RS‑485 frame ---
+  if (rs485.readCommand(cmdMsg))
+  {
+    // 1) stepper
+    stepperJoint.setTarget(cmdMsg.a1);
 
-    // --- Update all joints ---
-    joint2.update();
-    joint3.update();
-    joint4.update();
-    stepperJoint.update();
+    // 2) joint 2 (inverted)
+    joint2DesiredAngle = -cmdMsg.a2;
+
+    // 3) joints 3 & 4 with offsets
+    joint3.setTargetAngle(cmdMsg.a3 + joint3Offset);
+    joint4.setTargetAngle(cmdMsg.a4 + joint4Offset);
+
+    // 4) lights + laser
+    setLightMode(cmdMsg.lightMode);
+
+    rs485.clearReceivedFlag();
+    rs485.sendStatus(cmdMsg);
+  }
+
+  // --- Slew‑rate limit & apply Joint 2 ---
+  {
+    float diff = joint2DesiredAngle - joint2CommandedAngle;
+    if (fabs(diff) > joint2MaxDelta)
+      joint2CommandedAngle += joint2MaxDelta * (diff > 0 ? 1 : -1);
+    else
+      joint2CommandedAngle = joint2DesiredAngle;
+    joint2.setTargetAngle(joint2CommandedAngle);
+  }
+
+  // --- Update all joints ---
+  joint2.update();
+  joint3.update();
+  joint4.update();
+  stepperJoint.update();
+}
+
+// No extra brace beyond this
+
 
 
     // --- Debug print to USB‑Serial ---
@@ -135,7 +197,7 @@ void loop()
     // Serial.print(cmdMsg.a3, 1);
     // Serial.print(" | J4 → ");
     // Serial.println(cmdMsg.a4, 1);
-}
+//}
 
 // #include "ServoJoint.h"
 // #include <Adafruit_PWMServoDriver.h>
