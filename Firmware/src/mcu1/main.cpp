@@ -29,9 +29,10 @@ float joint2DesiredAngle   = 7.0f;
 float joint2CommandedAngle = 7.0f;
 const float joint2MaxDelta = 0.5f;
 
-// --- Joint 3 & 4 offset globals ---
+// --- Joint 2 & 3 & 4 offset globals ---
+float joint2Offset = -5.0f;
 float joint3Offset = 135.0f;
-float joint4Offset = 135.0f;
+float joint4Offset = 113.0f;
 
 // --- NeoPixel Ring & Laser ---
 #define NEOPIXEL_PIN    20
