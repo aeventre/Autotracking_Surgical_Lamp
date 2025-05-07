@@ -4,4 +4,9 @@
 **/.vscode/
 **/environment/
 **/.pio/
-
+**/OrbbecSDK_ROS2/
+<<<<<<< HEAD
+**/Log/
+=======
+**/Log/
+>>>>>>> mcu1

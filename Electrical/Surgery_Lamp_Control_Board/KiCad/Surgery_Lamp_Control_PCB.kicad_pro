@@ -100,13 +100,14 @@
         "padstack": "warning",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
-        "silk_edge_clearance": "warning",
+        "silk_edge_clearance": "ignore",
         "silk_over_copper": "warning",
         "silk_overlap": "warning",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
         "starved_thermal": "error",
         "text_height": "warning",
+        "text_on_edge_cuts": "error",
         "text_thickness": "warning",
         "through_hole_pad_without_hole": "error",
         "too_many_vias": "error",
@@ -242,24 +243,7 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [
-      [
-        "lib_symbol_mismatch|1371600|901700|d442fa6d-af5d-437b-ab88-4b83f2f5fe5d|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ],
-      [
-        "power_pin_not_driven|1371600|749300|cefe2adf-3fe7-4a04-867d-09a5bb4c31f8|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/b3ddd8e4-b745-4983-9594-7ac7424eb2f0|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/b3ddd8e4-b745-4983-9594-7ac7424eb2f0|",
-        ""
-      ],
-      [
-        "power_pin_not_driven|1422400|787400|54583590-4cab-442e-9062-e7f2618bf86c|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/56f0e3fe-15ba-42b3-9cc4-5d007aa377e9|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c/56f0e3fe-15ba-42b3-9cc4-5d007aa377e9|",
-        ""
-      ],
-      [
-        "power_pin_not_driven|1574800|444500|57032b56-bae2-4ddf-b8bf-0d26927fd0bc|00000000-0000-0000-0000-000000000000|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c|/07b3e6cf-0da3-49cd-83f5-dd2f3182c01c|",
-        ""
-      ]
-    ],
+    "erc_exclusions": [],
     "meta": {
       "version": 0
     },
@@ -530,7 +514,7 @@
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.76,
+        "track_width": 0.3,
         "via_diameter": 0.6,
         "via_drill": 0.3
       }
@@ -556,7 +540,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "surg_lamp_control_board",
+      "plot": "surg_lamp_control_board_gerbers",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "Surgery_Lamp_Control_PCB.step",
@@ -742,18 +726,6 @@
     [
       "07b3e6cf-0da3-49cd-83f5-dd2f3182c01c",
       "Root"
-    ],
-    [
-      "56f0e3fe-15ba-42b3-9cc4-5d007aa377e9",
-      "MAX485"
-    ],
-    [
-      "ea28c297-5c39-4b93-8db7-6e376dbfcf38",
-      "PCA9685"
-    ],
-    [
-      "b3ddd8e4-b745-4983-9594-7ac7424eb2f0",
-      "A4988"
     ]
   ],
   "text_variables": {}
