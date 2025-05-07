@@ -1,6 +1,7 @@
 # AutoTracking Surgical Robot lamp 
 ## Introduction 
-![3DCADSurgicalLAmp](https://github.com/user-attachments/assets/271425fb-fa0c-4cca-a45f-3e8320b62898)
+![20250430_030104](https://github.com/user-attachments/assets/f430e39f-230e-437a-8dbe-652704f20ac8)
+
 
 This Repo is a work in progress at the moment. The project is in the Prototype stage. Below is the current setup of the Surgical Lamp
 
