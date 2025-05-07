@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int32, Float64MultiArray, Bool
+from std_msgs.msg import Int32, Float64MultiArray, Bool, String
 from geometry_msgs.msg import PoseStamped, QuaternionStamped
 from surg_lamp_msgs.msg import UserCommand
 
@@ -42,20 +42,63 @@ class CommandManager(Node):
                                  self.remote_user_callback, 10)
         self.create_subscription(Bool, 'planning_status', self.planning_status_callback, 10)
 
+        self.create_subscription(String, 'demo_sequence_name', self.demo_sequence_callback, 10)
+        
 
         # Timer for preset poses
         self.create_timer(1.0, self.timer_callback)
         self.get_logger().info("Command Manager Node Initialized")
+    
+
+        self.current_demo_index = 0
+        self.demo_interval = 5.0  # seconds between poses
+        self.last_demo_time = self.get_clock().now()
+        
+        self.demo_sequences = {
+            "Basic": {
+                "interval": 4.0,
+                "poses": [
+                    ([0.0, 0.0, 0.0, 0.0, 0.0], 0),
+                    ([45.0, -45.0, 0.0, 0, 0], 0),
+                    ([-45.0, 45.0, 0.0, 0, 0], 0),
+                    ([0.0, 0.0, -17, 0.0, 0.0], 3),
+                    ([0.0, 0.0, 0.0, -90, -90], 3),
+                    ([0.0, 0.0, 0.0, 90, 90], 0),
+                ]
+            },
+            "Spin": {
+                "interval": 1.0,
+                "poses": [
+                    ([0.0, 0.0, 0.0, 0.0, 90], 3),
+                    ([90.0, -90, 0.0, 0.0, 90], 3),
+                    ([180.0, -180, 0.0, 0.0, 90], 3),
+                    ([-90, 90, 0.0, 0.0, 90], 3),
+                ]
+            }
+        }
+
+        self.active_demo_name = list(self.demo_sequences.keys())[0]  # first available demo
+        self.current_demo_index = 0
+
+
 
     def mode_callback(self, msg: Int32):
         self.mode = msg.data
         names = {
-            0: 'Idle', 1: 'Track Remote', 2: 'Hold Position',
+            0: 'Idle', 1: 'Track Remote', 2: 'Zeroing Mode',
             3: 'Manual Joint Control', 4: 'Manual Pose Control',
-            5: 'Preset Pose', 6: 'Light-Only Mode'
+            5: 'Light-Only Mode', 6: 'System Demo'
         }
         self.get_logger().info(
             f"System mode set to {self.mode} ({names.get(self.mode, 'Unknown')})")
+
+        if self.mode == 2:
+            zero_msg = Float64MultiArray()
+            zero_msg.data = [0.0] * 5
+            self.joint_command_pub.publish(zero_msg)
+            self.get_logger().info("Zeroing Mode: Sent all joints to 0 degrees")
+
+
 
     def orientation_callback(self, msg: QuaternionStamped):
         self.latest_orientation = msg.quaternion
@@ -129,16 +172,13 @@ class CommandManager(Node):
                 self.get_logger().warn(
                     "Manual joint input too short; requires 5 values.")
 
-    def publish_preset_pose(self):
-        if self.mode == 5:
-            joint_msg = Float64MultiArray()
-            joint_msg.data = [0.0, 45.0, 90.0, 90.0, 90.0]
-            self.joint_command_pub.publish(joint_msg)
-            self.get_logger().info("Preset pose command published")
-
     def timer_callback(self):
-        self.publish_preset_pose()
-        
+        if self.mode == 6:  # System Demo
+            now = self.get_clock().now()
+            if (now - self.last_demo_time).nanoseconds / 1e9 >= self.demo_interval:
+                self.publish_demo_pose()
+                self.last_demo_time = now
+
         
     def planning_status_callback(self, msg: Bool):
         if not self.planning_active:
@@ -159,7 +199,45 @@ class CommandManager(Node):
         cmd.reset = False
         cmd.light_mode = mode
         self.user_command_pub.publish(cmd)
+        
+    def publish_demo_pose(self):
+        sequence_data = self.demo_sequences.get(self.active_demo_name, {})
+        poses = sequence_data.get("poses", [])
 
+        if not poses:
+            self.get_logger().warn(f"No poses in sequence '{self.active_demo_name}'")
+            return
+
+        # Get the next pose and light mode
+        angles, light_mode = poses[self.current_demo_index]
+
+        # Publish joint angles
+        joint_msg = Float64MultiArray()
+        joint_msg.data = angles
+        self.joint_command_pub.publish(joint_msg)
+
+        # Set light mode
+        self._set_light_mode(light_mode)
+
+        # Log info
+        self.get_logger().info(
+            f"Demo pose {self.current_demo_index + 1} in '{self.active_demo_name}' sent (light mode {light_mode})")
+
+        # Update index for next pose
+        self.current_demo_index = (self.current_demo_index + 1) % len(poses)
+
+        # Update interval in case it changed (optional, for dynamic interval updates)
+        self.demo_interval = sequence_data.get("interval", self.demo_interval)
+
+
+    def demo_sequence_callback(self, msg: String):
+        if msg.data in self.demo_sequences:
+            self.active_demo_name = msg.data
+            self.current_demo_index = 0
+            self.demo_interval = self.demo_sequences[msg.data]["interval"]
+            self.get_logger().info(f"Demo sequence set to '{msg.data}' with interval {self.demo_interval:.1f}s")
+        else:
+            self.get_logger().warn(f"Unknown demo sequence: {msg.data}")
 
 def main(args=None):
     rclpy.init(args=args)

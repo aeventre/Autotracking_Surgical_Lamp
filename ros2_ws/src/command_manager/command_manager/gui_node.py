@@ -8,10 +8,10 @@ from PyQt5.QtWidgets import (
     QFormLayout, QGroupBox
 )
 from PyQt5.QtCore import Qt, QTimer
-from std_msgs.msg import Int32, Float64MultiArray, Bool
+from std_msgs.msg import Int32, Float64MultiArray, Bool, String
 from geometry_msgs.msg import PoseStamped
 from surg_lamp_msgs.msg import UserCommand
-import math
+
 
 class LampGui(Node, QWidget):
     def __init__(self):
@@ -19,7 +19,7 @@ class LampGui(Node, QWidget):
         QWidget.__init__(self)
 
         self.setWindowTitle('Surgical Lamp GUI')
-        self.setGeometry(200, 200, 400, 500)
+        self.setGeometry(200, 200, 400, 600)
         layout = QVBoxLayout()
 
         # Status
@@ -31,14 +31,21 @@ class LampGui(Node, QWidget):
         layout.addWidget(QLabel("System Mode"))
         self.mode_dropdown = QComboBox()
         self.mode_dropdown.addItems([
-            "Idle", "Track Remote", "Hold Position",
+            "Idle", "Track Remote", "Zeroing Mode",
             "Manual Joint Control", "Manual Pose Control",
-            "Preset Pose", "Light-Only Mode"
+            "Light-Only Mode", "System Demo"
         ])
         self.mode_dropdown.currentIndexChanged.connect(self.publish_mode)
         layout.addWidget(self.mode_dropdown)
 
-        # Light Mode
+        # Demo Sequence Selector
+        layout.addWidget(QLabel("Demo Sequence"))
+        self.demo_dropdown = QComboBox()
+        self.demo_dropdown.addItems(["Basic", "Spin"])
+        self.demo_dropdown.currentTextChanged.connect(self.publish_demo_sequence_name)
+        layout.addWidget(self.demo_dropdown)
+
+        # Light Mode Buttons
         layout.addWidget(QLabel("Light Mode"))
         light_layout = QHBoxLayout()
         for i in range(4):
@@ -60,43 +67,26 @@ class LampGui(Node, QWidget):
         ]
         for i, (low, high) in enumerate(self.joint_limits_deg):
             joint_layout = QHBoxLayout()
-            
-            label = QLabel(f"Joint {i}")
-            joint_layout.addWidget(label)
+            joint_layout.addWidget(QLabel(f"Joint {i}"))
 
             slider = QSlider(Qt.Horizontal)
             slider.setMinimum(int(low))
             slider.setMaximum(int(high))
             slider.setValue(0)
             slider.setSingleStep(1)
-            slider.setPageStep(5)
             joint_layout.addWidget(slider)
 
             display = QLineEdit("0")
             display.setFixedWidth(50)
             display.setAlignment(Qt.AlignRight)
             joint_layout.addWidget(display)
-            
-            def make_slider_to_display_cb(display_widget):
-                return lambda val: display_widget.setText(str(val))
 
-            def make_display_to_slider_cb(slider_widget, display_widget):
-                def cb():
-                    try:
-                        val = int(float(display_widget.text()))
-                        slider_widget.setValue(val)
-                    except ValueError:
-                        pass  # Ignore bad input
-                return cb
-
-            slider.valueChanged.connect(make_slider_to_display_cb(display))
-            display.editingFinished.connect(make_display_to_slider_cb(slider, display))
-
+            slider.valueChanged.connect(lambda val, d=display: d.setText(str(val)))
+            display.editingFinished.connect(lambda s=slider, d=display: s.setValue(int(float(d.text() or 0))))
 
             self.sliders.append(slider)
             self.slider_displays.append(display)
             layout.addLayout(joint_layout)
-
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.publish_joint_angles)
@@ -107,7 +97,8 @@ class LampGui(Node, QWidget):
         pose_layout = QFormLayout()
         self.pose_fields = {}
         for field in ["x", "y", "z", "qx", "qy", "qz", "qw"]:
-            le = QLineEdit(); le.setPlaceholderText("0.0")
+            le = QLineEdit()
+            le.setPlaceholderText("0.0")
             self.pose_fields[field] = le
             pose_layout.addRow(field.upper(), le)
         pose_btn = QPushButton("Send Pose")
@@ -123,13 +114,14 @@ class LampGui(Node, QWidget):
         self.light_pub = self.create_publisher(Int32, 'light_mode_cmd', 10)
         self.joint_pub = self.create_publisher(Float64MultiArray, 'manual_joint_input', 10)
         self.pose_pub = self.create_publisher(PoseStamped, 'manual_pose_input', 10)
+        self.demo_seq_pub = self.create_publisher(String, 'demo_sequence_name', 10)
 
-        # Subscriptions
+        # ROS Subscriptions
         self.create_subscription(UserCommand, 'remote_user_command', self.on_remote_user, 10)
         self.create_subscription(PoseStamped, 'goal_pose', self.on_goal_pose, 10)
         self.create_subscription(Bool, 'planning_status', self.on_planning_status, 10)
 
-        # ROS spin timer
+        # ROS spin
         self.ros_timer = QTimer(self)
         self.ros_timer.timeout.connect(lambda: rclpy.spin_once(self, timeout_sec=0.01))
         self.ros_timer.start(50)
@@ -168,10 +160,14 @@ class LampGui(Node, QWidget):
         m = Int32(); m.data = mode
         self.light_pub.publish(m)
 
+    def publish_demo_sequence_name(self, name):
+        msg = String()
+        msg.data = name
+        self.demo_seq_pub.publish(msg)
+
     def publish_joint_angles(self):
         if self.mode_dropdown.currentIndex() == 3:
             msg = Float64MultiArray()
-            # Output in degrees (no conversion)
             msg.data = [s.value() for s in self.sliders]
             self.joint_pub.publish(msg)
 
@@ -184,19 +180,11 @@ class LampGui(Node, QWidget):
             pose.header.stamp = self.get_clock().now().to_msg()
             pose.header.frame_id = 'base_link'
 
-            # Validate and parse position
             for f in ['x', 'y', 'z']:
-                text = self.pose_fields[f].text().strip()
-                if not text:
-                    raise ValueError(f"Missing value for {f.upper()}")
-                setattr(pose.pose.position, f, float(text))
+                setattr(pose.pose.position, f, float(self.pose_fields[f].text()))
 
-            # Validate and parse orientation
             for gui_f, ros_f in zip(['qx', 'qy', 'qz', 'qw'], ['x', 'y', 'z', 'w']):
-                text = self.pose_fields[gui_f].text().strip()
-                if not text:
-                    raise ValueError(f"Missing value for {gui_f.upper()}")
-                setattr(pose.pose.orientation, ros_f, float(text))
+                setattr(pose.pose.orientation, ros_f, float(self.pose_fields[gui_f].text()))
 
             self.pose_pub.publish(pose)
             self.get_logger().info("Manual pose sent.")
