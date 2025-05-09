@@ -53,7 +53,7 @@ void StepperJoint::setMicrostepping(int mode) {
       case 4:  digitalWrite(_ms1Pin, LOW);  digitalWrite(_ms2Pin, HIGH); break;
       case 8:  digitalWrite(_ms1Pin, HIGH); digitalWrite(_ms2Pin, HIGH); break;
       default: digitalWrite(_ms1Pin, LOW);  digitalWrite(_ms2Pin, LOW);  
-               _microsteps = 1;
+               _microsteps = 8;
     }
 }
 

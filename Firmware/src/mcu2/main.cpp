@@ -31,7 +31,7 @@ void setup() {
     joint0.calibrateFromEncoder();
 
     // Initial PID & target
-    joint0.setPIDGains(0.5f, 1.0f, 2.5f);
+    joint0.setPIDGains(5.5f, 2.0f, 0.5f);
     joint0.setDeadband(0.5f);    // <–– within ±0.5° no ticking
     joint0.setTarget(0.0f);
 
