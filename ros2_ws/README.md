@@ -1,102 +1,156 @@
-# ROS2 Overview
+# Autotracking Surgical Lamp — ROS 2 Workspace
 
-## System Architecture
-The system consists of **several ROS2 packages**, each responsible for a different function. The software runs on a **Raspberry Pi 5**, which communicates with microcontrollers and sensors to control the lamp.
+This ROS 2 workspace contains all packages required for the Auto-Tracking Surgical Lamp system. The lamp uses 3D pose tracking of a handheld remote (via green ball detection) to plan and execute motions in real-time, with fallback modes for manual GUI control and demo sequences. The system is built using ROS 2 Jazzy and MoveIt 2.
 
----
+## Setup
 
-## ROS2 Packages
+To build and source the workspace:
 
-### 1. **System Management & User Interaction**
-| Package | Description |
-|---------|------------|
-| `command_manager` | Listens to user input commands and determines what nodes need to be running depending on the selected mode of the surgical lamp. |
-| `remote_pub` | Listens to commands and data from the remote control. Publishes user commands and raw IMU data. |
-| `debug_logger` | Collects and publishes system diagnostics, errors, and debug information for troubleshooting. |
-| `gui_interface` | Provides a graphical user interface for monitoring system state and sending manual commands. |
+```bash
+cd /path/to/ros2_ws
+source /opt/ros/jazzy/setup.bash
+rosdep install --from-paths src --ignore-src -r -y
+colcon build
+source install/setup.bash
+```
 
-### 2. **Sensor Processing & State Estimation**
-| Package | Description |
-|---------|------------|
-| `attitude_estimator` | Subscribes to raw IMU data, applies filters, and publishes attitude as a unit quaternion. |
-| `position_estimator` | Processes camera data to estimate the full 6D pose of the target. Computes necessary tracking offsets for the lamp’s end-effector. |
-| `vision_processing` | Enhances target tracking by applying image filtering, feature detection, and OpenCV-based object recognition. |
-| `time_synchronizer` | Ensures sensor data (IMU, cameras) and control commands are synchronized with accurate timestamps. |
+## Packages
 
-### 3. **Motion Planning & Execution**
-| Package | Description |
-|---------|------------|
-| `moveit_planner` | Uses MoveIt2 for high-level motion planning, inverse kinematics, collision avoidance, and trajectory generation. |
-| `motion_executor` | Executes planned trajectories by sending joint commands to `controller_coms`. Handles real-time control adjustments to ensure accurate motion. |
-| `controller_coms` | Sends and receives data over serial communications to the MCUs controlling the actuators. Sends joint commands and receives joint angle feedback for closed-loop control. |
+### `command_manager`
 
-### 4. **Coordinate Transformations & Data Synchronization**
-| Package | Description |
-|---------|------------|
-| `tf_broadcaster` | Publishes transformations between coordinate frames (base, joints, end-effector, and target) using TF2. |
-| `tf_listener` | Subscribes to TF2 transforms to determine frame relationships for motion planning and control. |
+Manages the system's behavior based on user input. It switches between modes such as idle, manual control, tracking, zeroing, and demo.
 
-### 5. **System Safety & Recovery** 
-| Package | Description |
-|---------|------------|
-| `fault_detector` | Monitors system health and detects failures (e.g., lost tracking, joint errors). Can trigger safety shutdowns or recovery procedures. |
+**Subscriptions**
+- `/system_mode` (`std_msgs/Int32`)
+- `/remote_pose` (`geometry_msgs/PoseStamped`)
+- `/remote_orientation` (`geometry_msgs/QuaternionStamped`)
+- `/user_command` (`surg_lamp_msgs/UserCommand`)
 
-### 6. System Simulation & Testing
-| Package | Description |
-|---------|------------|
-| `surg_bot_sim` | Provides a physics-based simulation environment using Gazebo or Isaac Sim for testing the lamp’s motion planning and control strategies before real-world implementation. |
-
-### 7. **System Description & Custom Message Types**
-| Package | Description |
-|---------|------------|
-| `surg_bot_description` | Contains URDF and mesh files to create an accurate model of the surgical lamp. Used for visualization and simulation. |
-| `surg_bot_msgs` | Contains custom message types to be used by all other packages for inter-package communication. |
+**Publications**
+- `/goal_pose` (`geometry_msgs/PoseStamped`)
+- `/joint_commands` (`std_msgs/Float64MultiArray`)
+- `/user_command` (`surg_lamp_msgs/UserCommand`)
 
 ---
 
-## ROS2 Topics
+### `lamp_gui`
 
-The following ROS2 topics facilitate communication between nodes:
+PyQt5-based graphical user interface for interacting with the lamp.
 
-| Topic Name | Message Type | Publisher | Subscriber(s) | Description |
-|------------|-------------|-----------|---------------|-------------|
-| `/user_commands` | `std_msgs/String` | `remote_pub` | `command_manager` | Sends user-selected commands from the remote control or GUI. |
-| `/system_status` | `std_msgs/String` | `command_manager` | `gui_interface` | Provides updates on the current system mode and state. |
-| `/debug_log` | `std_msgs/String` | `debug_logger` | `gui_interface` | Publishes system logs for debugging and monitoring. |
-| `/imu/data_raw` | `sensor_msgs/Imu` | `remote_pub` | `attitude_estimator` | Raw IMU data from the remote control. |
-| `/imu/attitude` | `geometry_msgs/Quaternion` | `attitude_estimator` | `moveit_planner`, `position_estimator` | Filtered IMU data converted into a quaternion representing orientation. |
-| `/camera/image_raw` | `sensor_msgs/Image` | `Cam-1`, `Cam-2` | `vision_processing` | Raw image frames from ESP32 cameras. |
-| `/camera/processed` | `sensor_msgs/Image` | `vision_processing` | `position_estimator` | Image with feature detection or object recognition applied. |
-| `/target_position` | `geometry_msgs/Point` | `position_estimator` | `moveit_planner`, `tf_broadcaster` | The estimated XYZ position of the target relative to the lamp base. |
-| `/target_pose` | `geometry_msgs/PoseStamped` | `position_estimator` | `moveit_planner`, `tf_broadcaster` | Full 6D pose (position + orientation) of the target. |
-| `/goal_pose` | `geometry_msgs/PoseStamped` | `position_estimator` | `moveit_planner` | Desired pose for the lamp end-effector based on tracking data. |
-| `/planned_trajectory` | `trajectory_msgs/JointTrajectory` | `moveit_planner` | `motion_executor` | The computed trajectory from MoveIt2 for lamp movement. |
-| `/joint_commands` | `sensor_msgs/JointState` | `motion_executor` | `controller_coms` | Commands to move joints to specific angles. |
-| `/joint_feedback` | `sensor_msgs/JointState` | `controller_coms` | `motion_executor` | Real-time joint positions received from the microcontrollers. |
-| `/lamp_status` | `std_msgs/String` | `controller_coms` | `command_manager`, `gui_interface` | Provides updates on lamp motor status. |
-| `/tf` | `tf2_msgs/TFMessage` | `tf_broadcaster` | `moveit_planner`, `motion_executor` | Publishes transformations between all system frames. |
-| `/error_status` | `std_msgs/String` | `fault_detector` | `command_manager`, `gui_interface` | Reports any detected errors or failures. |
-| `/safety_shutdown` | `std_msgs/Bool` | `fault_detector` | `controller_coms` | Triggers a safety stop if an error is detected. |
+**Features**
+- Dropdown menu for system mode selection
+- Sliders for manual joint control
+- Buttons for triggering demo modes or resets
+- Status label for system feedback
+
+**Publications**
+- `/system_mode` (`std_msgs/Int32`)
+- `/joint_commands` (`std_msgs/Float64MultiArray`)
+- `/user_command` (`surg_lamp_msgs/UserCommand`)
 
 ---
 
-## Getting Started
+### `remote_tracker`
 
-1. **Install ROS2 (Jazzy or compatible version).**
-2. **Clone the repository and build the workspace:**
-   ```bash
-   mkdir -p ~/surgical_lamp_ws/src
-   cd ~/surgical_lamp_ws/src
-   git clone <repository_url>
-   cd ~/surgical_lamp_ws
-   colcon build --symlink-install
-   ```
-3. **Source the workspace:**
-   ```bash
-   source install/setup.bash
-   ```
-4. **Launch the system:**
-   ```bash
-   ros2 launch command_manager command_manager.launch.py
-   ```
+Tracks a green marker (ball) on a handheld remote using OpenCV and depth cameras. Estimates the 3D position and uses IMU orientation to compute the full pose.
 
+**Inputs**
+- RGB and depth images from stereo cameras
+- Camera intrinsics and extrinsics from `camera_calibration`
+- IMU orientation from the remote
+
+**Outputs**
+- `/remote_pose` (`geometry_msgs/PoseStamped`)
+- `/remote_orientation` (`geometry_msgs/QuaternionStamped`)
+
+---
+
+### `camera_calibration`
+
+Contains stereo camera calibration and extrinsic transform files.
+
+**Contents**
+- `camera_01.yaml`, `camera_02.yaml`: intrinsics for each camera
+- `camera_01_to_base.yaml`, `camera_02_to_base.yaml`: transformations from camera to robot base frame
+
+Used by the `remote_tracker` for accurate triangulation and transformation into the base frame.
+
+---
+
+### `goal_pose_executor`
+
+Plans and executes motions from the current pose to the goal pose using MoveIt 2.
+
+**Inputs**
+- `/goal_pose` (`geometry_msgs/PoseStamped`)
+
+**Behavior**
+- Uses `MoveGroupInterface` to plan paths
+- Sends joint angles to `/joint_commands`
+- Reports failure if planning is unsuccessful
+
+---
+
+### `controller_coms`
+
+Handles RS-485 serial communication with two microcontrollers that control the lamp's motors and lighting.
+
+**Responsibilities**
+- Sends joint angle commands to MCU1 and MCU2
+- Receives and parses motor feedback
+- Manages half-duplex communication (send then receive)
+- Relays light mode and button state
+
+**Serial Protocol**
+- `mcu1`: `<joint1,joint2,joint3,joint4,lightmode>`
+- `mcu2`: `<joint0>`
+- Half-duplex format: send commands, then wait for and parse response
+
+---
+
+### `surg_bot_description`
+
+URDF/Xacro model of the surgical lamp.
+
+**Includes**
+- Link and joint definitions
+- Joint limits and axes
+- Visual and collision meshes
+- Base frame and end-effector frame definitions
+
+Used for visualization and planning.
+
+---
+
+### `surg_bot_moveit_config`
+
+MoveIt 2 configuration for the surgical lamp.
+
+**Includes**
+- Kinematics solvers
+- OMPL planning pipeline
+- SRDF and robot semantic info
+- RViz and MoveGroup launch support
+
+---
+
+## Launching Nodes
+
+```bash
+# GUI
+ros2 run lamp_gui lamp_gui
+
+# Command manager
+ros2 run command_manager command_manager
+
+# Remote tracker
+ros2 run remote_tracker remote_tracker_node
+
+# Goal pose executor
+ros2 run goal_pose_executor goal_pose_executor_node
+
+# Controller communication
+ros2 run controller_coms controller_coms_node
+```
+
+Ensure the cameras and IMU are connected, and the camera calibration YAMLs are properly configured.
