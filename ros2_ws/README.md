@@ -1,4 +1,4 @@
-# Autotracking Surgical Lamp — ROS 2 Workspace
+# ROS 2 Workspace
 
 This ROS 2 workspace contains all packages required for the Auto-Tracking Surgical Lamp system. The lamp uses 3D pose tracking of a handheld remote (via green ball detection) to plan and execute motions in real-time, with fallback modes for manual GUI control and demo sequences. The system is built using ROS 2 Jazzy and MoveIt 2.
 
@@ -56,7 +56,7 @@ Tracks a green marker (ball) on a handheld remote using OpenCV and depth cameras
 
 **Inputs**
 - RGB and depth images from stereo cameras
-- Camera intrinsics and extrinsics from `camera_calibration`
+- Camera extrinsics from `camera_calibration`
 - IMU orientation from the remote
 
 **Outputs**
