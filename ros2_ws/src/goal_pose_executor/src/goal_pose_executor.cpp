@@ -17,14 +17,15 @@ public:
   {
     move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, "arm_control");
 
-    move_group_->setPlanningPipelineId("stomp");
-    move_group_->setPlannerId("RRTConnectkConfigDefault");
-    move_group_->setPlanningTime(10);                 // ⬆ Increased planning time
-    move_group_->setNumPlanningAttempts(10);           // ⬆ Increased attempts
+    // Planner settings
+    move_group_->setPlanningPipelineId("ompl");
+    move_group_->setPlannerId("PRMkConfigDefault");
+    move_group_->setPlanningTime(15.0);
+    move_group_->setNumPlanningAttempts(20);
     move_group_->setMaxVelocityScalingFactor(1.0);
     move_group_->setMaxAccelerationScalingFactor(1.0);
-    move_group_->setGoalPositionTolerance(0.02);        // ⬆ Increased position tolerance
-    move_group_->setGoalOrientationTolerance(0.5);      // ⬆ Increased orientation tolerance
+    move_group_->setGoalPositionTolerance(0.02);
+    move_group_->setGoalOrientationTolerance(0.5); 
 
     joint_command_pub_ = node_->create_publisher<std_msgs::msg::Float64MultiArray>("/joint_commands", 10);
     planning_status_pub_ = node_->create_publisher<std_msgs::msg::Bool>("/planning_status", 10);
@@ -33,57 +34,74 @@ public:
       "/goal_pose", 10,
       std::bind(&GoalPoseExecutor::goalPoseCallback, this, std::placeholders::_1));
 
-    RCLCPP_INFO(node_->get_logger(), "GoalPoseExecutor initialized.");
+    RCLCPP_INFO(node_->get_logger(), "GoalPoseExecutor initialized with RRTConnect.");
+    RCLCPP_INFO(node_->get_logger(), "Planning frame: %s", move_group_->getPlanningFrame().c_str());
+    RCLCPP_INFO(node_->get_logger(), "End-effector link: %s", move_group_->getEndEffectorLink().c_str());
   }
 
 private:
-  void goalPoseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
+void goalPoseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
+{
+  RCLCPP_INFO(node_->get_logger(), "Received new goal pose.");
+
+  moveit_msgs::msg::OrientationConstraint ocm;
+  ocm.link_name = move_group_->getEndEffectorLink();
+  ocm.header.frame_id = move_group_->getPlanningFrame();
+  ocm.orientation = msg->pose.orientation;
+  ocm.absolute_x_axis_tolerance = 1.57;
+  ocm.absolute_y_axis_tolerance = 1.57;
+  ocm.absolute_z_axis_tolerance = 3.14;
+  ocm.weight = 1.0;
+
+  moveit_msgs::msg::Constraints constraints;
+  constraints.orientation_constraints.push_back(ocm);
+
+  move_group_->clearPoseTargets();
+  move_group_->clearPathConstraints();
+
+  move_group_->setPoseTarget(*msg);
+  // move_group_->setPathConstraints(constraints);  // optional
+
+  moveit::planning_interface::MoveGroupInterface::Plan plan;
+  bool success = static_cast<bool>(move_group_->plan(plan));
+
+  std_msgs::msg::Bool planning_result;
+  planning_result.data = success;
+  planning_status_pub_->publish(planning_result);
+
+  if (success)
   {
-    RCLCPP_INFO(node_->get_logger(), "Received new goal pose.");
+    RCLCPP_INFO(node_->get_logger(), "Planning succeeded. Sending joint commands.");
 
-    moveit_msgs::msg::OrientationConstraint ocm;
-    ocm.link_name = move_group_->getEndEffectorLink();
-    ocm.header.frame_id = msg->header.frame_id;
-    ocm.orientation = msg->pose.orientation;
-    ocm.absolute_x_axis_tolerance = 0.3;  // ⬆ Slightly more lenient
-    ocm.absolute_y_axis_tolerance = 0.3;
-    ocm.absolute_z_axis_tolerance = 0.3;
-    ocm.weight = 1.0;
+    const auto &positions = plan.trajectory.joint_trajectory.points.back().positions;
 
-    moveit_msgs::msg::Constraints constraints;
-    constraints.orientation_constraints.push_back(ocm);
-    move_group_->setPathConstraints(constraints);
+    std_msgs::msg::Float64MultiArray joint_array;
+    joint_array.data.clear();
 
-    move_group_->setPoseTarget(*msg, move_group_->getEndEffectorLink());
-
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-    bool success = static_cast<bool>(move_group_->plan(plan));
-
-    std_msgs::msg::Bool planning_result;
-    planning_result.data = success;
-    planning_status_pub_->publish(planning_result);
-
-    if (success)
+    for (size_t i = 0; i < std::min(size_t(5), positions.size()); ++i)
     {
-      RCLCPP_INFO(node_->get_logger(), "Planning succeeded, publishing final joint positions.");
-      std_msgs::msg::Float64MultiArray joint_array;
-
-      for (const auto &position : plan.trajectory.joint_trajectory.points.back().positions)
-      {
-        double deg = position * (180.0 / M_PI);
-        joint_array.data.push_back(std::round(deg * 100.0) / 100.0);
-      }
-
-      joint_command_pub_->publish(joint_array);
-    }
-    else
-    {
-      RCLCPP_ERROR(node_->get_logger(), "Planning failed.");
+      double deg = positions[i] * (180.0 / M_PI);
+      joint_array.data.push_back(std::round(deg * 100.0) / 100.0);
     }
 
-    move_group_->clearPoseTargets();
-    move_group_->clearPathConstraints();
+    // Log the published joint values
+    RCLCPP_INFO(node_->get_logger(), "Published joint command:");
+    for (const auto &val : joint_array.data)
+    {
+      RCLCPP_INFO(node_->get_logger(), "  %.2f", val);
+    }
+
+    joint_command_pub_->publish(joint_array);
   }
+  else
+  {
+    RCLCPP_ERROR(node_->get_logger(), "Planning failed.");
+  }
+
+  move_group_->clearPoseTargets();
+  move_group_->clearPathConstraints();
+}
+
 
   rclcpp::Node::SharedPtr node_;
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_;

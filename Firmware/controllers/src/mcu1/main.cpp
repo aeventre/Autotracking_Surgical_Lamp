@@ -148,6 +148,7 @@ void setup()
 
 void loop()
 {
+
   // --- Process incoming RS‑485 frame ---
   if (rs485.readCommand(cmdMsg))
   {
@@ -404,3 +405,35 @@ void loop()
 //     strip.show();
 //     delay(wait);
 // }
+    joint2.update();
+    joint3.update();
+    joint4.update();
+    stepperJoint.update();
+
+    if (parser.readCommand(cmd))
+    {
+        joint2.setTargetAngle(cmd.a1);
+        joint3.setTargetAngle(cmd.a2);
+        joint4.setTargetAngle(cmd.a3);
+        stepperJoint.setTarget(cmd.a4);
+    }
+
+  }
+  
+// ====================================================================
+// Test code for ServoJoint
+// =========================
+
+
+    CommandMessage status;
+    status.a1 = joint2.getTargetAngle();
+    status.a2 = joint3.getCurrentAngle();
+    status.a3 = joint4.getCurrentAngle();
+    status.a4 = stepperJoint.getCurrentAngle();
+    status.lightMode = cmd.lightMode;
+    parser.sendStatus(status);
+
+
+    delay(20);
+}
+
