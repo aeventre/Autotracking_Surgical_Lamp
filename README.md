@@ -54,6 +54,9 @@ source install/setup.bash
 
 ## Package Overview
 
+![software_architecture](https://github.com/user-attachments/assets/fd5ed8b2-e8f9-41f9-8dcc-f4682f1d20a9)
+
+
 ### `command_manager`
 
 Manages the system's behavior based on user input. It switches between modes such as idle, manual control, tracking, zeroing, and demo.
