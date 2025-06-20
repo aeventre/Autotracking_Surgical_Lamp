@@ -1,23 +1,24 @@
-# AutoTracking Surgical Robot lamp 
-## Introduction 
-![20250620_131036](https://github.com/user-attachments/assets/09352c4d-7256-4a17-90d0-0a140b2da211)
+# AutoTracking Surgical Robot lamp
 
-![20250620_131107](https://github.com/user-attachments/assets/1fe577b4-bcb9-42ab-aa60-8839e0660039)
-![20250620_131137](https://github.com/user-attachments/assets/a7a395d8-57d9-4d77-9eee-952824de3754)
+<img src="https://github.com/user-attachments/assets/09352c4d-7256-4a17-90d0-0a140b2da211" alt="Alt Text" width="400" height="400">
 
-This Repo is a work in progress at the moment. The project is in the Prototype stage. Below is the current setup of the Surgical Lamp
+## Table of Contents
 
-## Disclaimer
-This Robot is ment for educational purposes at the moment. Please do not use this in a surgery room at this current time that would be unsafe.
+## Overview
 
-## Software Design Overview
-![Screenshot 2024-11-25 000637](https://github.com/user-attachments/assets/3ff6b17d-2774-4a11-84ca-0565e5da2e24)
-ROS2 Jazzy is being used as a framework for the lamp. Multiple packages are under development at the moment such as system_tests​, path_planner​, controller_coms​, pose_estimation​, command_manager​,
-lidar_point_cloud_publisher​, camera_publisher​, gpio_publisher​, bluetooth_coms etc...
+## Background
+## Acknowledgments
 
-Also utilizing Gazebo Simulation to test lamp
+# System Design
+<img src="https://github.com/user-attachments/assets/09f3d186-7873-4ec3-ac99-0a97c6b37549" alt="Alt Text" width="600" height="300">  
 
-![Picture2](https://github.com/user-attachments/assets/0c48d300-e254-49dc-8df0-e096a2c9f721)
+## Software
+
+## Electrical
+
+## CAD
+
+
 
 ## 3D Printed Components of Surgical Robot
 PLA was the material used to print the prototype. ABS and PETG would be good options to use as well
