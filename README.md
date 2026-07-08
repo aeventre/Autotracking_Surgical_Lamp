@@ -29,7 +29,7 @@
   - [Bill of Materials for Surgical Robot Base](#bill-of-materials-for-surgical-robot-base)
 
 ## Overview
-An open-source ROS 2 and MoveIt 2 surgical lamp capable of autonomous real-time tracking of a handheld remote using monocular vision and 3D pose estimation.
+An open-source ROS 2 and MoveIt 2 surgical lamp capable of autonomous real-time tracking of a handheld remote using monocular vision and 3D pose estimation. 
 
 ## Background
 This project aims to develop a solution to the challenges posed by modern surgical lamps,
@@ -201,29 +201,53 @@ ros2 run controller_coms controller_coms_node
 
 # Electrical Design
 
-# CAD
+## Remote Design 
+<img width="732" height="534" alt="image" src="https://github.com/user-attachments/assets/8518f90e-6a1e-4195-b4e3-009d1ec1a07b" />
+
+## PCB Design 
+<img width="922" height="628" alt="image" src="https://github.com/user-attachments/assets/91fa7ea2-843f-440c-808c-bc5cea24d7ab" />
 
 
+
+
+
+
+# Pictures
+<img width="632" height="545" alt="image" src="https://github.com/user-attachments/assets/a43fd7c9-dbca-49dd-9ab8-42eebba4224f" />
+<img width="702" height="918" alt="image" src="https://github.com/user-attachments/assets/00eb7c82-7a03-440d-8ad5-3878b8ce05df" />
+<img width="436" height="820" alt="image" src="https://github.com/user-attachments/assets/e57f7218-d5af-47de-af74-344857514425" />
+
+
+
+All links and joints links are avaiable to download in the CAD section as .STL and .SLDPRT
 
 ## 3D Printed Components of Surgical Robot
-PLA was the material used to print the prototype. ABS and PETG would be good options to use as well
-| Name         | Photo                                                                                            | Link (coming soon)       | 
-| ------------ | ------------------------------------------------------------------------------------------------ | ------------- |
-| Link 1       | ![Picture3](https://github.com/user-attachments/assets/87dfc9d8-75c0-4b11-83c7-dda14b3a484b)     | LINK          |
-| Joint 1      | ![Picture4](https://github.com/user-attachments/assets/a68e6df6-cf14-4317-85c4-67fdfe561876)     | LINK          |
-| Link 2       | ![Picture5](https://github.com/user-attachments/assets/ce58bc68-0d48-4a11-a220-372c4e131fa6)     | LINK          |
-| Link 3       | ![Picture6](https://github.com/user-attachments/assets/a6944806-5902-48d9-97da-c85d450341f3)     | LINK          |
-| Link 4       | ![Picture7](https://github.com/user-attachments/assets/20489ea1-b9c3-42f5-be44-d0572020ce89)     | LINK          |
-| Headlight    | ![Picture8](https://github.com/user-attachments/assets/53586ea6-2c06-40ee-9ba3-b020ba184a41)     | LINK          |
+ABS was the material used to print the prototype. ABS and PETG would be good options to use as well
 
-## Sensors and Servos
-Below is a list of sensors and servos being used 
-- Lidar
-- 2 ESP32 Cameras
-- IMU
-- Time of Flight Sensors
-- 180 degrees servo
+## Sensors and Servos 
+Below is a list of sensors and motors being used 
+- 160 KG Servos 
+- 20 KG Servos
+- Adafruit 9-DOF Orientation IMU Fusion Sensor
+- Magnetic Encoder 
+- NEMA 17
+- Bluetooth/WiFi module
+- Motor Drivers
+- Orbbec 335 Cameras 
 
 ## Bill of materials for Surgical Robot
+- Full HD webcam
+- 4 channels IIC I2C logic level converter
+- ESP32 Cam
+- RS-485 MAX485 Transceiver
+- 160 KG Servo
+- Nema 17 Stepper
+- Taidacent 12 wire 5A Slip Rings 
+- USB to RS-485 Converter
+- AS5600 Magnetic Encoder 
+- Magnets 
+- Laser Diodes
+- LED Circle Array
+- Raspberry Pi 5 8GB
 
 ## Bill of Materials for Surgical Robot Base
