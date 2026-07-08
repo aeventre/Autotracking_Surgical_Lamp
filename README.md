@@ -29,9 +29,14 @@
   - [Bill of Materials for Surgical Robot Base](#bill-of-materials-for-surgical-robot-base)
 
 ## Overview
+An open-source ROS 2 and MoveIt 2 surgical lamp capable of autonomous real-time tracking of a handheld remote using monocular vision and 3D pose estimation.
 
 ## Background
-## Acknowledgments
+This project aims to develop a solution to the challenges posed by modern surgical lamps,
+particularly focused on the ceiling-mounted lamps. The proposed solution is a responsive
+surgical lamp that uses real-time tracking and automated movement to adjust its lighting
+position. This approach minimizes manual interaction, reduces delays and allows support staff
+to remain focused on higher priority clinical responsibilities
 
 # System Overview
 <img src="https://github.com/user-attachments/assets/09f3d186-7873-4ec3-ac99-0a97c6b37549" alt="Alt Text" width="600" height="300">  
@@ -222,5 +227,3 @@ Below is a list of sensors and servos being used
 ## Bill of materials for Surgical Robot
 
 ## Bill of Materials for Surgical Robot Base
-
-Provisional Patent 
